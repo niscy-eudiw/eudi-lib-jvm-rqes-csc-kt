@@ -1,0 +1,38 @@
+[versions]
+coroutines = "1.7.3"
+dependency-check = "10.0.3"
+sonarqube = "5.1.0.4882"
+kotlin = "1.9.21"
+spotless = "6.25.0"
+nimbus-sdk = "11.6"
+ktor = "2.3.6"
+jsoup = "1.18.1"
+java = "17"
+ktlint = "0.50.0"
+dokka = "1.9.20"
+maven-publish = "0.29.0"
+logback = "1.5.6"
+
+[libraries]
+nimbus-oauth2-oidc-sdk = { module = "com.nimbusds:oauth2-oidc-sdk", version.ref = "nimbus-sdk" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-client-serialization = { module = "io.ktor:ktor-client-serialization", version.ref = "ktor" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
+ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
+ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
+ktor-client-logging = {module ="io.ktor:ktor-client-logging", version.ref="ktor"}
+jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
+logback-classic = {module="ch.qos.logback:logback-classic", version.ref="logback"}
+
+[plugins]
+dependency-check = { id = "org.owasp.dependencycheck", version.ref = "dependency-check" }
+sonarqube = { id = "org.sonarqube", version.ref = "sonarqube" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+maven-publish = { id = "com.vanniktech.maven.publish", version.ref="maven-publish" }
