@@ -39,12 +39,11 @@ internal fun rsspMetadata() = RSSPMetadata(
     region = "IT",
     lang = Locale.forLanguageTag("en-US"),
     description = "An efficient remote signature service",
-    authTypes = AuthTypesSupported(
-        setOf(
-            AuthType.Basic,
-            AuthType.OAuth2(authorizationServerMetadata, setOf(Oauth2Grant.AuthorizationCode)),
-        ),
+    authTypes = setOf(
+        AuthType.Basic,
+        AuthType.OAuth2(authorizationServerMetadata, setOf(Oauth2Grant.AuthorizationCode)),
     ),
+
     methods = methods,
 )
 
@@ -56,23 +55,16 @@ internal fun rsspMetadataWithOAuth2Issuer() = RSSPMetadata(
     region = "IT",
     lang = Locale.forLanguageTag("en-US"),
     description = "An efficient remote signature service",
-    authTypes = AuthTypesSupported(
-        setOf(
-            AuthType.Basic,
-            AuthType.OAuth2(authorizationServerMetadata, setOf(Oauth2Grant.AuthorizationCode)),
-        ),
+    authTypes = setOf(
+        AuthType.Basic,
+        AuthType.OAuth2(authorizationServerMetadata, setOf(Oauth2Grant.AuthorizationCode)),
     ),
+
     methods = methods,
 )
 
 internal fun RSSPMetadata.withClientCredentialsFlow() = run {
-    copy(
-        authTypes = AuthTypesSupported(
-            setOf(
-                AuthType.OAuth2(authorizationServerMetadata, setOf(Oauth2Grant.ClientCredentials)),
-            ),
-        ),
-    )
+    copy(authTypes = setOf(AuthType.OAuth2(authorizationServerMetadata, setOf(Oauth2Grant.ClientCredentials))))
 }
 
 private val methods = listOf(

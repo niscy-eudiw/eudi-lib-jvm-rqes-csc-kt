@@ -29,39 +29,31 @@ import kotlinx.serialization.json.put
 import java.net.URI
 import java.util.*
 
-sealed interface ValidatedAuthType {
-    data object External : ValidatedAuthType
-    data object Basic : ValidatedAuthType
-    data object Digest : ValidatedAuthType
-    data object TLS : ValidatedAuthType
-    data class OAuth2(
-        val oauth2Issuer: HttpsUrl? = null,
-        val oauth2: HttpsUrl? = null,
-        val grantsTypes: Set<Oauth2Grant>,
-    ) : ValidatedAuthType {
-        init {
-            require(grantsTypes.isNotEmpty()) { "At least one GrantType must be provided" }
-            require(oauth2Issuer != null || oauth2 != null) { "At least one of oauth2Issuer or oauth2 must be provided" }
-        }
-    }
+internal sealed interface AuthorizationServerRef {
+    @JvmInline
+    value class IssuerClaim(val value: HttpsUrl) : AuthorizationServerRef
+
+    @JvmInline
+    value class CSCAuth2Claim(val value: HttpsUrl) : AuthorizationServerRef
 }
 
-internal data class ValidatedRSSPMetadata(
-    val specs: String,
-    val name: String,
-    val logo: URI,
-    val region: String,
-    val lang: Locale,
-    val description: String,
-    val authTypes: Set<ValidatedAuthType>,
-    val asynchronousOperationMode: Boolean? = false,
-    val methods: List<RSSPMethod>,
-    val validationInfo: Boolean? = false,
-)
+internal class DefaultRSSPMetadataResolver(
+    private val httpClient: HttpClient,
+) : RSSPMetadataResolver {
 
-internal class DefaultRSSPMetadataResolver(private val httpClient: HttpClient) : RSSPMetadataResolver {
-    override suspend fun resolve(rsspId: RSSPId, lang: Locale?): Result<RSSPMetadata> = runCatching {
-        val json: String = try {
+    override suspend fun resolve(rsspId: RSSPId, lang: Locale?): Result<RSSPMetadata> =
+        runCatching {
+            val metadataInJson = fetchMetadata(rsspId, lang)
+            val contents = RSSPMetadataJsonParser.parseMetaData(rsspId, metadataInJson)
+            val resolved = contents.map {
+                    serverRef ->
+                fetchAuthorizationServerMetadata(serverRef, contents.methods)
+            }
+            resolved
+        }
+
+    private suspend fun fetchMetadata(rsspId: RSSPId, lang: Locale?): String =
+        try {
             httpClient.post(rsspId.info()) {
                 contentType(ContentType.Application.Json)
                 setBody(
@@ -69,57 +61,27 @@ internal class DefaultRSSPMetadataResolver(private val httpClient: HttpClient) :
                         lang?.let { put("lang", it.toLanguageTag()) }
                     },
                 )
-            }.body()
+            }.body<String>()
         } catch (t: Throwable) {
             throw RSSPMetadataError.UnableToFetchRSSPMetadata(t)
         }
 
-        val validated = RSSPMetadataJsonParser.parseMetaData(json)
-        resolveOauth2Meta(rsspId, validated)
-    }
+    private suspend fun fetchAuthorizationServerMetadata(
+        serverRef: AuthorizationServerRef,
+        methods: List<RSSPMethod>,
+    ): CSCAuthorizationServerMetadata = when (serverRef) {
+        is AuthorizationServerRef.IssuerClaim ->
+            DefaultAuthorizationServerMetadataResolver(httpClient).resolve(serverRef.value).getOrThrow()
 
-    private suspend fun resolveOauth2Meta(
-        rsspId: RSSPId,
-        validatedRSSPMetadata: ValidatedRSSPMetadata,
-    ): RSSPMetadata {
-        return RSSPMetadata(
-            rsspId = rsspId,
-            specs = validatedRSSPMetadata.specs,
-            name = validatedRSSPMetadata.name,
-            logo = validatedRSSPMetadata.logo,
-            region = validatedRSSPMetadata.region,
-            lang = validatedRSSPMetadata.lang,
-            methods = validatedRSSPMetadata.methods,
-            asynchronousOperationMode = validatedRSSPMetadata.asynchronousOperationMode,
-            validationInfo = validatedRSSPMetadata.validationInfo,
-            description = validatedRSSPMetadata.description,
-            authTypes = validatedRSSPMetadata.authTypes.map { authType ->
-                when (authType) {
-                    ValidatedAuthType.Basic -> AuthType.Basic
-                    ValidatedAuthType.Digest -> AuthType.Digest
-                    ValidatedAuthType.External -> AuthType.External
-                    ValidatedAuthType.TLS -> AuthType.TLS
-                    is ValidatedAuthType.OAuth2 -> resolveOauth2(authType, validatedRSSPMetadata.methods)
-                }
-            }.let { types -> AuthTypesSupported(types.toSet()) },
-        )
-    }
-
-    private suspend fun resolveOauth2(authType: ValidatedAuthType.OAuth2, methods: List<RSSPMethod>): AuthType.OAuth2 {
-        val (oauth2Issuer, oauth2, grants) = authType
-        val meta = when {
-            oauth2Issuer != null -> DefaultAuthorizationServerMetadataResolver(httpClient).resolve(oauth2Issuer).getOrThrow()
-            oauth2 != null -> asMetadata(oauth2, methods)
-            else -> error("Cannot happen")
-        }
-        return AuthType.OAuth2(meta, grants)
+        is AuthorizationServerRef.CSCAuth2Claim ->
+            asMetadata(serverRef.value, methods)
     }
 }
 
 internal fun asMetadata(
     oauth2Url: HttpsUrl,
     methods: List<RSSPMethod>,
-): ReadOnlyAuthorizationServerMetadata {
+): CSCAuthorizationServerMetadata {
     val issuer = Issuer(oauth2Url.toString())
     val meta = AuthorizationServerMetadata(issuer).apply {
         tokenEndpointURI = URI("$oauth2Url/token")
@@ -141,3 +103,21 @@ private fun RSSPId.info() = URLBuilder(Url(value.value.toURI()))
     .build()
     .toURI()
     .toURL()
+
+internal inline fun <reified T, reified Y> RSSPMetadataContent<T>.map(f: (T) -> Y): RSSPMetadataContent<Y> {
+    val authTypes = authTypes.map { authType -> authType.map { f(it) } }.toSet()
+
+    return RSSPMetadataContent(
+        rsspId = rsspId,
+        specs = specs,
+        name = name,
+        logo = logo,
+        region = region,
+        lang = lang,
+        methods = methods,
+        asynchronousOperationMode = asynchronousOperationMode,
+        validationInfo = validationInfo,
+        description = description,
+        authTypes = authTypes,
+    )
+}

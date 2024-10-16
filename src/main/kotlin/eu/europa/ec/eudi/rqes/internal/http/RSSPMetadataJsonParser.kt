@@ -16,8 +16,7 @@
 package eu.europa.ec.eudi.rqes.internal.http
 
 import eu.europa.ec.eudi.rqes.*
-import eu.europa.ec.eudi.rqes.internal.ValidatedAuthType
-import eu.europa.ec.eudi.rqes.internal.ValidatedRSSPMetadata
+import eu.europa.ec.eudi.rqes.internal.AuthorizationServerRef
 import kotlinx.serialization.Required
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -25,25 +24,20 @@ import java.net.URI
 import java.util.*
 
 internal object RSSPMetadataJsonParser {
-    fun parseMetaData(json: String): ValidatedRSSPMetadata {
-        val credentialIssuerMetadataObject =
-            try {
-                JsonSupport.decodeFromString<RSSPMetadataTO>(json)
-            } catch (t: Throwable) {
-                throw RSSPMetadataError.NonParseableRSSPMetadata(t)
-            }
-        return credentialIssuerMetadataObject.toDomain()
+    fun parseMetaData(rsspId: RSSPId, json: String): RSSPMetadataContent<AuthorizationServerRef> {
+        val parsed = parseJson(json)
+        return contents(rsspId, parsed)
     }
 }
 
 @Serializable
 private data class RSSPMetadataTO(
-    @SerialName("specs") @Required val specs: String,
-    @SerialName("name") @Required val name: String,
-    @SerialName("logo") @Required val logo: String,
-    @SerialName("region") @Required val region: String,
-    @SerialName("lang") @Required val lang: String,
-    @SerialName("description") @Required val description: String,
+    @SerialName("specs") val specs: String? = null,
+    @SerialName("name") val name: String? = null,
+    @SerialName("logo") val logo: String? = null,
+    @SerialName("region") val region: String? = null,
+    @SerialName("lang") val lang: String? = null,
+    @SerialName("description") val description: String? = null,
     @SerialName("authType") @Required val authTypes: List<String>,
     @SerialName("oauth2") val oauth2: String? = null,
     @SerialName("oauth2Issuer") val oauth2Issuer: String? = null,
@@ -52,58 +46,8 @@ private data class RSSPMetadataTO(
     @SerialName("validationInfo") val validationInfo: Boolean? = false,
     @SerialName("signAlgorithms") @Required val signAlgorithms: SignAlgorithms,
     @SerialName("signature_formats") @Required val signatureFormats: SignatureFormats,
-    @SerialName("conformance_levels") @Required val conformanceLevels: List<String>,
-) {
-    fun toDomain(): ValidatedRSSPMetadata {
-        val grants = buildSet {
-            if ("oauth2code" in authTypes) {
-                add(Oauth2Grant.AuthorizationCode)
-            }
-            if ("oauth2client" in authTypes) {
-                add(Oauth2Grant.ClientCredentials)
-            }
-        }
-
-        val authTypesSupported =
-            buildSet {
-                authTypes.forEach() {
-                    when (it) {
-                        "external" -> add(ValidatedAuthType.External)
-                        "tls" -> add(ValidatedAuthType.TLS)
-                        "basic" -> add(ValidatedAuthType.Basic)
-                        "digest" -> add(ValidatedAuthType.Digest)
-                        else -> {}
-                    }
-                }
-
-                if (grants.isNotEmpty()) {
-                    add(
-                        ValidatedAuthType.OAuth2(
-                            oauth2Issuer?.let { issuer -> HttpsUrl(issuer).getOrThrow() },
-                            oauth2?.let { baseUrl -> HttpsUrl(baseUrl).getOrThrow() },
-                            grants,
-                        ),
-                    )
-                }
-            }
-        oauth2Issuer?.let { HttpsUrl(oauth2Issuer).getOrThrow() }
-
-        return ValidatedRSSPMetadata(
-            specs = specs,
-            name = name,
-            logo = URI.create(logo),
-            region = region,
-            lang = Locale.forLanguageTag(lang),
-            description = description,
-            authTypes = authTypesSupported,
-            asynchronousOperationMode = asynchronousOperationMode ?: false,
-            methods = methods.map {
-                requireNotNull(RSSPMethod.from(it)) { "Invalid RRSP method: $it" }
-            },
-            validationInfo = validationInfo,
-        )
-    }
-}
+    @SerialName("conformance_levels") val conformanceLevels: List<String>? = null,
+)
 
 @Serializable
 private data class SignAlgorithms(
@@ -116,3 +60,107 @@ private data class SignatureFormats(
     @SerialName("formats") @Required val formats: List<String>,
     @SerialName("envelope_properties") val envelopeProperties: List<List<String>>? = null,
 )
+
+private fun parseJson(json: String): RSSPMetadataTO =
+    try {
+        JsonSupport.decodeFromString<RSSPMetadataTO>(json)
+    } catch (t: Throwable) {
+        throw RSSPMetadataError.NonParseableRSSPMetadata(t)
+    }
+
+private fun contents(rsspId: RSSPId, metadata: RSSPMetadataTO): RSSPMetadataContent<AuthorizationServerRef> {
+    val authTypesSupported = authTypesSupported(metadata)
+    val logo = metadata.logo?.let { runCatching { URI.create(it) }.getOrNull() }
+    val lang = localeOf(metadata)
+    val methods = metadata.methods.mapNotNull { RSSPMethod.from(it) }
+    return RSSPMetadataContent(
+        rsspId = rsspId,
+        specs = metadata.specs,
+        name = metadata.name,
+        logo = logo,
+        region = metadata.region,
+        lang = lang,
+        description = metadata.description,
+        authTypes = authTypesSupported,
+        asynchronousOperationMode = metadata.asynchronousOperationMode ?: false,
+        methods = methods,
+        validationInfo = metadata.validationInfo ?: false,
+    )
+}
+
+private fun localeOf(metadata: RSSPMetadataTO): Locale? =
+    metadata.lang?.let { tag ->
+        runCatching { Locale.forLanguageTag(tag) }.getOrNull()
+    }
+
+internal fun RSSPMethod.Companion.from(s: String): RSSPMethod? = when (s) {
+    "info" -> RSSPMethod.Info
+    "auth/login" -> RSSPMethod.AuthLogin
+    "auth/revoke" -> RSSPMethod.AuthRevoke
+    "credentials/list" -> RSSPMethod.CredentialsList
+    "credentials/info" -> RSSPMethod.CredentialsInfo
+    "credentials/authorize" -> RSSPMethod.CredentialsAuthorize
+    "credentials/authorizeCheck" -> RSSPMethod.CredentialsAuthorizeCheck
+    "credentials/getChallenge" -> RSSPMethod.CredentialsGetChallenge
+    "credentials/sendOTP" -> RSSPMethod.CredentialsSendOTP
+    "credentials/extendTransaction" -> RSSPMethod.CredentialsExtendTransaction
+    "signatures/signHash" -> RSSPMethod.SignaturesSignHash
+    "signatures/signDoc" -> RSSPMethod.SignaturesSignDoc
+    "signatures/signPolling" -> RSSPMethod.SignaturesSignPolling
+    "signatures/timestamp" -> RSSPMethod.SignaturesTimestamp
+    "oauth2/authorize" -> RSSPMethod.Oauth2Authorize
+    "oauth2/token" -> RSSPMethod.Oauth2Token
+    "oauth2/pushed_authorize" -> RSSPMethod.Oauth2PushedAuthorize
+    "oauth2/revoke" -> RSSPMethod.Oauth2Revoke
+    else -> null
+}
+
+private fun authTypesSupported(metadata: RSSPMetadataTO): Set<AuthType<AuthorizationServerRef>> {
+    val grants = grantTypesOf(metadata)
+    val authTypes = buildSet {
+        metadata.authTypes.forEach { authType ->
+            when (authType) {
+                "external" -> add(AuthType.External)
+                "tls" -> add(AuthType.TLS)
+                "basic" -> add(AuthType.Basic)
+                "digest" -> add(AuthType.Digest)
+                else -> {}
+            }
+        }
+
+        if (grants.isNotEmpty()) {
+            val authServerRef = authServerRef(metadata)
+            requireNotNull(authServerRef) {
+                "When authTypes $OAUTH2_CLIENT and/or $OAUTH2_CODE are provided one of oauth2Issuer or oauth2 is expected"
+            }
+            add(AuthType.OAuth2(authServerRef, grants))
+        }
+    }
+
+    return authTypes
+}
+
+private fun authServerRef(metadata: RSSPMetadataTO): AuthorizationServerRef? {
+    val issuerClaim = metadata.oauth2Issuer
+    val oauth2Claim = metadata.oauth2
+    fun urlOrNull(s: String, f: (HttpsUrl) -> AuthorizationServerRef) =
+        HttpsUrl(s).getOrNull()?.let(f)
+    return when {
+        issuerClaim != null -> urlOrNull(issuerClaim, AuthorizationServerRef::IssuerClaim)
+        oauth2Claim != null -> urlOrNull(oauth2Claim, AuthorizationServerRef::CSCAuth2Claim)
+        else -> null
+    }
+}
+
+private const val OAUTH2_CODE = "oauth2code"
+private const val OAUTH2_CLIENT = "oauth2client"
+
+private fun grantTypesOf(metadata: RSSPMetadataTO): Set<Oauth2Grant> =
+    buildSet {
+        if (OAUTH2_CODE in metadata.authTypes) {
+            add(Oauth2Grant.AuthorizationCode)
+        }
+        if (OAUTH2_CLIENT in metadata.authTypes) {
+            add(Oauth2Grant.ClientCredentials)
+        }
+    }

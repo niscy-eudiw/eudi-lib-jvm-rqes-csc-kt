@@ -15,28 +15,39 @@
  */
 package eu.europa.ec.eudi.rqes
 
-import com.nimbusds.oauth2.sdk.`as`.ReadOnlyAuthorizationServerMetadata
+import eu.europa.ec.eudi.rqes.AuthType.*
+import eu.europa.ec.eudi.rqes.AuthType.Digest
 import eu.europa.ec.eudi.rqes.internal.DefaultRSSPMetadataResolver
 import java.io.Serializable
 import java.net.URI
 import java.util.*
 
+data class RSSPMetadataContent<T>(
+    val rsspId: RSSPId,
+    val specs: String?,
+    val name: String?,
+    val logo: URI?,
+    val region: String?,
+    val lang: Locale?,
+    val description: String?,
+    val authTypes: Set<AuthType<T>>,
+    val asynchronousOperationMode: Boolean? = false,
+    val methods: List<RSSPMethod>,
+    val validationInfo: Boolean = false,
+) {
+    init {
+        require(authTypes.isNotEmpty())
+        require(methods.isNotEmpty())
+    }
+}
+
+internal inline fun <reified T> RSSPMetadataContent<T>.oauth2AuthType(): AuthType.OAuth2<T>? =
+    authTypes.filterIsInstance<AuthType.OAuth2<T>>().firstOrNull()
+
 /**
  * The metadata of a RSSP.
  */
-data class RSSPMetadata(
-    val rsspId: RSSPId,
-    val specs: String,
-    val name: String,
-    val logo: URI,
-    val region: String,
-    val lang: Locale,
-    val description: String,
-    val authTypes: AuthTypesSupported,
-    val asynchronousOperationMode: Boolean? = false,
-    val methods: List<RSSPMethod>,
-    val validationInfo: Boolean? = false,
-)
+typealias RSSPMetadata = RSSPMetadataContent<CSCAuthorizationServerMetadata>
 
 enum class RSSPMethod {
     Info,
@@ -59,39 +70,7 @@ enum class RSSPMethod {
     Oauth2Revoke,
     ;
 
-    companion object {
-        fun from(s: String): RSSPMethod? = when (s) {
-            "info" -> Info
-            "auth/login" -> AuthLogin
-            "auth/revoke" -> AuthRevoke
-            "credentials/list" -> CredentialsList
-            "credentials/info" -> CredentialsInfo
-            "credentials/authorize" -> CredentialsAuthorize
-            "credentials/authorizeCheck" -> CredentialsAuthorizeCheck
-            "credentials/getChallenge" -> CredentialsGetChallenge
-            "credentials/sendOTP" -> CredentialsSendOTP
-            "credentials/extendTransaction" -> CredentialsExtendTransaction
-            "signatures/signHash" -> SignaturesSignHash
-            "signatures/signDoc" -> SignaturesSignDoc
-            "signatures/signPolling" -> SignaturesSignPolling
-            "signatures/timestamp" -> SignaturesTimestamp
-            "oauth2/authorize" -> Oauth2Authorize
-            "oauth2/token" -> Oauth2Token
-            "oauth2/pushed_authorize" -> Oauth2PushedAuthorize
-            "oauth2/revoke" -> Oauth2Revoke
-            else -> null
-        }
-    }
-}
-
-/**
- * The authentication types supported by the RSSP.
- */
-@JvmInline
-value class AuthTypesSupported(val values: Set<AuthType>) {
-    init {
-        require(values.isNotEmpty()) { "At least one AuthType must be provided" }
-    }
+    companion object
 }
 
 enum class Oauth2Grant {
@@ -99,19 +78,24 @@ enum class Oauth2Grant {
     ClientCredentials,
 }
 
-sealed interface AuthType {
-    data object External : AuthType
-    data object Basic : AuthType
-    data object Digest : AuthType
-    data object TLS : AuthType
-    data class OAuth2(
-        val authorizationServerMetadata: ReadOnlyAuthorizationServerMetadata,
-        val grantsTypes: Set<Oauth2Grant>,
-    ) : AuthType {
+sealed interface AuthType<out T> {
+    data class OAuth2<T>(val authorizationServer: T, val grantsTypes: Set<Oauth2Grant>) : AuthType<T> {
         init {
             require(grantsTypes.isNotEmpty()) { "At least one GrantType must be provided" }
         }
     }
+
+    data object External : AuthType<Nothing>
+    data object Basic : AuthType<Nothing>
+    data object Digest : AuthType<Nothing>
+    data object TLS : AuthType<Nothing>
+}
+internal inline fun <T, Y> AuthType<T>.map(f: (T) -> Y): AuthType<Y> = when (this) {
+    Basic -> Basic
+    Digest -> Digest
+    External -> External
+    is OAuth2 -> OAuth2(f(authorizationServer), grantsTypes)
+    TLS -> TLS
 }
 
 sealed class RSSPMetadataError(cause: Throwable) : Throwable(cause), Serializable {

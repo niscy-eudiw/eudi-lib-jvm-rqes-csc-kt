@@ -37,11 +37,12 @@ interface CSCClient :
             rsspId: String,
             ktorHttpClientFactory: KtorHttpClientFactory = DefaultHttpClientFactory,
         ): Result<CSCClient> = kotlin.runCatching {
-            val metadata = run {
-                val id = RSSPId(rsspId).getOrThrow()
-                val resolver = RSSPMetadataResolver(ktorHttpClientFactory)
-                resolver.resolve(id, cscClientConfig.locale).getOrThrow()
-            }
+            val metadata =
+                run {
+                    val id = RSSPId(rsspId).getOrThrow()
+                    val resolver = RSSPMetadataResolver(ktorHttpClientFactory)
+                    resolver.resolve(id, cscClientConfig.locale).getOrThrow()
+                }
             oauth2(cscClientConfig, metadata, ktorHttpClientFactory).getOrThrow()
         }
 
@@ -51,13 +52,7 @@ interface CSCClient :
             ktorHttpClientFactory: KtorHttpClientFactory = DefaultHttpClientFactory,
         ): Result<CSCClient> = runCatching {
             val oauth2AuthType =
-                rsspMetadata.authTypes.values
-                    .filterIsInstance<AuthType.OAuth2>()
-                    .firstOrNull()
-            requireNotNull(oauth2AuthType) {
-                "RSSP doesn't support OAUTH2"
-            }
-
+                requireNotNull(rsspMetadata.oauth2AuthType()) { "RSSP doesn't support OAUTH2" }
             val (authServerMetadata, grants) = oauth2AuthType
 
             val tokenEndpointClient = TokenEndpointClient(
