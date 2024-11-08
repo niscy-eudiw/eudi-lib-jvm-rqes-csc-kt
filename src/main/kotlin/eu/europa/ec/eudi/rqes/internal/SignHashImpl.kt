@@ -16,16 +16,32 @@
 package eu.europa.ec.eudi.rqes.internal
 
 import eu.europa.ec.eudi.rqes.*
+import eu.europa.ec.eudi.rqes.internal.http.SignHashEndpointClient
 
-internal class SignHashImpl : SignHash {
+internal class SignHashImpl(private val signHashEndpointClient: SignHashEndpointClient) : SignHash {
+
     override suspend fun CredentialAuthorized.SCAL1.signHash(
-        algorithmOID: AlgorithmOID,
-        documentList: DocumentList,
-    ): Result<Signatures> {
-        TODO("Not yet implemented")
+        documentDigestList: DocumentDigestList,
+        signingAlgorithmOID: SigningAlgorithmOID,
+    ): Result<SignaturesList> = runCatching {
+        signHashEndpointClient.signHashes(
+            credentialID,
+            documentDigestList.documentDigests.map { it.hash.value },
+            documentDigestList.hashAlgorithmOID,
+            signingAlgorithmOID,
+            tokens.accessToken,
+        )
     }
 
-    override suspend fun CredentialAuthorized.SCAL2.signHash(algorithmOID: AlgorithmOID): Result<Signatures> {
-        TODO("Not yet implemented")
+    override suspend fun CredentialAuthorized.SCAL2.signHash(
+        signingAlgorithmOID: SigningAlgorithmOID,
+    ): Result<SignaturesList> = runCatching {
+        signHashEndpointClient.signHashes(
+            credentialID,
+            documentDigestList.documentDigests.map(DocumentDigest::hash).map { it.value },
+            documentDigestList.hashAlgorithmOID,
+            signingAlgorithmOID,
+            tokens.accessToken,
+        )
     }
 }

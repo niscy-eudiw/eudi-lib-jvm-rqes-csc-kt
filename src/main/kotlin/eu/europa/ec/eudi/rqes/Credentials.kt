@@ -45,25 +45,10 @@ enum class SCAL {
 
 data class CredentialKey(
     val status: CredentialKeyStatus,
-    val supportedAlgorithms: List<AlgorithmOID>,
+    val supportedAlgorithms: List<SigningAlgorithmOID>,
     val length: Int,
     val curve: String?,
 )
-
-@JvmInline
-value class AlgorithmOID(val value: String) {
-    init {
-        require(value.isNotBlank()) { "AlgorithmOID must not be blank" }
-    }
-
-    companion object {
-        val RSA = AlgorithmOID("1.2.840.113549.1.1.1")
-        val ECDSA_SHA224 = AlgorithmOID("1.2.840.10045.4.3.1")
-        val ECDSA_SHA256 = AlgorithmOID("1.2.840.10045.4.3.2")
-        val ECDSA_SHA384 = AlgorithmOID("1.2.840.10045.4.3.3")
-        val ECDSA_SHA512 = AlgorithmOID("1.2.840.10045.4.3.4")
-    }
-}
 
 data class CredentialCertificate(
     val status: CredentialCertificateStatus?,
@@ -84,8 +69,8 @@ sealed interface CredentialAuthorization {
 
     data class Explicit(
         override val authorizationMode: AuthorizationMode,
-        val expression: String,
-        val authenticationObjects: List<AuthenticationObject>,
+        val expression: String?,
+        val authenticationObjects: List<AuthenticationObject>?,
     ) : CredentialAuthorization
 }
 

@@ -16,6 +16,7 @@
 package eu.europa.ec.eudi.rqes
 
 import java.net.URI
+import java.net.URL
 import java.time.Clock
 import java.util.Locale
 
@@ -31,7 +32,8 @@ sealed interface OAuth2Client : java.io.Serializable {
     data class Public(override val clientId: ClientId) : OAuth2Client
 
     sealed interface Confidential : OAuth2Client {
-        data class PasswordProtected(override val clientId: ClientId, val clientSecret: String) : Confidential
+        data class ClientSecretBasic(override val clientId: ClientId, val clientSecret: String) : Confidential
+        data class ClientSecretPost(override val clientId: ClientId, val clientSecret: String) : Confidential
     }
 }
 
@@ -41,10 +43,18 @@ enum class ParUsage {
     Required,
 }
 
+enum class RarUsage {
+    IfSupported,
+    Never,
+    Required,
+}
+
 data class CSCClientConfig(
     val client: OAuth2Client,
     val authFlowRedirectionURI: URI,
+    val scaBaseURL: URL,
     val parUsage: ParUsage = ParUsage.IfSupported,
+    val rarUsage: RarUsage = RarUsage.IfSupported,
     val clock: Clock = Clock.systemDefaultZone(),
     val locale: Locale? = null,
 )

@@ -15,23 +15,28 @@
  */
 package eu.europa.ec.eudi.rqes
 
-interface SignHash {
+data class SignDocResponse(
+    val documentWithSignature: List<String>,
+    val signatureObject: List<String>,
+    val validationInfo: ValidationInfo?,
+)
 
-    /**
-     * Signs the hash of the given document digest list using the given signing algorithm OID.
-     * @param documentDigestList the document digests to sign
-     * @param signingAlgorithmOID the signing algorithm OID to use
-     * @return the list of signatures
-     */
-    suspend fun CredentialAuthorized.SCAL1.signHash(
+data class ValidationInfo(
+    val ocsp: List<String>,
+    val crl: List<String>,
+    val certificate: List<String>,
+)
+
+interface SignDoc {
+
+    suspend fun CredentialAuthorized.SCAL1.signDoc(
+        documents: List<DocumentToSign>,
         documentDigestList: DocumentDigestList,
         signingAlgorithmOID: SigningAlgorithmOID,
-    ): Result<SignaturesList>
+    ): Result<SignDocResponse>
 
-    /**
-     * Signs the hash of the given document digest list using the given signing algorithm OID.
-     * @param signingAlgorithmOID the signing algorithm OID to use
-     * @return the list of signatures
-     */
-    suspend fun CredentialAuthorized.SCAL2.signHash(signingAlgorithmOID: SigningAlgorithmOID): Result<SignaturesList>
+    suspend fun CredentialAuthorized.SCAL2.signDoc(
+        documents: List<DocumentToSign>,
+        signingAlgorithmOID: SigningAlgorithmOID,
+    ): Result<SignDocResponse>
 }

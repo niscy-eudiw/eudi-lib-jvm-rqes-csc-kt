@@ -15,42 +15,48 @@
  */
 package eu.europa.ec.eudi.rqes
 
-@JvmInline
-value class CredentialAuthorizationRequestPrepared(val value: AuthorizationRequestPrepared)
+data class CredentialAuthorizationRequestPrepared(
+    val authorizationRequestPrepared: AuthorizationRequestPrepared,
+    val credentialAuthorizationRequestType: CredentialAuthorizationRequestType,
+)
 
 sealed interface CredentialAuthorized : java.io.Serializable {
 
     val tokens: OAuth2Tokens
     val credentialID: CredentialID
+    val credentialCertificate: CredentialCertificate
 
     data class SCAL1(
         override val tokens: OAuth2Tokens,
         override val credentialID: CredentialID,
+        override val credentialCertificate: CredentialCertificate,
     ) : CredentialAuthorized
 
     data class SCAL2(
         override val tokens: OAuth2Tokens,
         override val credentialID: CredentialID,
-        val documentList: DocumentList,
+        override val credentialCertificate: CredentialCertificate,
+        val documentDigestList: DocumentDigestList,
     ) : CredentialAuthorized
+}
+
+sealed interface AccessTokenOption {
+
+    data object AsRequested : AccessTokenOption
 }
 
 interface AuthorizeCredential {
 
     /**
      * Initial step for the credential authorization process using the Authorization code flow.
-     * @param credential the credential to be authorized
-     * @param documentList the list of documents for which the credential is to be authorized
-     * @param numSignatures the number of signatures to be authorized for the credential
+     * @param credentialAuthorizationSubject the subject of the credential authorization request
      * @param walletState an optional parameter that if provided will be included in the authorization request.
      * If it is not provided,  a random value will be used
      * @see <a href="https://www.rfc-editor.org/rfc/rfc7636.html">RFC7636</a>
      * @return an HTTPS URL of the authorization request to be placed
      */
     suspend fun ServiceAccessAuthorized.prepareCredentialAuthorizationRequest(
-        credential: CredentialInfo,
-        documentList: DocumentList?,
-        numSignatures: Int? = 1,
+        credentialAuthorizationSubject: CredentialAuthorizationSubject,
         walletState: String? = null,
     ): Result<CredentialAuthorizationRequestPrepared>
 
@@ -67,5 +73,6 @@ interface AuthorizeCredential {
     suspend fun CredentialAuthorizationRequestPrepared.authorizeWithAuthorizationCode(
         authorizationCode: AuthorizationCode,
         serverState: String,
+        authDetailsOption: AccessTokenOption = AccessTokenOption.AsRequested,
     ): Result<CredentialAuthorized>
 }

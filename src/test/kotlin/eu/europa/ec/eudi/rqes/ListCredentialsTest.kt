@@ -75,6 +75,7 @@ class ListCredentialsTest {
             cscClientConfig = CSCClientConfig(
                 client = OAuth2Client.Public("client-id"),
                 authFlowRedirectionURI = URI("https://example.com/redirect"),
+                URI("https://walletcentric.signer.eudiw.dev").toURL(),
                 parUsage = ParUsage.Never,
             ),
             ktorHttpClientFactory = mockedKtorHttpClientFactory,

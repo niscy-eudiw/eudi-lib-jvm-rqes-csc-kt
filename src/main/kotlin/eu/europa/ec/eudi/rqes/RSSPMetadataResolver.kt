@@ -58,7 +58,7 @@ enum class RSSPMethod {
     CredentialsAuthorize,
     CredentialsAuthorizeCheck,
     CredentialsGetChallenge,
-    CredentialsSendOTP, // TODO mentioned in the spec but not described in list of methods
+    CredentialsSendOTP,
     CredentialsExtendTransaction,
     SignaturesSignHash,
     SignaturesSignDoc,

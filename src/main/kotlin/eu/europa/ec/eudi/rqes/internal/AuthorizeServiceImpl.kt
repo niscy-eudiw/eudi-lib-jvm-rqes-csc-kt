@@ -26,6 +26,8 @@ internal data class TokenResponse(
     val accessToken: AccessToken,
     val refreshToken: RefreshToken?,
     val timestamp: Instant,
+    val credentialID: CredentialID?,
+    val credentialAuthorizationSubject: CredentialAuthorizationSubject?,
 )
 
 internal class AuthorizeServiceImpl(
@@ -36,11 +38,11 @@ internal class AuthorizeServiceImpl(
     override suspend fun prepareServiceAuthorizationRequest(walletState: String?): Result<ServiceAuthorizationRequestPrepared> =
         runCatching {
             checkNotNull(authorizationEndpointClient)
-            val scopes = listOf(Scope("service"))
+            val scopes = listOf(Scope(Scope.Service.value))
             val state = walletState ?: NimbusState().value
             val (codeVerifier, authorizationCodeUrl) = authorizationEndpointClient.submitParOrCreateAuthorizationRequestUrl(
-                scopes,
-                state,
+                scopes = scopes,
+                state = state,
             ).getOrThrow()
             ServiceAuthorizationRequestPrepared(authorizationCodeUrl, codeVerifier, state)
         }
@@ -51,13 +53,18 @@ internal class AuthorizeServiceImpl(
     ): Result<ServiceAccessAuthorized> =
         runCatching {
             ensure(serverState == value.state) { InvalidAuthorizationState() }
-            val tokenResponse = tokenEndpointClient.requestAccessTokenAuthFlow(authorizationCode, value.pkceVerifier)
+            val tokenResponse = tokenEndpointClient.requestAccessTokenAuthFlow(
+                authorizationCode,
+                value.pkceVerifier,
+                credentialAuthorizationRequestType = null,
+            )
             val (accessToken, refreshToken, timestamp) = tokenResponse.getOrThrow()
+
             ServiceAccessAuthorized(OAuth2Tokens(accessToken, refreshToken, timestamp))
         }
 
     override suspend fun authorizeWithClientCredentials(): Result<ServiceAccessAuthorized> = runCatching {
-        val tokenResponse = tokenEndpointClient.requestAccessTokenClientCredentialsFlow(Scope("service"))
+        val tokenResponse = tokenEndpointClient.requestAccessTokenClientCredentialsFlow(Scope.Service)
         val (accessToken, refreshToken, timestamp) = tokenResponse.getOrThrow()
         ServiceAccessAuthorized(OAuth2Tokens(accessToken, refreshToken, timestamp))
     }

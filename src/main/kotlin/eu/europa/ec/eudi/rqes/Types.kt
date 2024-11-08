@@ -16,6 +16,7 @@
 package eu.europa.ec.eudi.rqes
 
 import com.nimbusds.oauth2.sdk.`as`.ReadOnlyAuthorizationServerMetadata
+import java.io.File
 import java.net.URI
 import java.net.URL
 import java.time.Duration
@@ -51,7 +52,11 @@ sealed interface CredentialRef {
     data class BySignatureQualifier(val signatureQualifier: SignatureQualifier) : CredentialRef
 }
 
-data class DocumentDigest(val hash: Digest, val label: String?)
+data class DocumentDigest(val hash: Digest, val label: String?) {
+    init {
+        require(hash.value.isNotBlank()) { "Hash must not be blank" }
+    }
+}
 
 @JvmInline
 value class HashAlgorithmOID(val value: String) {
@@ -60,15 +65,49 @@ value class HashAlgorithmOID(val value: String) {
     }
 
     companion object {
-        val SHA256RSA = HashAlgorithmOID("1.2.840.113549.1.1.11")
-        val SHA385RSA = HashAlgorithmOID("1.2.840.113549.1.1.12")
-        val SHA512RSA = HashAlgorithmOID("1.2.840.113549.1.1.13")
+        val SHA_224 = HashAlgorithmOID("2.16.840.1.101.3.4.2.4")
+        val SHA_256 = HashAlgorithmOID("2.16.840.1.101.3.4.2.1")
+        val SHA_385 = HashAlgorithmOID("2.16.840.1.101.3.4.2.2")
+        val SHA_512 = HashAlgorithmOID("2.16.840.1.101.3.4.2.3")
+        val SHA3_224 = HashAlgorithmOID("2.16.840.1.101.3.4.2.7")
+        val SHA3_256 = HashAlgorithmOID("2.16.840.1.101.3.4.2.8")
+        val SHA3_385 = HashAlgorithmOID("2.16.840.1.101.3.4.2.9")
+        val SHA3_512 = HashAlgorithmOID("2.16.840.1.101.3.4.2.10")
+        val MD2 = HashAlgorithmOID("1.2.840.113549.2.2")
+        val MD5 = HashAlgorithmOID("1.2.840.113549.2.5")
     }
 }
 
-data class DocumentList(
+@JvmInline
+value class SigningAlgorithmOID(val value: String) {
+    init {
+        require(value.isNotBlank()) { "AlgorithmOID must not be blank" }
+    }
+
+    companion object {
+        val RSA = SigningAlgorithmOID("1.2.840.113549.1.1.1")
+        val RSA_SHA256 = SigningAlgorithmOID("1.2.840.113549.1.1.11")
+        val RSA_SHA384 = SigningAlgorithmOID("1.2.840.113549.1.1.12")
+        val RSA_SHA512 = SigningAlgorithmOID("1.2.840.113549.1.1.13")
+        val DSA = SigningAlgorithmOID("1.2.840.10040.4.1")
+        val ECDSA = SigningAlgorithmOID("1.2.840.10045.2.1")
+        val ECDSA_SHA256 = SigningAlgorithmOID("1.2.840.10045.4.3.2")
+        val ECDSA_SHA384 = SigningAlgorithmOID("1.2.840.10045.4.3.3")
+        val ECDSA_SHA512 = SigningAlgorithmOID("1.2.840.10045.4.3.4")
+        val X25519 = SigningAlgorithmOID("1.3.101.110")
+        val X448 = SigningAlgorithmOID("1.3.101.111")
+    }
+}
+
+data class Document(
+    val content: File,
+    val label: String?,
+)
+
+data class DocumentDigestList(
     val documentDigests: List<DocumentDigest>,
     val hashAlgorithmOID: HashAlgorithmOID,
+    val hashCalculationTime: Instant,
 ) {
     init {
         require(documentDigests.isNotEmpty()) { "Document list must not be empty" }
@@ -80,6 +119,46 @@ value class Digest(val value: String) {
     init {
         require(value.isNotBlank()) { "Digest must not be blank" }
     }
+}
+
+data class DocumentToSign(
+    val file: Document,
+    val signatureFormat: SignatureFormat,
+    val conformanceLevel: ConformanceLevel = ConformanceLevel.ADES_B_B,
+    val signAlgo: SigningAlgorithmOID,
+    val signedEnvelopeProperty: SignedEnvelopeProperty,
+    val asicContainer: ASICContainer,
+)
+
+enum class SignatureFormat {
+    C,
+    X,
+    P,
+    J,
+}
+
+enum class ConformanceLevel {
+    ADES_B_B,
+    ADES_B_T,
+    ADES_B_LT,
+    ADES_B_LTA,
+    ADES_B,
+    ADES_T,
+    ADES_LT,
+    ADES_LTA,
+}
+
+enum class ASICContainer {
+    NONE,
+    ASIC_S,
+    ASIC_E,
+}
+
+enum class SignedEnvelopeProperty {
+    ENVELOPED,
+    ENVELOPING,
+    DETACHED,
+    INTERNALLY_DETACHED,
 }
 
 @JvmInline
@@ -103,7 +182,7 @@ value class RSSPId private constructor(val value: HttpsUrl) {
         operator fun invoke(value: String): Result<RSSPId> =
             HttpsUrl(value)
                 .mapCatching {
-                    require(it.value.query.isNullOrBlank()) { "RSSPId must not have query parameters " } // TODO is it needed?
+                    require(it.value.query.isNullOrBlank()) { "RSSPId must not have query parameters " }
                     require(it.value.toString().endsWith("/csc/v2")) { "Base URI must end with /csc/v2" }
                     RSSPId(it)
                 }
@@ -207,6 +286,11 @@ value class Scope(val value: String) {
     init {
         require(value.isNotEmpty()) { "Scope value cannot be empty" }
     }
+
+    companion object {
+        val Service = Scope("service")
+        val Credential = Scope("credential")
+    }
 }
 
 @JvmInline
@@ -225,10 +309,43 @@ data class PKCEVerifier(
     }
 }
 
-data class AuthorizationDetails(
+/**
+ * Represents a credential authorization request subject.
+ * @param credentialRef the reference to the credential
+ * @param documentDigestList the list of document digests for which the credential is authorized/ is to be authorized
+ * @param numSignatures the number of signatures for which the credential is authorized/ is to be authorized
+ */
+data class CredentialAuthorizationSubject(
     val credentialRef: CredentialRef,
-    val numSignatures: Int,
-    val documentDigests: List<DocumentDigest>,
-    val hashAlgorithmOID: HashAlgorithmOID,
-    val locations: List<String>? = emptyList(),
+    val documentDigestList: DocumentDigestList?,
+    val numSignatures: Int? = 1,
 )
+
+sealed interface CredentialAuthorizationRequestType {
+    val credentialAuthorizationSubject: CredentialAuthorizationSubject
+
+    @JvmInline
+    value class PassByAuthorizationDetails(
+        override val credentialAuthorizationSubject: CredentialAuthorizationSubject,
+    ) : CredentialAuthorizationRequestType
+
+    @JvmInline
+    value class PassByScope(
+        override val credentialAuthorizationSubject: CredentialAuthorizationSubject,
+    ) : CredentialAuthorizationRequestType
+}
+
+data class SignaturesList(
+    val signatures: List<Signature>,
+) {
+    init {
+        require(signatures.isNotEmpty()) { "Signatures list must not be empty" }
+    }
+}
+
+@JvmInline
+value class Signature(val value: String) {
+    init {
+        require(value.isNotEmpty()) { "Signature value must not be empty" }
+    }
+}

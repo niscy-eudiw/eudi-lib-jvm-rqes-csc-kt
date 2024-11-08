@@ -15,9 +15,14 @@
  */
 package eu.europa.ec.eudi.rqes.internal.http
 
+import com.nimbusds.oauth2.sdk.rar.AuthorizationDetail
 import eu.europa.ec.eudi.rqes.*
 import eu.europa.ec.eudi.rqes.internal.TokenResponse
+import eu.europa.ec.eudi.rqes.internal.http.TokenEndpointForm.CLIENT_ID_PARAM
+import eu.europa.ec.eudi.rqes.internal.http.TokenEndpointForm.CLIENT_SECRET_PARAM
+import eu.europa.ec.eudi.rqes.internal.toNimbusAuthDetail
 import io.ktor.client.call.*
+import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
 import kotlinx.serialization.SerialName
@@ -26,6 +31,7 @@ import java.net.URI
 import java.net.URL
 import java.time.Clock
 import java.time.Duration
+import java.time.Instant
 
 /**
  * Sealed hierarchy of possible responses to an Access Token request.
@@ -46,6 +52,7 @@ internal sealed interface TokenResponseTO {
         @SerialName("expires_in") val expiresIn: Long? = null,
         @SerialName("refresh_token") val refreshToken: String? = null,
         @SerialName("credentialID") val credentialID: String? = null,
+        @SerialName("authorization_details") val authorizationDetails: List<AuthorizationDetailTO>? = null,
     ) : TokenResponseTO
 
     /**
@@ -70,12 +77,44 @@ internal sealed interface TokenResponseTO {
                     ),
                     refreshToken = refreshToken?.let { RefreshToken(it, 0) },
                     timestamp = clock.instant(),
+                    credentialID = credentialID?.let { CredentialID(it) },
+                    credentialAuthorizationSubject = authorizationDetails?.let {
+                        CredentialAuthorizationSubject(
+                            CredentialRef.ByCredentialID(CredentialID(authorizationDetails.first().credentialID)),
+                            DocumentDigestList(
+                                documentDigests = authorizationDetails.first().documentDigests.map {
+                                    DocumentDigest(
+                                        hash = Digest(it.hash),
+                                        label = it.label,
+                                    )
+                                },
+                                hashAlgorithmOID = HashAlgorithmOID(authorizationDetails.first().hashAlgorithmOID),
+                                hashCalculationTime = Instant.now(),
+                            ),
+                            authorizationDetails.first().numSignatures?.toInt(),
+                        )
+                    },
                 )
             }
 
             is Failure -> throw RQESError.AccessTokenRequestFailed(error, errorDescription)
         }
 }
+
+@Serializable
+internal data class AuthorizationDetailTO(
+    @SerialName("type") val type: String,
+    @SerialName("credentialID") val credentialID: String,
+    @SerialName("numSignatures") val numSignatures: String? = "1",
+    @SerialName("documentDigests") val documentDigests: List<DocumentDigestTO>,
+    @SerialName("hashAlgorithmOID") val hashAlgorithmOID: String,
+)
+
+@Serializable
+internal data class DocumentDigestTO(
+    @SerialName("hash") val hash: String,
+    @SerialName("label") val label: String?,
+)
 
 internal class TokenEndpointClient(
     private val clock: Clock,
@@ -103,20 +142,32 @@ internal class TokenEndpointClient(
      *
      * @param authorizationCode The authorization code generated from authorization server.
      * @param pkceVerifier  The code verifier that was used when submitting the Pushed Authorization Request.
+     * @param credentialAuthorizationRequestType The credential authorization details that was used during the authorization step.
      * @return The result of the request as a pair of the access token and the optional c_nonce information returned
      *      from token endpoint.
      */
     suspend fun requestAccessTokenAuthFlow(
         authorizationCode: AuthorizationCode,
         pkceVerifier: PKCEVerifier,
+        credentialAuthorizationRequestType: CredentialAuthorizationRequestType?,
     ): Result<TokenResponse> = runCatching {
+        val authDetails = credentialAuthorizationRequestType?.let {
+            when (it) {
+                is CredentialAuthorizationRequestType.PassByAuthorizationDetails -> {
+                    credentialAuthorizationRequestType.credentialAuthorizationSubject.toNimbusAuthDetail()
+                }
+                is CredentialAuthorizationRequestType.PassByScope -> null
+            }
+        }
+
         val params = TokenEndpointForm.authCodeFlow(
             authorizationCode = authorizationCode,
             redirectionURI = authFlowRedirectionURI,
-            clientId = client.clientId,
+            client = client,
             pkceVerifier = pkceVerifier,
+            authorizationDetails = authDetails,
         )
-        requestAccessToken(params).tokensOrFail(clock)
+        requestAccessToken(params, client).tokensOrFail(clock)
     }
 
     /**
@@ -128,26 +179,38 @@ internal class TokenEndpointClient(
      * a new [TokenResponse.refreshToken]
      */
     suspend fun refreshAccessToken(refreshToken: RefreshToken): Result<TokenResponse> = runCatching {
-        val params = TokenEndpointForm.refreshAccessToken(client.clientId, refreshToken)
-        requestAccessToken(params).tokensOrFail(clock = clock)
+        val params = TokenEndpointForm.refreshAccessToken(client, refreshToken)
+        requestAccessToken(params, client).tokensOrFail(clock = clock)
     }
 
     private suspend fun requestAccessToken(
         params: Map<String, String>,
+        oauth2Client: OAuth2Client,
     ): TokenResponseTO =
         ktorHttpClientFactory().use { client ->
             val formParameters = Parameters.build {
                 params.entries.forEach { (k, v) -> append(k, v) }
             }
-            val response = client.submitForm(tokenEndpoint.toString(), formParameters)
+
+            val response = client.submitForm(tokenEndpoint.toString(), formParameters) {
+                when (oauth2Client) {
+                    is OAuth2Client.Confidential.ClientSecretBasic ->
+                        headers {
+                            basicAuth(username = oauth2Client.clientId, password = oauth2Client.clientSecret)
+                        }
+
+                    is OAuth2Client.Public -> {}
+                    is OAuth2Client.Confidential.ClientSecretPost -> {}
+                }
+            }
             if (response.status.isSuccess()) response.body<TokenResponseTO.Success>()
             else response.body<TokenResponseTO.Failure>()
         }
 
     suspend fun requestAccessTokenClientCredentialsFlow(scope: Scope?): Result<TokenResponse> = runCatching {
-        require(client is OAuth2Client.Confidential.PasswordProtected) { "Client must be confidential" }
-        val params = TokenEndpointForm.clientCredentialsFlow(client.clientId, client.clientSecret, scope)
-        requestAccessToken(params).tokensOrFail(clock)
+        require(client is OAuth2Client.Confidential) { "Client must be confidential" }
+        val params = TokenEndpointForm.clientCredentialsFlow(client, scope)
+        requestAccessToken(params, client).tokensOrFail(clock)
     }
 }
 
@@ -164,39 +227,63 @@ internal object TokenEndpointForm {
     const val REFRESH_TOKEN_PARAM = "refresh_token"
     const val CLIENT_DATA = "clientData"
     const val SCOPE = "scope"
+    const val AUTHORIZATION_DETAILS = "authorization_details"
 
     fun authCodeFlow(
-        clientId: String,
+        client: OAuth2Client,
         authorizationCode: AuthorizationCode,
         redirectionURI: URI,
         pkceVerifier: PKCEVerifier,
         clientData: String? = null,
+        authorizationDetails: AuthorizationDetail?,
     ): Map<String, String> = buildMap {
-        put(CLIENT_ID_PARAM, clientId)
         put(GRANT_TYPE_PARAM, AUTHORIZATION_CODE_GRANT)
         put(AUTHORIZATION_CODE_PARAM, authorizationCode.code)
         put(REDIRECT_URI_PARAM, redirectionURI.toString())
         put(CODE_VERIFIER_PARAM, pkceVerifier.codeVerifier)
         clientData?.let { put(CLIENT_DATA, clientData) }
-    }.toMap()
+        authorizationDetails?.let {
+            put(
+                AUTHORIZATION_DETAILS,
+                "[${authorizationDetails.toJSONObject().toJSONString()}]",
+            )
+        }
+        putAll(clientAuthenticationParams(client))
+    }
 
     fun clientCredentialsFlow(
-        clientId: String,
-        clientSecret: String,
+        client: OAuth2Client,
         scope: Scope?,
     ): Map<String, String> = buildMap {
         put(GRANT_TYPE_PARAM, CLIENT_CREDENTIALS_GRANT)
-        put(CLIENT_ID_PARAM, clientId)
-        put(CLIENT_SECRET_PARAM, clientSecret)
         scope?.let { put(SCOPE, it.value) }
+        putAll(clientAuthenticationParams(client))
     }
 
     fun refreshAccessToken(
-        clientId: String,
+        client: OAuth2Client,
         refreshToken: RefreshToken,
     ): Map<String, String> = buildMap {
-        put(CLIENT_ID_PARAM, clientId)
+        putAll(clientAuthenticationParams(client))
         put(GRANT_TYPE_PARAM, REFRESH_TOKEN)
         put(REFRESH_TOKEN_PARAM, refreshToken.refreshToken)
     }
 }
+
+private fun clientAuthenticationParams(client: OAuth2Client): Map<String, String> =
+    buildMap {
+        when (client) {
+            is OAuth2Client.Public -> {
+                put(CLIENT_ID_PARAM, client.clientId)
+            }
+
+            is OAuth2Client.Confidential.ClientSecretPost -> {
+                put(CLIENT_ID_PARAM, client.clientId)
+                put(CLIENT_SECRET_PARAM, client.clientSecret)
+            }
+
+            is OAuth2Client.Confidential.ClientSecretBasic -> {
+                put(CLIENT_ID_PARAM, client.clientId)
+            }
+        }
+    }

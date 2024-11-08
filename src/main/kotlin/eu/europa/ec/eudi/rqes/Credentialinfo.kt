@@ -15,40 +15,37 @@
  */
 package eu.europa.ec.eudi.rqes
 
-import eu.europa.ec.eudi.rqes.internal.http.CredentialsListEndpointClient
-import eu.europa.ec.eudi.rqes.internal.http.CredentialsListTO
-import eu.europa.ec.eudi.rqes.internal.http.ListCredentialInfoTO.Companion.toDomain
+import eu.europa.ec.eudi.rqes.internal.http.CredentialInfoTO
+import eu.europa.ec.eudi.rqes.internal.http.CredentialInfoTO.Success.Companion.toDomain
+import eu.europa.ec.eudi.rqes.internal.http.CredentialsInfoEndpointClient
 
-data class CredentialsListRequest(
-    val credentialInfo: Boolean? = true,
+data class CredentialsInfoRequest(
+    val credentialID: CredentialID,
     val certificates: Certificates? = Certificates.Chain,
     val certInfo: Boolean? = true,
     val authInfo: Boolean? = true,
-    val onlyValid: Boolean? = true,
     val lang: String? = null,
     val clientData: String? = null,
 )
 
-fun interface ListCredentials {
+fun interface GetCredentialInfo {
 
-    suspend fun ServiceAccessAuthorized.listCredentials(
-        request: CredentialsListRequest,
-    ): Result<List<CredentialInfo>>
+    suspend fun ServiceAccessAuthorized.credentialInfo(
+        request: CredentialsInfoRequest,
+    ): Result<CredentialInfo>
 
     companion object {
-        internal operator fun invoke(credentialsListEndpointClient: CredentialsListEndpointClient): ListCredentials =
-            ListCredentials { request ->
+        internal operator fun invoke(credentialsInfoEndpointClient: CredentialsInfoEndpointClient): GetCredentialInfo =
+            GetCredentialInfo { request ->
                 runCatching {
-                    val credentialsList = credentialsListEndpointClient.listCredentials(
+                    val credentialsInfo = credentialsInfoEndpointClient.credentialInfo(
                         request,
                         tokens.accessToken,
                     ).getOrThrow()
 
-                    when (credentialsList) {
-                        is CredentialsListTO.Success -> credentialsList.credentialInfos?.map { it.toDomain() }
-                            ?: emptyList()
-
-                        else -> throw IllegalStateException("Unexpected response: $credentialsList")
+                    when (credentialsInfo) {
+                        is CredentialInfoTO.Success -> credentialsInfo.toDomain(request.credentialID)
+                        else -> throw IllegalStateException("Unexpected response: $credentialsInfo")
                     }
                 }
             }

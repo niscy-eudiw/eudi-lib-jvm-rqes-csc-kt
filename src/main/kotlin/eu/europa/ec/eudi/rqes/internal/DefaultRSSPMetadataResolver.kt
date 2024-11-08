@@ -84,11 +84,11 @@ internal fun asMetadata(
 ): CSCAuthorizationServerMetadata {
     val issuer = Issuer(oauth2Url.toString())
     val meta = AuthorizationServerMetadata(issuer).apply {
-        tokenEndpointURI = URI("$oauth2Url/token")
+        tokenEndpointURI = URI("$oauth2Url/oauth2/token")
         if (RSSPMethod.Oauth2Authorize in methods) {
-            authorizationEndpointURI = URI("$oauth2Url/authorize")
+            authorizationEndpointURI = URI("$oauth2Url/oauth2/authorize")
             if (RSSPMethod.Oauth2PushedAuthorize in methods) {
-                pushedAuthorizationRequestEndpointURI = URI("$oauth2Url/pushed_authorize")
+                pushedAuthorizationRequestEndpointURI = URI("$oauth2Url/oauth2/pushed_authorize")
             }
         }
         if (RSSPMethod.Oauth2Revoke in methods) {

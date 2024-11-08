@@ -23,14 +23,11 @@ import com.nimbusds.oauth2.sdk.id.State
 import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod
 import com.nimbusds.oauth2.sdk.pkce.CodeVerifier
 import com.nimbusds.openid.connect.sdk.Prompt
-import eu.europa.ec.eudi.rqes.CSCClientConfig
-import eu.europa.ec.eudi.rqes.HttpsUrl
-import eu.europa.ec.eudi.rqes.KtorHttpClientFactory
-import eu.europa.ec.eudi.rqes.PKCEVerifier
-import eu.europa.ec.eudi.rqes.ParUsage
-import eu.europa.ec.eudi.rqes.RQESError
+import eu.europa.ec.eudi.rqes.*
 import eu.europa.ec.eudi.rqes.Scope
+import eu.europa.ec.eudi.rqes.internal.toNimbusAuthDetail
 import io.ktor.client.call.*
+import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
 import kotlinx.serialization.SerialName
@@ -76,33 +73,58 @@ internal class AuthorizationEndpointClient(
     private val supportsPar: Boolean
         get() = pushedAuthorizationRequestEndpoint != null
 
+    // TODO determine if the auth server supports RAR (not possible if the server doesn't advertise it)
+    private val supportsRar: Boolean
+        get() = true
+
     suspend fun submitParOrCreateAuthorizationRequestUrl(
         scopes: List<Scope>,
+        authorizationSubject: CredentialAuthorizationSubject? = null,
         state: String,
-    ): Result<Pair<PKCEVerifier, HttpsUrl>> {
+    ): Result<Triple<PKCEVerifier, HttpsUrl, CredentialAuthorizationRequestType?>> {
         val usePar = when (cscClientConfig.parUsage) {
             ParUsage.IfSupported -> supportsPar
             ParUsage.Never -> false
             ParUsage.Required -> {
                 require(supportsPar) {
-                    "PAR uses is required, yet authorization server doesn't advertise PAR endpoint"
+                    "PAR usage is required, yet authorization server doesn't advertise PAR endpoint"
                 }
                 true
             }
         }
+
+        val useRichAuthorizationRequests = when (cscClientConfig.rarUsage) {
+            RarUsage.IfSupported -> supportsRar
+            RarUsage.Never -> false
+            RarUsage.Required -> {
+                require(supportsRar) {
+                    "Rich Authorization Requests usage is required, yet authorization server doesn't support it"
+                }
+                true
+            }
+        }
+
+        val credentialAuthorizationRequestType = authorizationSubject?.let {
+            when (useRichAuthorizationRequests) {
+                true -> CredentialAuthorizationRequestType.PassByAuthorizationDetails(authorizationSubject)
+                false -> CredentialAuthorizationRequestType.PassByScope(authorizationSubject)
+            }
+        }
+
         return if (usePar) {
-            submitPushedAuthorizationRequest(scopes, state)
+            submitPushedAuthorizationRequest(scopes, credentialAuthorizationRequestType, state)
         } else {
-            authorizationRequestUrl(scopes, state)
+            authorizationRequestUrl(scopes, credentialAuthorizationRequestType, state)
         }
     }
 
     private suspend fun submitPushedAuthorizationRequest(
         scopes: List<Scope>,
+        credentialAuthorizationRequestType: CredentialAuthorizationRequestType?,
         state: String,
-    ): Result<Pair<PKCEVerifier, HttpsUrl>> = runCatching {
-        require(scopes.isNotEmpty()) {
-            "No scopes or authorization details provided. Cannot submit par."
+    ): Result<Triple<PKCEVerifier, HttpsUrl, CredentialAuthorizationRequestType?>> = runCatching {
+        require(scopes.isNotEmpty() || credentialAuthorizationRequestType != null) {
+            "No scopes or authorization details provided. Cannot prepare authorization request."
         }
 
         val parEndpoint = pushedAuthorizationRequestEndpoint?.toURI()
@@ -117,13 +139,50 @@ internal class AuthorizationEndpointClient(
                 if (scopes.isNotEmpty()) {
                     scope(NimbusScope(*scopes.map { it.value }.toTypedArray()))
                 }
+                if (credentialAuthorizationRequestType != null && credentialAuthorizationRequestType
+                    is CredentialAuthorizationRequestType.PassByAuthorizationDetails
+                ) {
+                    authorizationDetails(
+                        listOf(
+                            credentialAuthorizationRequestType.credentialAuthorizationSubject.toNimbusAuthDetail(),
+                        ),
+                    )
+                } else if (credentialAuthorizationRequestType != null &&
+                    credentialAuthorizationRequestType is CredentialAuthorizationRequestType.PassByScope
+                ) {
+                    val subject = credentialAuthorizationRequestType.credentialAuthorizationSubject
+                    when (subject.credentialRef) {
+                        is CredentialRef.ByCredentialID -> customParameter(
+                            "credentialID",
+                            subject.credentialRef.credentialID.value,
+                        )
+
+                        is CredentialRef.BySignatureQualifier -> customParameter(
+                            "signatureQualifier",
+                            subject.credentialRef.signatureQualifier.value,
+                        )
+                    }
+                    customParameter(
+                        "hashes",
+                        subject.documentDigestList?.documentDigests?.joinToString(",") {
+                            it.hash.value
+                        } ?: "",
+                    )
+                    customParameter(
+                        "hashAlgorithmOID",
+                        subject.documentDigestList?.hashAlgorithmOID?.value ?: "",
+                    )
+                    customParameter("numSignatures", subject.numSignatures.toString())
+                }
                 prompt(Prompt.Type.LOGIN)
             }.build()
             PushedAuthorizationRequest(parEndpoint, request)
         }
-        val response = pushAuthorizationRequest(parEndpoint, pushedAuthorizationRequest)
+        val response = pushAuthorizationRequest(parEndpoint, pushedAuthorizationRequest, cscClientConfig.client)
 
-        response.authorizationCodeUrlOrFail(clientID, codeVerifier, state)
+        val (pkceVerifier, httpsUrl) = response.authorizationCodeUrlOrFail(clientID, codeVerifier, state)
+
+        Triple(pkceVerifier, httpsUrl, credentialAuthorizationRequestType)
     }
 
     private fun PushedAuthorizationRequestResponseTO.authorizationCodeUrlOrFail(
@@ -153,6 +212,7 @@ internal class AuthorizationEndpointClient(
     private suspend fun pushAuthorizationRequest(
         parEndpoint: URI,
         pushedAuthorizationRequest: PushedAuthorizationRequest,
+        oauth2Client: OAuth2Client,
     ): PushedAuthorizationRequestResponseTO = ktorHttpClientFactory().use { client ->
         val url = parEndpoint.toURL()
         val formParameters = pushedAuthorizationRequest.asFormPostParams()
@@ -162,7 +222,13 @@ internal class AuthorizationEndpointClient(
             formParameters = Parameters.build {
                 formParameters.entries.forEach { (k, v) -> append(k, v) }
             },
-        )
+        ) {
+            if (oauth2Client is OAuth2Client.Confidential.ClientSecretBasic) {
+                headers {
+                    basicAuth(username = oauth2Client.clientId, password = oauth2Client.clientSecret)
+                }
+            }
+        }
         if (response.status.isSuccess()) response.body<PushedAuthorizationRequestResponseTO.Success>()
         else response.body<PushedAuthorizationRequestResponseTO.Failure>()
     }
@@ -171,10 +237,11 @@ internal class AuthorizationEndpointClient(
         authorizationRequest.toParameters().mapValues { (_, value) -> value[0] }.toMap()
 
     private fun authorizationRequestUrl(
-        credentialsScopes: List<Scope>,
+        scopes: List<Scope>,
+        credentialAuthorizationRequestType: CredentialAuthorizationRequestType?,
         state: String,
-    ): Result<Pair<PKCEVerifier, HttpsUrl>> = runCatching {
-        require(credentialsScopes.isNotEmpty()) {
+    ): Result<Triple<PKCEVerifier, HttpsUrl, CredentialAuthorizationRequestType?>> = runCatching {
+        require(scopes.isNotEmpty() || credentialAuthorizationRequestType != null) {
             "No scopes or authorization details provided. Cannot prepare authorization request."
         }
 
@@ -185,11 +252,45 @@ internal class AuthorizationEndpointClient(
             redirectionURI(cscClientConfig.authFlowRedirectionURI)
             codeChallenge(codeVerifier, CodeChallengeMethod.S256)
             state(State(state))
-            if (credentialsScopes.isNotEmpty()) {
-                scope(NimbusScope(*credentialsScopes.map { it.value }.toTypedArray()))
-//                if (!isCredentialIssuerAuthorizationServer) {
-//                    resource(credentialIssuerId.value.value.toURI())
-//                }
+
+            if (scopes.isNotEmpty()) {
+                scope(NimbusScope(*scopes.map { it.value }.toTypedArray()))
+            }
+
+            if (credentialAuthorizationRequestType != null &&
+                credentialAuthorizationRequestType is CredentialAuthorizationRequestType.PassByAuthorizationDetails
+            ) {
+                authorizationDetails(
+                    listOf(
+                        credentialAuthorizationRequestType.credentialAuthorizationSubject.toNimbusAuthDetail(),
+                    ),
+                )
+            } else if (credentialAuthorizationRequestType != null &&
+                credentialAuthorizationRequestType is CredentialAuthorizationRequestType.PassByScope
+            ) {
+                val subject = credentialAuthorizationRequestType.credentialAuthorizationSubject
+                when (subject.credentialRef) {
+                    is CredentialRef.ByCredentialID -> customParameter(
+                        "credentialID",
+                        subject.credentialRef.credentialID.value,
+                    )
+
+                    is CredentialRef.BySignatureQualifier -> customParameter(
+                        "signatureQualifier",
+                        subject.credentialRef.signatureQualifier.value,
+                    )
+                }
+                customParameter(
+                    "hashes",
+                    subject.documentDigestList?.documentDigests?.joinToString(",") {
+                        it.hash.value
+                    } ?: "",
+                )
+                customParameter(
+                    "hashAlgorithmOID",
+                    subject.documentDigestList?.hashAlgorithmOID?.value ?: "",
+                )
+                customParameter("numSignatures", subject.numSignatures.toString())
             }
 
             prompt(Prompt.Type.LOGIN)
@@ -197,7 +298,7 @@ internal class AuthorizationEndpointClient(
 
         val pkceVerifier = PKCEVerifier(codeVerifier.value, CodeChallengeMethod.S256.toString())
         val url = HttpsUrl(authorizationRequest.toURI().toString()).getOrThrow()
-        pkceVerifier to url
+        Triple(pkceVerifier, url, credentialAuthorizationRequestType)
     }
 }
 
