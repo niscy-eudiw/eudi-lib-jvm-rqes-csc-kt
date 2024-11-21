@@ -12,6 +12,7 @@ ktlint = "0.50.0"
 dokka = "1.9.20"
 maven-publish = "0.29.0"
 logback = "1.5.6"
+dss = "6.1"
 
 [libraries]
 nimbus-oauth2-oidc-sdk = { module = "com.nimbusds:oauth2-oidc-sdk", version.ref = "nimbus-sdk" }
@@ -27,6 +28,17 @@ ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
 ktor-client-logging = {module ="io.ktor:ktor-client-logging", version.ref="ktor"}
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 logback-classic = {module="ch.qos.logback:logback-classic", version.ref="logback"}
+dss-service = {module="eu.europa.ec.joinup.sd-dss:dss-service", version.ref="dss"}
+dss-pades = {module="eu.europa.ec.joinup.sd-dss:dss-pades", version.ref="dss"}
+dss-xades = {module="eu.europa.ec.joinup.sd-dss:dss-xades", version.ref="dss"}
+dss-jades = {module="eu.europa.ec.joinup.sd-dss:dss-jades", version.ref="dss"}
+dss-cades = {module="eu.europa.ec.joinup.sd-dss:dss-cades", version.ref="dss"}
+dss-pades-pdfbox = {module="eu.europa.ec.joinup.sd-dss:dss-pades-pdfbox", version.ref="dss"}
+dss-asic-common = {module="eu.europa.ec.joinup.sd-dss:dss-asic-common", version.ref="dss"}
+dss-asic-cades = {module="eu.europa.ec.joinup.sd-dss:dss-asic-cades", version.ref="dss"}
+dss-asic-xades = {module="eu.europa.ec.joinup.sd-dss:dss-asic-xades", version.ref="dss"}
+dss-utils-apache-commons = {module="eu.europa.ec.joinup.sd-dss:dss-utils-apache-commons", version.ref="dss"}
+dss-crl-parser-x509crl = {module="eu.europa.ec.joinup.sd-dss:dss-crl-parser-x509crl", version.ref="dss"}
 
 [plugins]
 dependency-check = { id = "org.owasp.dependencycheck", version.ref = "dependency-check" }

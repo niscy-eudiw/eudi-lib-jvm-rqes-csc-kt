@@ -120,7 +120,7 @@ fun main() {
                 ConformanceLevel.ADES_B_B,
                 SigningAlgorithmOID.RSA,
                 SignedEnvelopeProperty.ENVELOPED,
-                ASICContainer.NONE,
+                ASiCContainer.NONE,
             )
 
             walletState = UUID.randomUUID().toString()

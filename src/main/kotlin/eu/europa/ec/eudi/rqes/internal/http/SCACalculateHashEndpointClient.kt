@@ -110,11 +110,11 @@ internal enum class SCAASICContainer() {
     ;
 
     companion object {
-        fun fromDomain(value: ASICContainer): SCAASICContainer =
+        fun fromDomain(value: ASiCContainer): SCAASICContainer =
             when (value) {
-                ASICContainer.NONE -> NONE
-                ASICContainer.ASIC_E -> ASIC_E
-                ASICContainer.ASIC_S -> ASIC_S
+                ASiCContainer.NONE -> NONE
+                ASiCContainer.ASIC_E -> ASIC_E
+                ASiCContainer.ASIC_S -> ASIC_S
             }
     }
 }

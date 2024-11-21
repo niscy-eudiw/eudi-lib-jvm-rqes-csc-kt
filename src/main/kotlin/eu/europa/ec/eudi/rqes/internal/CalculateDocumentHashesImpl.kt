@@ -16,22 +16,50 @@
 package eu.europa.ec.eudi.rqes.internal
 
 import eu.europa.ec.eudi.rqes.*
-import eu.europa.ec.eudi.rqes.internal.http.SCACalculateHashEndpointClient
+import eu.europa.ec.eudi.rqes.internal.dss.calculateDigest
+import eu.europa.ec.eudi.rqes.internal.http.CalculateHashResponse
+import eu.europa.esig.dss.spi.x509.CommonTrustedCertificateSource
+import java.time.Instant
 
-internal class CalculateDocumentHashesImpl(
-    private val scaCalculateHashEndpointClient: SCACalculateHashEndpointClient,
-) : CalculateDocumentHashes {
+internal class CalculateDocumentHashesImpl() : CalculateDocumentHashes {
     override suspend fun calculateDocumentHashes(
         documents: List<DocumentToSign>,
         credentialCertificate: CredentialCertificate,
         hashAlgorithmOID: HashAlgorithmOID,
     ): DocumentDigestList {
-        val hashesResponse =
-            scaCalculateHashEndpointClient.calculateHash(documents, credentialCertificate, hashAlgorithmOID)
+        val certificateSource = CommonTrustedCertificateSource() // TODO retrieve this
+
+        val hashesResponse = calculateHash(documents, credentialCertificate, hashAlgorithmOID, certificateSource)
+
         documents.zip(hashesResponse.hashes).map {
             DocumentDigest(Digest(it.second), it.first.file.label)
         }.let {
             return DocumentDigestList(it, hashAlgorithmOID, hashesResponse.signatureDate)
         }
+    }
+
+    private fun calculateHash(
+        documents: List<DocumentToSign>,
+        credentialCertificate: CredentialCertificate,
+        hashAlgorithmOID: HashAlgorithmOID,
+        certificateSource: CommonTrustedCertificateSource,
+    ): CalculateHashResponse {
+        val digest = calculateDigest(
+            DocumentSignatureParameters(
+                documents.first().file.content,
+                SignedEnvelopeProperty.ENVELOPED,
+                ASiCContainer.NONE,
+                HashAlgorithmOID.SHA_256,
+                SigningAlgorithmOID.RSA_SHA256,
+                credentialCertificate,
+                SignatureFormat.P,
+                ConformanceLevel.ADES_B_T,
+            ),
+            certificateSource,
+        )
+
+        println(digest)
+
+        return CalculateHashResponse(listOf(), Instant.now())
     }
 }

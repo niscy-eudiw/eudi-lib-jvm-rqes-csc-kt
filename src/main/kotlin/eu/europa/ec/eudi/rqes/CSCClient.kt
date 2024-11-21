@@ -112,9 +112,7 @@ interface CSCClient :
                 signHashEndpointClient,
             )
 
-            val calculateDocumentHashesImpl = CalculateDocumentHashesImpl(
-                scaCalculateHashEndpointClient,
-            )
+            val calculateDocumentHashesImpl = CalculateDocumentHashesImpl()
 
             val scaObtainSignedDocEndpointClient =
                 SCAObtainSignedDocEndpointClient(

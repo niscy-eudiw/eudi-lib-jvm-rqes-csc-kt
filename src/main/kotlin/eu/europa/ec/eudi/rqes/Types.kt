@@ -127,7 +127,7 @@ data class DocumentToSign(
     val conformanceLevel: ConformanceLevel = ConformanceLevel.ADES_B_B,
     val signAlgo: SigningAlgorithmOID,
     val signedEnvelopeProperty: SignedEnvelopeProperty,
-    val asicContainer: ASICContainer,
+    val asicContainer: ASiCContainer,
 )
 
 enum class SignatureFormat {
@@ -148,7 +148,7 @@ enum class ConformanceLevel {
     ADES_LTA,
 }
 
-enum class ASICContainer {
+enum class ASiCContainer {
     NONE,
     ASIC_S,
     ASIC_E,
@@ -349,3 +349,14 @@ value class Signature(val value: String) {
         require(value.isNotEmpty()) { "Signature value must not be empty" }
     }
 }
+
+internal data class DocumentSignatureParameters(
+    val document: File,
+    val signedEnvelopeProperty: SignedEnvelopeProperty,
+    val asicContainer: ASiCContainer,
+    val hashAlgorithmOID: HashAlgorithmOID,
+    val signingAlgorithmOID: SigningAlgorithmOID,
+    val credentialCertificate: CredentialCertificate,
+    val signatureFormat: SignatureFormat,
+    val conformanceLevel: ConformanceLevel,
+)

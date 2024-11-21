@@ -58,7 +58,15 @@ data class CredentialCertificate(
     val subjectDN: X500Principal?,
     val validFrom: LocalDateTime?,
     val validTo: LocalDateTime?,
-)
+) {
+    fun endEntityCertificate(): X509Certificate {
+        return certificates!!.first()
+    }
+
+    fun certificateChain(): List<X509Certificate> {
+        return certificates!!.drop(1)
+    }
+}
 
 sealed interface CredentialAuthorization {
     val authorizationMode: AuthorizationMode
