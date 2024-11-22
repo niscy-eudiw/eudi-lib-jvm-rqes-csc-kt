@@ -24,11 +24,13 @@ import eu.europa.esig.dss.enumerations.SignatureAlgorithm
 import eu.europa.esig.dss.enumerations.SignaturePackaging
 
 internal fun mapToDSSASiCContainer(asicContainer: ASiCContainer) =
-    when (asicContainer) {
-        ASiCContainer.NONE -> throw IllegalArgumentException("Unsupported ASiC container type: $asicContainer")
-        ASiCContainer.ASIC_E -> ASiCContainerType.ASiC_E
-        ASiCContainer.ASIC_S -> ASiCContainerType.ASiC_S
-    }
+    asicContainer.toDss() ?:  throw IllegalArgumentException("Unsupported ASiC container type: $asicContainer")
+
+internal fun ASiCContainer.toDss(): ASiCContainerType? = when(this) {
+    ASiCContainer.NONE -> null
+    ASiCContainer.ASIC_E -> ASiCContainerType.ASiC_E
+    ASiCContainer.ASIC_S -> ASiCContainerType.ASiC_S
+}
 
 internal fun mapToDSSSignaturePackaging(signedEnvelopeProperty: SignedEnvelopeProperty) =
     when (signedEnvelopeProperty) {

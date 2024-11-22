@@ -38,7 +38,7 @@ internal class CalculateDocumentHashesImpl() : CalculateDocumentHashes {
         }
     }
 
-    private fun calculateHash(
+    private suspend fun calculateHash(
         documents: List<DocumentToSign>,
         credentialCertificate: CredentialCertificate,
         hashAlgorithmOID: HashAlgorithmOID,

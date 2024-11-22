@@ -18,6 +18,7 @@ package eu.europa.ec.eudi.rqes.internal.dss
 import eu.europa.ec.eudi.rqes.ASiCContainer
 import eu.europa.ec.eudi.rqes.DocumentSignatureParameters
 import eu.europa.ec.eudi.rqes.SignatureFormat
+import eu.europa.esig.dss.asic.cades.ASiCWithCAdESCommonParameters
 import eu.europa.esig.dss.asic.cades.ASiCWithCAdESSignatureParameters
 import eu.europa.esig.dss.asic.cades.ASiCWithCAdESTimestampParameters
 import eu.europa.esig.dss.asic.xades.ASiCWithXAdESSignatureParameters
@@ -27,6 +28,7 @@ import eu.europa.esig.dss.enumerations.JWSSerializationType
 import eu.europa.esig.dss.enumerations.SigDMechanism
 import eu.europa.esig.dss.jades.JAdESSignatureParameters
 import eu.europa.esig.dss.jades.JAdESTimestampParameters
+import eu.europa.esig.dss.model.SerializableSignatureParameters
 import eu.europa.esig.dss.model.TimestampParameters
 import eu.europa.esig.dss.model.x509.CertificateToken
 import eu.europa.esig.dss.pades.PAdESSignatureParameters
@@ -38,7 +40,7 @@ import java.util.*
 
 internal fun getSignatureParameters(
     docSignatureParams: DocumentSignatureParameters,
-): AbstractSignatureParameters< *> {
+): AbstractSignatureParameters<*> {
     val parameters = if (docSignatureParams.asicContainer != ASiCContainer.NONE) {
         getASicSignatureParameters(docSignatureParams.signatureFormat, docSignatureParams.asicContainer)
     } else {
@@ -73,7 +75,8 @@ internal fun getSignatureParameters(
                 docSignatureParams.credentialCertificate.certificates.drop(1).map { CertificateToken(it) }
         }
 
-        val timestampParameters = getTimestampParameters(docSignatureParams.signatureFormat, docSignatureParams.asicContainer)
+        val timestampParameters =
+            getTimestampParameters(docSignatureParams.signatureFormat, docSignatureParams.asicContainer)
         timestampParameters.digestAlgorithm = digestAlgorithm
 
         contentTimestampParameters = timestampParameters
@@ -103,21 +106,15 @@ private fun getASicSignatureParameters(
 
         SignatureFormat.P,
         SignatureFormat.J,
-        -> error("Unsupported signature format for an ASiC container: $signatureFormat (only CAdES-XAdES are supported)")
+            -> error("Unsupported signature format for an ASiC container: $signatureFormat (only CAdES-XAdES are supported)")
     }
+
 
 private fun getTimestampParameters(
     signatureFormat: SignatureFormat,
     asicContainer: ASiCContainer,
 ): TimestampParameters =
-    if (asicContainer == ASiCContainer.NONE) {
-        when (signatureFormat) {
-            SignatureFormat.C -> CAdESTimestampParameters()
-            SignatureFormat.X -> XAdESTimestampParameters()
-            SignatureFormat.P -> PAdESTimestampParameters()
-            SignatureFormat.J -> JAdESTimestampParameters()
-        }
-    } else {
+    if (asicContainer != ASiCContainer.NONE) {
         when (signatureFormat) {
             SignatureFormat.C -> {
                 ASiCWithCAdESTimestampParameters().apply {
@@ -128,8 +125,15 @@ private fun getTimestampParameters(
             SignatureFormat.X -> XAdESTimestampParameters()
             SignatureFormat.P,
             SignatureFormat.J,
-            -> error(
+                -> error(
                 "Unsupported signature format for an ASiC container: $signatureFormat (only CAdES-XAdES are supported)",
             )
+        }
+    } else {
+        when (signatureFormat) {
+            SignatureFormat.C -> CAdESTimestampParameters()
+            SignatureFormat.X -> XAdESTimestampParameters()
+            SignatureFormat.P -> PAdESTimestampParameters()
+            SignatureFormat.J -> JAdESTimestampParameters()
         }
     }
