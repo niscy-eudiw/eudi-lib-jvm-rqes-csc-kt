@@ -30,7 +30,7 @@ internal class AuthorizeCredentialImpl(
     private val credentialsInfoEndpointClient: CredentialsInfoEndpointClient,
 ) : AuthorizeCredential {
 
-    override suspend fun ServiceAccessAuthorized.prepareCredentialAuthorizationRequest(
+    override suspend fun prepareCredentialAuthorizationRequest(
         credentialAuthorizationSubject: CredentialAuthorizationSubject,
         walletState: String?,
     ): Result<CredentialAuthorizationRequestPrepared> = runCatching {

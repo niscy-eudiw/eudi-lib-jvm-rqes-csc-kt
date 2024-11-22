@@ -13,83 +13,59 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import eu.europa.ec.eudi.rqes.*
+package eu.europa.ec.eudi.rqes
+
 import io.ktor.client.*
-import io.ktor.client.engine.okhttp.*
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.logging.*
+import io.ktor.client.plugins.cookies.*
+import io.ktor.client.request.*
+import io.ktor.client.request.forms.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import kotlinx.coroutines.runBlocking
-import okhttp3.OkHttpClient
+import kotlinx.coroutines.test.runTest
+import org.jsoup.Jsoup
 import java.io.File
 import java.net.URI
-import java.security.cert.X509Certificate
 import java.util.*
-import javax.net.ssl.SSLContext
-import javax.net.ssl.TrustManager
-import javax.net.ssl.X509TrustManager
+import kotlin.test.Test
+import kotlin.test.assertTrue
+import kotlin.time.Duration
 
-val client_id = "wallet-client-tester"
-val client_secret = "somesecrettester2"
+class DocumentSigningFlowIT {
 
-private fun getUnsafeOkHttpClient(): OkHttpClient {
-    // Create a trust manager that does not validate certificate chains
-    val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
-        override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {
+    @Test
+    fun `successful document signing cycle`() = runTest(timeout = Duration.parse("1m")) {
+        val httpClient: KtorHttpClientFactory = {
+            HttpClient {
+                install(ContentNegotiation) {
+                    json(
+                        json = JsonSupport,
+                    )
+                }
+                install(HttpRedirect) {
+                    checkHttpMethod = false
+                }
+                install(HttpCookies) {
+                    storage = AcceptAllCookiesStorage()
+                }
+            }
         }
 
-        override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {
-        }
+        val cscClientConfig = CSCClientConfig(
+            OAuth2Client.Confidential.ClientSecretBasic("wallet-client-tester", "somesecrettester2"),
+            URI("https://oauthdebugger.com/debug"),
+            URI("https://walletcentric.signer.eudiw.dev").toURL(),
+            ParUsage.IfSupported,
+            RarUsage.IfSupported,
+        )
 
-        override fun getAcceptedIssuers() = arrayOf<X509Certificate>()
-    })
-
-    // Install the all-trusting trust manager
-    val sslContext = SSLContext.getInstance("SSL")
-    sslContext.init(null, trustAllCerts, java.security.SecureRandom())
-    // Create an ssl socket factory with our all-trusting manager
-    val sslSocketFactory = sslContext.socketFactory
-
-    return OkHttpClient.Builder()
-        .sslSocketFactory(sslSocketFactory, trustAllCerts[0] as X509TrustManager)
-        .hostnameVerifier { _, _ -> true }.build()
-}
-
-private val unsafeHttpClientFactory: KtorHttpClientFactory = {
-    HttpClient(OkHttp) {
-        install(ContentNegotiation) {
-            json(
-                json = JsonSupport,
-            )
-        }
-        install(Logging) {
-            level = LogLevel.ALL
-        }
-
-        engine {
-            preconfigured = getUnsafeOkHttpClient()
-        }
-    }
-}
-
-private var cscClientConfig = CSCClientConfig(
-    OAuth2Client.Confidential.ClientSecretBasic(client_id, client_secret),
-    URI("https://oauthdebugger.com/debug"),
-    URI("https://walletcentric.signer.eudiw.dev").toURL(),
-    ParUsage.IfSupported,
-    RarUsage.IfSupported,
-)
-
-fun main() {
-    runBlocking {
-        // create the CSC client
         val cscClient: CSCClient = CSCClient.oauth2(
             cscClientConfig,
             "https://walletcentric.signer.eudiw.dev/csc/v2",
-            unsafeHttpClientFactory,
+            httpClient,
         ).getOrThrow()
-
-        val rsspMetadata = cscClient.rsspMetadata
 
         with(cscClient) {
             var walletState = UUID.randomUUID().toString()
@@ -97,13 +73,14 @@ fun main() {
             // initiate the service authorization request
             val serviceAuthRequestPrepared = prepareServiceAuthorizationRequest(walletState).getOrThrow()
 
-            println("Use the following URL to authenticate:\n${serviceAuthRequestPrepared.value.authorizationCodeURL}")
-            println("Enter the service authorization code:")
-            val serviceAuthorizationCode = AuthorizationCode(readln())
+            val (serviceAuthorizationCode) = getCodeAndState(
+                serviceAuthRequestPrepared.value.authorizationCodeURL,
+                httpClient(),
+            )
 
             val authorizedServiceRequest = with(serviceAuthRequestPrepared) {
                 // provide the authorization code to the client
-                authorizeWithAuthorizationCode(serviceAuthorizationCode, walletState).getOrThrow()
+                authorizeWithAuthorizationCode(AuthorizationCode(serviceAuthorizationCode), walletState).getOrThrow()
             }
 
             // retrieve the list of credentials from the RSSP
@@ -142,14 +119,15 @@ fun main() {
                 walletState,
             ).getOrThrow()
 
-            println("Use the following URL to authenticate:\n${credAuthRequestPrepared.authorizationRequestPrepared.authorizationCodeURL}")
-            println("Enter the credential authorization code:")
-            val credentialAuthorizationCode = AuthorizationCode(readln())
+            val (credentialAuthorizationCode) = getCodeAndState(
+                credAuthRequestPrepared.authorizationRequestPrepared.authorizationCodeURL,
+                httpClient(),
+            )
 
             // provide the credential authorization code to the CSC client
             val credentialAuthorized = with(credAuthRequestPrepared) {
                 authorizeWithAuthorizationCode(
-                    credentialAuthorizationCode,
+                    AuthorizationCode(credentialAuthorizationCode),
                     walletState,
                 ).getOrThrow()
             }
@@ -170,7 +148,45 @@ fun main() {
                 )
             }
 
-            File("signed.pdf").writeBytes(Base64.getDecoder().decode(signedFiles[0].readAllBytes()))
+            assertTrue(signedFiles.isNotEmpty())
         }
+    }
+
+    private suspend fun getCodeAndState(authorizationURL: HttpsUrl, httpClient: HttpClient): Pair<String, String> {
+        // do a request with ktor to the authorizationURL
+        val response = httpClient.get(authorizationURL.value)
+        val responseBody: String = response.bodyAsText()
+
+        // Parse the login form using Jsoup
+        val document = Jsoup.parse(responseBody)
+        val form = document.selectFirst("form") ?: throw IllegalStateException("Form not found")
+
+        val formAction: String = form.attr("action")
+
+        val formData = mutableMapOf<String, String>()
+        form.select("input").forEach { input ->
+            when (input.attr("name")) {
+                "username" -> formData["username"] = "8PfCAQzTmON+FHDvH4GW/g+JUtg5eVTgtqMKZFdB/+c=;FirstName;TesterUser"
+                "password" -> formData["password"] = "5adUg@35Lk_Wrm3"
+                else -> formData[input.attr("name")] = input.attr("value")
+            }
+        }
+
+        // Perform POST request with the filled form data
+        httpClient.submitForm(
+            url = "https://walletcentric.signer.eudiw.dev$formAction",
+            formParameters = Parameters.build {
+                formData.forEach { (key, value) ->
+                    append(key, value)
+                }
+            },
+        )
+
+        val response2 = httpClient.get(authorizationURL.value)
+        // get code and state from the url query params
+        val code = response2.request.url.parameters["code"]
+        val state = response2.request.url.parameters["state"]
+
+        return code!! to state!!
     }
 }

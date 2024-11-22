@@ -71,23 +71,12 @@ class AuthorizeServiceTest {
             },
         )
 
-        val cscClient = CSCClient.oauth2(
-            rsspMetadata = rsspMetadata(),
-            cscClientConfig = CSCClientConfig(
-                OAuth2Client.Public("client-id"),
-                URI("https://example.com/redirect"),
-                URI("https://walletcentric.signer.eudiw.dev").toURL(),
-                parUsage = ParUsage.Never,
-            ),
-            ktorHttpClientFactory = mockedKtorHttpClientFactory,
-        ).getOrThrow()
-        with(cscClient) {
-            val authRequestPrepared = prepareServiceAuthorizationRequest().getOrThrow().also { println(it) }
+        with(mockPublicClient(mockedKtorHttpClientFactory)) {
+            val authRequestPrepared = prepareServiceAuthorizationRequest().getOrThrow()
             val authorizationCode = UUID.randomUUID().toString()
             val serverState = authRequestPrepared.value.state
             authRequestPrepared
                 .authorizeWithAuthorizationCode(AuthorizationCode(authorizationCode), serverState)
-                .also { println(it) }
                 .getOrThrow()
         }
     }
@@ -153,23 +142,12 @@ class AuthorizeServiceTest {
             },
         )
 
-        val cscClient = CSCClient.oauth2(
-            rsspMetadata = rsspMetadata(),
-            cscClientConfig = CSCClientConfig(
-                client = OAuth2Client.Public("client-id"),
-                authFlowRedirectionURI = URI("https://example.com/redirect"),
-                URI("https://walletcentric.signer.eudiw.dev").toURL(),
-                parUsage = ParUsage.Required,
-            ),
-            ktorHttpClientFactory = mockedKtorHttpClientFactory,
-        ).getOrThrow()
-        with(cscClient) {
-            val authRequestPrepared = prepareServiceAuthorizationRequest().getOrThrow().also { println(it) }
+        with(mockPublicClient(mockedKtorHttpClientFactory)) {
+            val authRequestPrepared = prepareServiceAuthorizationRequest().getOrThrow()
             val authorizationCode = UUID.randomUUID().toString()
             val serverState = authRequestPrepared.value.state
             authRequestPrepared
                 .authorizeWithAuthorizationCode(AuthorizationCode(authorizationCode), serverState)
-                .also { println(it) }
                 .getOrThrow()
         }
     }
@@ -207,10 +185,38 @@ class AuthorizeServiceTest {
             },
         )
 
+        with(mockConfidentialClient(mockedKtorHttpClientFactory)) {
+            authorizeWithClientCredentials().getOrThrow()
+        }
+    }
+
+    @Test
+    fun `when par endpoint responds with failure, exception PushedAuthorizationRequestFailed is thrown`() = runTest {
+        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
+            authServerWellKnownMocker(),
+            RequestMocker(
+                requestMatcher = endsWith("/pushed_authorize", HttpMethod.Post),
+                responseBuilder = {
+                    respond(
+                        content = Json.encodeToString(
+                            PushedAuthorizationRequestResponseTO.Failure(
+                                "invalid_request",
+                                "The redirect_uri is not valid for the given client",
+                            ),
+                        ),
+                        status = HttpStatusCode.BadRequest,
+                        headers = headersOf(
+                            HttpHeaders.ContentType to listOf("application/json"),
+                        ),
+                    )
+                },
+            ),
+        )
+
         val cscClient = CSCClient.oauth2(
-            rsspMetadata = rsspMetadata().withClientCredentialsFlow(),
+            rsspMetadata = rsspMetadata(),
             cscClientConfig = CSCClientConfig(
-                client = OAuth2Client.Confidential.ClientSecretPost("client-id", "client-secret"),
+                client = OAuth2Client.Public("client-id"),
                 authFlowRedirectionURI = URI("https://example.com/redirect"),
                 URI("https://walletcentric.signer.eudiw.dev").toURL(),
                 parUsage = ParUsage.Required,
@@ -218,55 +224,16 @@ class AuthorizeServiceTest {
             ktorHttpClientFactory = mockedKtorHttpClientFactory,
         ).getOrThrow()
         with(cscClient) {
-            authorizeWithClientCredentials().getOrThrow().also { println(it) }
+            prepareServiceAuthorizationRequest().fold(
+                onSuccess = {
+                    fail("Exception expected to be thrown")
+                },
+                onFailure = {
+                    assertTrue("Expected PushedAuthorizationRequestFailed to be thrown but was not") {
+                        it is RQESError.PushedAuthorizationRequestFailed
+                    }
+                },
+            )
         }
     }
-
-    @Test
-    fun `when par endpoint responds with failure, exception PushedAuthorizationRequestFailed is thrown`() =
-        runTest {
-            val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
-                authServerWellKnownMocker(),
-                RequestMocker(
-                    requestMatcher = endsWith("/pushed_authorize", HttpMethod.Post),
-                    responseBuilder = {
-                        respond(
-                            content = Json.encodeToString(
-                                PushedAuthorizationRequestResponseTO.Failure(
-                                    "invalid_request",
-                                    "The redirect_uri is not valid for the given client",
-                                ),
-                            ),
-                            status = HttpStatusCode.BadRequest,
-                            headers = headersOf(
-                                HttpHeaders.ContentType to listOf("application/json"),
-                            ),
-                        )
-                    },
-                ),
-            )
-
-            val cscClient = CSCClient.oauth2(
-                rsspMetadata = rsspMetadata(),
-                cscClientConfig = CSCClientConfig(
-                    client = OAuth2Client.Public("client-id"),
-                    authFlowRedirectionURI = URI("https://example.com/redirect"),
-                    URI("https://walletcentric.signer.eudiw.dev").toURL(),
-                    parUsage = ParUsage.Required,
-                ),
-                ktorHttpClientFactory = mockedKtorHttpClientFactory,
-            ).getOrThrow()
-            with(cscClient) {
-                prepareServiceAuthorizationRequest().fold(
-                    onSuccess = {
-                        fail("Exception expected to be thrown")
-                    },
-                    onFailure = {
-                        assertTrue("Expected PushedAuthorizationRequestFailed to be thrown but was not") {
-                            it is RQESError.PushedAuthorizationRequestFailed
-                        }
-                    },
-                )
-            }
-        }
 }

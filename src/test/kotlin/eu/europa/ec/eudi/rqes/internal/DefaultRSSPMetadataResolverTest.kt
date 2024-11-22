@@ -19,24 +19,46 @@ import eu.europa.ec.eudi.rqes.*
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.assertDoesNotThrow
 import java.util.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 internal class DefaultRSSPMetadataResolverTest {
 
-    fun `resolution success`() = runTest {
-        val rsspId = SampleRSSP.Id
-
-        val resolver = resolver(
+    @Test
+    fun `resolution success with oauth2 base url`() = runTest {
+        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
+            authServerWellKnownMocker(),
             credentialIssuerMetaDataHandler(
-                rsspId,
+                SampleRSSP.Id,
                 "eu/europa/ec/eudi/rqes/internal/rssp_metadata_valid.json",
             ),
         )
-        val metaData = assertDoesNotThrow { resolver.resolve(rsspId, Locale.forLanguageTag("en-US")).getOrThrow() }
-        // TODO assert metaData
+
+        val resolver = RSSPMetadataResolver(
+            mockedKtorHttpClientFactory,
+        )
+        val metaData =
+            assertDoesNotThrow { resolver.resolve(SampleRSSP.Id, Locale.forLanguageTag("en-US")).getOrThrow() }
+
+        assertEquals(SampleRSSP.Id, metaData.rsspId)
+    }
+
+    @Test
+    fun `resolution success with oauth2 issuer`() = runTest {
+        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
+            authServerWellKnownMocker(),
+            credentialIssuerMetaDataHandler(
+                SampleRSSP.Id,
+                "eu/europa/ec/eudi/rqes/internal/rssp_metadata_valid_with_oauth2issuer.json",
+            ),
+        )
+
+        val resolver = RSSPMetadataResolver(
+            mockedKtorHttpClientFactory,
+        )
+        val metaData =
+            assertDoesNotThrow { resolver.resolve(SampleRSSP.Id, Locale.forLanguageTag("en-US")).getOrThrow() }
+
+        assertEquals(SampleRSSP.Id, metaData.rsspId)
     }
 }
-
-private fun resolver(request: RequestMocker, expectSuccessOnly: Boolean = false) =
-    RSSPMetadataResolver(
-        mockedKtorHttpClientFactory(request, expectSuccessOnly = expectSuccessOnly),
-    )
