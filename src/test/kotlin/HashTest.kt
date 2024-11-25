@@ -15,10 +15,14 @@
  */
 import eu.europa.ec.eudi.rqes.*
 import eu.europa.ec.eudi.rqes.internal.CalculateDocumentHashesImpl
+import eu.europa.ec.eudi.rqes.internal.GetSignedDocumentsImpl
+import eu.europa.esig.dss.spi.x509.CommonTrustedCertificateSource
 import java.io.File
+import java.time.Instant
+import java.util.*
 
 suspend fun main() {
-    val documentToSign = DocumentToSign(
+    val pdfDocumentToSign = DocumentToSign(
         Document(
             File(ClassLoader.getSystemResource("sample.pdf").path),
             "A sample pdf",
@@ -30,9 +34,33 @@ suspend fun main() {
         ASiCContainer.NONE,
     )
 
-    CalculateDocumentHashesImpl().calculateDocumentHashes(
-        listOf(documentToSign),
+    val jsonDocumentToSign = DocumentToSign(
+        Document(
+            File(ClassLoader.getSystemResource("sample.json").path),
+            "A sample pdf",
+        ),
+        SignatureFormat.J,
+        ConformanceLevel.ADES_B_B,
+        SigningAlgorithmOID.RSA,
+        SignedEnvelopeProperty.ENVELOPING,
+        ASiCContainer.NONE,
+    )
+
+    val hashes = CalculateDocumentHashesImpl(CommonTrustedCertificateSource()).calculateDocumentHashes(
+        listOf(pdfDocumentToSign),
         mockCredential.certificate,
         HashAlgorithmOID.SHA_256,
     )
+
+    println(hashes)
+
+    GetSignedDocumentsImpl(CommonTrustedCertificateSource()).getSignedDocuments(
+        listOf(pdfDocumentToSign),
+        listOf(Signature("asdasd")),
+        mockCredential.certificate,
+        HashAlgorithmOID.SHA_256,
+        Instant.now(),
+    ).map {
+        File("signed.pdf").writeBytes(it.readAllBytes())
+    }
 }

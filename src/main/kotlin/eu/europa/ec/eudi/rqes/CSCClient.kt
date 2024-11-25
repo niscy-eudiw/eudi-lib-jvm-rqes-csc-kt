@@ -17,6 +17,7 @@ package eu.europa.ec.eudi.rqes
 
 import eu.europa.ec.eudi.rqes.internal.*
 import eu.europa.ec.eudi.rqes.internal.http.*
+import eu.europa.esig.dss.spi.x509.CommonTrustedCertificateSource
 
 interface CSCClient :
     AuthorizeService,
@@ -112,7 +113,9 @@ interface CSCClient :
                 signHashEndpointClient,
             )
 
-            val calculateDocumentHashesImpl = CalculateDocumentHashesImpl()
+            val calculateDocumentHashesImpl = CalculateDocumentHashesImpl(
+                CommonTrustedCertificateSource(),
+            )
 
             val scaObtainSignedDocEndpointClient =
                 SCAObtainSignedDocEndpointClient(
@@ -124,7 +127,9 @@ interface CSCClient :
                 signHashEndpointClient,
             )
 
-            val embedSignatureImpl = GetSignedDocumentsImpl(scaObtainSignedDocEndpointClient)
+            val embedSignatureImpl = GetSignedDocumentsImpl(
+                CommonTrustedCertificateSource(),
+            )
 
             object :
                 CSCClient,

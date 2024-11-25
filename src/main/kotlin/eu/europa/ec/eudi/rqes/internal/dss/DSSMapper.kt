@@ -15,18 +15,13 @@
  */
 package eu.europa.ec.eudi.rqes.internal.dss
 
-import eu.europa.ec.eudi.rqes.ASiCContainer
-import eu.europa.ec.eudi.rqes.HashAlgorithmOID
-import eu.europa.ec.eudi.rqes.SignedEnvelopeProperty
-import eu.europa.esig.dss.enumerations.ASiCContainerType
-import eu.europa.esig.dss.enumerations.DigestAlgorithm
-import eu.europa.esig.dss.enumerations.SignatureAlgorithm
-import eu.europa.esig.dss.enumerations.SignaturePackaging
+import eu.europa.ec.eudi.rqes.*
+import eu.europa.esig.dss.enumerations.*
 
 internal fun mapToDSSASiCContainer(asicContainer: ASiCContainer) =
-    asicContainer.toDss() ?:  throw IllegalArgumentException("Unsupported ASiC container type: $asicContainer")
+    asicContainer.toDss() ?: throw IllegalArgumentException("Unsupported ASiC container type: $asicContainer")
 
-internal fun ASiCContainer.toDss(): ASiCContainerType? = when(this) {
+internal fun ASiCContainer.toDss(): ASiCContainerType? = when (this) {
     ASiCContainer.NONE -> null
     ASiCContainer.ASIC_E -> ASiCContainerType.ASiC_E
     ASiCContainer.ASIC_S -> ASiCContainerType.ASiC_S
@@ -51,3 +46,22 @@ internal fun mapToDSSDigestAlgorithm(hashAlgorithmOID: HashAlgorithmOID): Digest
             throw IllegalArgumentException("Unsupported hash algorithm OID: $hashAlgorithmOID")
         }
     }
+
+internal fun mapToDSSSignatureLevel(
+    conformanceLevel: ConformanceLevel,
+    signatureFormat: SignatureFormat,
+): SignatureLevel {
+    val prefix = "${signatureFormat.name}AdES_BASELINE_"
+
+    return when (conformanceLevel) {
+        ConformanceLevel.ADES_B_B -> SignatureLevel.valueOf(prefix + "B")
+        ConformanceLevel.ADES_B_T -> SignatureLevel.valueOf(prefix + "T")
+        ConformanceLevel.ADES_B_LT -> SignatureLevel.valueOf(prefix + "T")
+        ConformanceLevel.ADES_B_LTA -> SignatureLevel.valueOf(prefix + "LTA")
+        ConformanceLevel.ADES_B,
+        ConformanceLevel.ADES_T,
+        ConformanceLevel.ADES_LT,
+        ConformanceLevel.ADES_LTA,
+        -> error("Unsupported conformance level: $conformanceLevel")
+    }
+}

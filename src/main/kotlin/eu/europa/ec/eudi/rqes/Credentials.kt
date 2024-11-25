@@ -50,12 +50,12 @@ data class CredentialKey(
     val curve: String?,
 )
 
-
 @JvmInline
-value class Nel<T>(private val value: List<T>) : List<T> by value {
+value class NonEmptyList<T>(private val value: List<T>) : List<T> by value {
     init {
         require(value.isNotEmpty())
     }
+
     fun head(): T = value.first()
     fun tail(): List<T> = value.drop(1)
     fun component1(): T = head()
@@ -64,7 +64,7 @@ value class Nel<T>(private val value: List<T>) : List<T> by value {
 
 data class CredentialCertificate(
     val status: CredentialCertificateStatus?,
-    val certificates: Nel<X509Certificate>?,
+    val certificates: NonEmptyList<X509Certificate>?,
     val issuerDN: X500Principal?,
     val serialNumber: String?,
     val subjectDN: X500Principal?,
@@ -72,11 +72,11 @@ data class CredentialCertificate(
     val validTo: LocalDateTime?,
 ) {
     fun endEntityCertificate(): X509Certificate {
-        return requireNotNull( certificates).first()
+        return requireNotNull(certificates).head()
     }
 
     fun certificateChain(): List<X509Certificate> {
-        return certificates!!.drop(1)
+        return requireNotNull(certificates).tail()
     }
 }
 

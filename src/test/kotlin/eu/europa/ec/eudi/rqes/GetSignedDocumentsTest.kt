@@ -39,7 +39,7 @@ class GetSignedDocumentsTest {
                     ConformanceLevel.ADES_B_B,
                     SigningAlgorithmOID.RSA_SHA256,
                     SignedEnvelopeProperty.ENVELOPED,
-                    ASICContainer.NONE,
+                    ASiCContainer.NONE,
                 ),
             )
 

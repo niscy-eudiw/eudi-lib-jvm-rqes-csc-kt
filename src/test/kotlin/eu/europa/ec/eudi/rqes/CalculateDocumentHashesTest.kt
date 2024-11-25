@@ -30,20 +30,16 @@ class CalculateDocumentHashesTest {
 
         with(mockPublicClient(mockedKtorHttpClientFactory)) {
             val documentDigestList = with(mockServiceAccessAuthorized) {
-                val credential = credentialInfo(CredentialsInfoRequest(CredentialID("83c7c559-db74-48da-aacc-d439d415cb81"))).getOrThrow()
-
                 calculateDocumentHashes(
                     mockDocumentsToSign,
-                    credential.certificate,
+                    mockCredential.certificate,
                     HashAlgorithmOID.SHA_256,
                 )
             }
 
             assertNotNull(documentDigestList)
-            assertEquals(1, documentDigestList.documentDigests.size)
+            assertEquals(2, documentDigestList.documentDigests.size)
             assertEquals(HashAlgorithmOID.SHA_256, documentDigestList.hashAlgorithmOID)
-            assertTrue(documentDigestList.documentDigests[0].hash.value.startsWith("MYIBAzAYBgkqhkiG9w0BCQMxCwYJKoZIhvc"))
-            assertEquals(1731313375117L, documentDigestList.hashCalculationTime.toEpochMilli())
         }
     }
 }

@@ -152,10 +152,11 @@ internal val mockCredential = CredentialInfo(
     ),
     CredentialCertificate(
         CredentialCertificateStatus.Valid,
-        listOf(
-            run {
-                val certificateBytes: ByteArray = Base64.getDecoder().decode(
-                    """
+        NonEmptyList(
+            listOf(
+                run {
+                    val certificateBytes: ByteArray = Base64.getDecoder().decode(
+                        """
                         MIIDZDCCAuqgAwIBAgIUMFrstjahbrxp7w4ok1mScfbilBwwCgYIKoZIzj0EAwIwXDEeMBwGA1UEAwwVUElEIElzc3VlciBD
                         QSAtIFVUIDAxMS0wKwYDVQQKDCRFVURJIFdhbGxldCBSZWZlcmVuY2UgSW1wbGVtZW50YXRpb24xCzAJBgNVBAYTAlVUMB4X
                         DTI0MTAyMTE0MTE0M1oXDTI2MTAyMTE0MTE0MlowVTEdMBsGA1UEAwwURmlyc3ROYW1lIFRlc3RlclVzZXIxEzARBgNVBAQM
@@ -169,16 +170,16 @@ internal val mockCredential = CredentialInfo(
                         REXHBB5/QOShd41wc7hds+g6MA4GA1UdDwEB/wQEAwIGQDAKBggqhkjOPQQDAgNoADBlAjBExuJApXiH8ydkCOZV9M+jO2Rm
                         3vam03nsKvDBJ8pwus6n4IebetX6aHgue7WztGoCMQCI7vDaejO5mCgJGK6f/78onRQI6bm9/VWZnM6DSAnZ/gzQFC4EnJh4
                         cePfOzgUEjU=
-                    """.trimIndent().replace("\n", ""),
-                )
-                val inputStream = ByteArrayInputStream(certificateBytes)
-                val x509CertificateFactory = CertificateFactory.getInstance("X.509")
-                x509CertificateFactory.generateCertificate(inputStream) as X509Certificate
-            },
+                        """.trimIndent().replace("\n", ""),
+                    )
+                    val inputStream = ByteArrayInputStream(certificateBytes)
+                    val x509CertificateFactory = CertificateFactory.getInstance("X.509")
+                    x509CertificateFactory.generateCertificate(inputStream) as X509Certificate
+                },
 
-            run {
-                val certificateBytes: ByteArray = Base64.getDecoder().decode(
-                    """
+                run {
+                    val certificateBytes: ByteArray = Base64.getDecoder().decode(
+                        """
                         MIIDHTCCAqOgAwIBAgIUVqjgtJqf4hUYJkqdYzi+0xwhwFYwCgYIKoZIzj0EAwMwXDEeMBwGA1UEAwwVUElEIElzc3VlciBD
                         QSAtIFVUIDAxMS0wKwYDVQQKDCRFVURJIFdhbGxldCBSZWZlcmVuY2UgSW1wbGVtZW50YXRpb24xCzAJBgNVBAYTAlVUMB4X
                         DTIzMDkwMTE4MzQxN1oXDTMyMTEyNzE4MzQxNlowXDEeMBwGA1UEAwwVUElEIElzc3VlciBDQSAtIFVUIDAxMS0wKwYDVQQK
@@ -191,12 +192,13 @@ internal val mockCredential = CredentialInfo(
                         cmNoaXRlY3R1cmUtYW5kLXJlZmVyZW5jZS1mcmFtZXdvcmswCgYIKoZIzj0EAwMDaAAwZQIwaXUA3j++xl/tdD76tXEWCikf
                         M1CaRz4vzBC7NS0wCdItKiz6HZeV8EPtNCnsfKpNAjEAqrdeKDnr5Kwf8BA7tATehxNlOV4Hnc10XO1XULtigCwb49RpkqlS
                         2Hul+DpqObUs
-                    """.trimIndent().replace("\n", ""),
-                )
-                val inputStream = ByteArrayInputStream(certificateBytes)
-                val x509CertificateFactory = CertificateFactory.getInstance("X.509")
-                x509CertificateFactory.generateCertificate(inputStream) as X509Certificate
-            },
+                        """.trimIndent().replace("\n", ""),
+                    )
+                    val inputStream = ByteArrayInputStream(certificateBytes)
+                    val x509CertificateFactory = CertificateFactory.getInstance("X.509")
+                    x509CertificateFactory.generateCertificate(inputStream) as X509Certificate
+                },
+            ),
         ),
         X500Principal("C=UT, O=EUDI Wallet Reference Implementation, CN=PID Issuer CA - UT 01"),
         "276059244570899245834283519267490992286096069660",
@@ -221,13 +223,25 @@ internal val mockDocumentDigestList = DocumentDigestList(
     ),
 )
 
+internal val mockPdfDocumentToSign = DocumentToSign(
+    Document(File(ClassLoader.getSystemResource("sample.pdf").path), "sample pdf file"),
+    SignatureFormat.P,
+    ConformanceLevel.ADES_B_B,
+    SigningAlgorithmOID.RSA_SHA256,
+    SignedEnvelopeProperty.ENVELOPED,
+    ASiCContainer.NONE,
+)
+
+internal val mockJsonDocumentToSign = DocumentToSign(
+    Document(File(ClassLoader.getSystemResource("sample.json").path), "sample json file"),
+    SignatureFormat.J,
+    ConformanceLevel.ADES_B_B,
+    SigningAlgorithmOID.RSA_SHA256,
+    SignedEnvelopeProperty.ENVELOPING,
+    ASiCContainer.NONE,
+)
+
 internal val mockDocumentsToSign = listOf(
-    DocumentToSign(
-        Document(File(ClassLoader.getSystemResource("sample.pdf").path), "test.pdf"),
-        SignatureFormat.P,
-        ConformanceLevel.ADES_B_B,
-        SigningAlgorithmOID.RSA_SHA256,
-        SignedEnvelopeProperty.ENVELOPED,
-        ASICContainer.NONE,
-    ),
+    mockPdfDocumentToSign,
+    mockJsonDocumentToSign,
 )

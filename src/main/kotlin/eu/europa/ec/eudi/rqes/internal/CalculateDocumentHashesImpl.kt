@@ -16,20 +16,31 @@
 package eu.europa.ec.eudi.rqes.internal
 
 import eu.europa.ec.eudi.rqes.*
-import eu.europa.ec.eudi.rqes.internal.dss.calculateDigest
+import eu.europa.ec.eudi.rqes.internal.dss.CAdEs
+import eu.europa.ec.eudi.rqes.internal.dss.JAdEs
+import eu.europa.ec.eudi.rqes.internal.dss.PAdEs
+import eu.europa.ec.eudi.rqes.internal.dss.XAdEs
 import eu.europa.ec.eudi.rqes.internal.http.CalculateHashResponse
+import eu.europa.esig.dss.service.http.commons.TimestampDataLoader
+import eu.europa.esig.dss.service.tsp.OnlineTSPSource
+import eu.europa.esig.dss.spi.validation.CertificateVerifier
+import eu.europa.esig.dss.spi.validation.CommonCertificateVerifier
 import eu.europa.esig.dss.spi.x509.CommonTrustedCertificateSource
+import eu.europa.esig.dss.spi.x509.tsp.TSPSource
+import java.nio.charset.Charset
 import java.time.Instant
+import java.util.*
 
-internal class CalculateDocumentHashesImpl() : CalculateDocumentHashes {
+internal class CalculateDocumentHashesImpl(
+    private val certificateSource: CommonTrustedCertificateSource,
+) : CalculateDocumentHashes {
+
     override suspend fun calculateDocumentHashes(
         documents: List<DocumentToSign>,
         credentialCertificate: CredentialCertificate,
         hashAlgorithmOID: HashAlgorithmOID,
     ): DocumentDigestList {
-        val certificateSource = CommonTrustedCertificateSource() // TODO retrieve this
-
-        val hashesResponse = calculateHash(documents, credentialCertificate, hashAlgorithmOID, certificateSource)
+        val hashesResponse = calculateHash(documents, credentialCertificate, hashAlgorithmOID)
 
         documents.zip(hashesResponse.hashes).map {
             DocumentDigest(Digest(it.second), it.first.file.label)
@@ -42,24 +53,46 @@ internal class CalculateDocumentHashesImpl() : CalculateDocumentHashes {
         documents: List<DocumentToSign>,
         credentialCertificate: CredentialCertificate,
         hashAlgorithmOID: HashAlgorithmOID,
-        certificateSource: CommonTrustedCertificateSource,
     ): CalculateHashResponse {
-        val digest = calculateDigest(
-            DocumentSignatureParameters(
-                documents.first().file.content,
-                SignedEnvelopeProperty.ENVELOPED,
-                ASiCContainer.NONE,
-                HashAlgorithmOID.SHA_256,
-                SigningAlgorithmOID.RSA_SHA256,
-                credentialCertificate,
-                SignatureFormat.P,
-                ConformanceLevel.ADES_B_T,
-            ),
-            certificateSource,
-        )
+        val hashes = documents.map {
+            val service = when (it.signatureFormat) {
+                SignatureFormat.P -> PAdEs(getCertificateVerifier(certificateSource), getTSPSource())
+                SignatureFormat.J -> JAdEs(getCertificateVerifier(certificateSource), getTSPSource())
+                SignatureFormat.X -> XAdEs()
+                SignatureFormat.C -> CAdEs()
+            }
+            service.calculateDigest(
+                DocumentSignatureParameters(
+                    it.file.content,
+                    it.signedEnvelopeProperty,
+                    it.asicContainer,
+                    hashAlgorithmOID,
+                    it.signAlgo,
+                    credentialCertificate,
+                    it.signatureFormat,
+                    it.conformanceLevel,
+                ),
+            )
+        }.map {
+            Base64.getUrlEncoder().encode(it).toString(
+                Charset.forName("UTF-8"),
+            )
+        }
 
-        println(digest)
+        return CalculateHashResponse(hashes, Instant.now())
+    }
 
-        return CalculateHashResponse(listOf(), Instant.now())
+    private fun getTSPSource(): TSPSource {
+        val tspSource = OnlineTSPSource("https://localhost") // TODO configure tsp source
+        tspSource.setDataLoader(TimestampDataLoader())
+        return tspSource
+    }
+
+    private fun getCertificateVerifier(certificateSource: CommonTrustedCertificateSource): CertificateVerifier {
+        val cv: CertificateVerifier = CommonCertificateVerifier()
+        cv.setTrustedCertSources(certificateSource)
+
+        // TODO configure cv
+        return cv
     }
 }

@@ -153,11 +153,15 @@ internal class CredentialKeyCertificateTO(
     companion object {
         fun CredentialKeyCertificateTO.toDomain(): CredentialCertificate = CredentialCertificate(
             status = status?.let { toCertificateStatus(it) },
-            certificates = certificates?.map {
-                val certificateBytes: ByteArray = Base64.getDecoder().decode(it)
-                val inputStream = ByteArrayInputStream(certificateBytes)
-                val x509CertificateFactory = CertificateFactory.getInstance("X.509")
-                x509CertificateFactory.generateCertificate(inputStream) as X509Certificate
+            certificates = certificates?.let { certs ->
+                NonEmptyList(
+                    certs.map {
+                        val certificateBytes: ByteArray = Base64.getDecoder().decode(it)
+                        val inputStream = ByteArrayInputStream(certificateBytes)
+                        val x509CertificateFactory = CertificateFactory.getInstance("X.509")
+                        x509CertificateFactory.generateCertificate(inputStream) as X509Certificate
+                    },
+                )
             },
             issuerDN = X500Principal(issuerDN),
             serialNumber = serialNumber,

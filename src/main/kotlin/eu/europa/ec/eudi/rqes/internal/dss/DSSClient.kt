@@ -48,6 +48,7 @@ import eu.europa.esig.dss.xades.signature.XAdESService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.InputStream
 import java.util.*
 
 //
@@ -57,20 +58,19 @@ import java.util.*
 internal suspend fun calculateDigest(
     trustedCertificates: CommonTrustedCertificateSource,
     tspSource: TSPSource? = null,
-    parameters: DocumentSignatureParameters
+    parameters: DocumentSignatureParameters,
 ): ByteArray {
     val spec = parameters.signSpec()
     val calculateDigest = calculateDigest(trustedCertificates, tspSource, spec)
     return calculateDigest(parameters.document)
 }
 
-
 //
 // Implementation
 //
 
-typealias CalculateDigest  = suspend (File)-> ByteArray
-
+typealias CalculateDigest = suspend (File) -> ByteArray
+typealias GetSignedDocument = suspend (File, Signature) -> InputStream
 
 private data class SignSpec(
     val asicContainer: ASiCContainer,
@@ -90,7 +90,7 @@ private fun DocumentSignatureParameters.signSpec(): SignSpec {
         signingAlgorithmOID = signingAlgorithmOID,
         credentialCertificate = credentialCertificate,
         signatureFormat = signatureFormat,
-        conformanceLevel = conformanceLevel
+        conformanceLevel = conformanceLevel,
     )
 }
 
@@ -114,12 +114,10 @@ private fun calculateDigest(
     }
 }
 
-
 private fun <TP> AbstractSignatureParameters<TP>.setupFor(spec: SignSpec, timestampParameters: TP)
-        where TP : TimestampParameters {
-
+    where TP : TimestampParameters {
     signaturePackaging = mapToDSSSignaturePackaging(spec.signedEnvelopeProperty)
-    // signatureLevel = TODO()
+    signatureLevel = mapToDSSSignatureLevel(spec.conformanceLevel, spec.signatureFormat)
     digestAlgorithm = mapToDSSDigestAlgorithm(spec.hashAlgorithmOID)
     bLevel().signingDate = Date()
 
@@ -132,7 +130,6 @@ private fun <TP> AbstractSignatureParameters<TP>.setupFor(spec: SignSpec, timest
 
     signingCertificate = signing
     certificateChain = chain
-
 
     timestampParameters.digestAlgorithm = digestAlgorithm
     contentTimestampParameters = timestampParameters
@@ -148,7 +145,7 @@ private fun cades(
     cv: CertificateVerifier,
     tspSource: TSPSource?,
     spec: SignSpec,
-    parametersUse: CAdESSignatureParameters.() -> Unit = {}
+    parametersUse: CAdESSignatureParameters.() -> Unit = {},
 ): CalculateDigest = CalculateDigestWithDss(
     srv = { CAdESService(cv) },
     tspSource = tspSource,
@@ -156,7 +153,8 @@ private fun cades(
     parameters = {
         when (val containerType = spec.asicContainer.toDss()) {
             ASiCContainerType.ASiC_S,
-            ASiCContainerType.ASiC_E -> {
+            ASiCContainerType.ASiC_E,
+            -> {
                 val tp = ASiCWithCAdESTimestampParameters().apply {
                     aSiC().containerType = containerType
                 }
@@ -172,16 +170,14 @@ private fun cades(
                 parametersUse()
             }
         }
-
-    }
+    },
 )
-
 
 private fun xades(
     cv: CertificateVerifier,
     tspSource: TSPSource?,
     spec: SignSpec,
-    parametersUse: XAdESSignatureParameters.() -> Unit = {}
+    parametersUse: XAdESSignatureParameters.() -> Unit = {},
 ): CalculateDigest =
     CalculateDigestWithDss(
         srv = { XAdESService(cv) },
@@ -191,21 +187,22 @@ private fun xades(
             when (val containerType = spec.asicContainer.toDss()) {
                 null -> XAdESSignatureParameters()
                 ASiCContainerType.ASiC_S,
-                ASiCContainerType.ASiC_E -> ASiCWithXAdESSignatureParameters().apply {
+                ASiCContainerType.ASiC_E,
+                -> ASiCWithXAdESSignatureParameters().apply {
                     aSiC().containerType = containerType
                 }
             }.apply {
                 setupFor(spec, XAdESTimestampParameters())
                 parametersUse()
             }
-        }
+        },
     )
 
 private fun pades(
     cv: CertificateVerifier,
     tspSource: TSPSource?,
     spec: SignSpec,
-    parametersUse: PAdESSignatureParameters.() -> Unit = {}
+    parametersUse: PAdESSignatureParameters.() -> Unit = {},
 ): CalculateDigest =
     CalculateDigestWithDss(
         srv = { PAdESService(cv) },
@@ -216,14 +213,14 @@ private fun pades(
                 setupFor(spec, PAdESTimestampParameters())
                 parametersUse()
             }
-        }
+        },
     )
 
 private fun jades(
     cv: CertificateVerifier,
     tspSource: TSPSource?,
     spec: SignSpec,
-    parametersUse: JAdESSignatureParameters.() -> Unit = {}
+    parametersUse: JAdESSignatureParameters.() -> Unit = {},
 ): CalculateDigest =
     CalculateDigestWithDss(
         srv = { JAdESService(cv) },
@@ -234,18 +231,17 @@ private fun jades(
                 setupFor(spec, JAdESTimestampParameters())
                 parametersUse()
             }
-        }
+        },
     )
-
 
 private class CalculateDigestWithDss<SP, TP>(
     srv: () -> DocumentSignatureService<SP, TP>,
     srvCustomization: DocumentSignatureService<SP, TP>.() -> Unit = {},
     val algorithm: DigestAlgorithm,
-    private val parameters: () -> SP
+    private val parameters: () -> SP,
 ) : CalculateDigest
-        where SP : SerializableSignatureParameters,
-              TP : SerializableTimestampParameters {
+    where SP : SerializableSignatureParameters,
+          TP : SerializableTimestampParameters {
 
     private val srv: DocumentSignatureService<SP, TP> by lazy {
         srv().apply { srvCustomization() }
@@ -261,7 +257,6 @@ private class CalculateDigestWithDss<SP, TP>(
             val toBeSigned = toBeSigned(file)
             DSSUtils.digest(algorithm, toBeSigned.bytes)
         }
-
 
     companion object {
         operator fun <SP : SerializableSignatureParameters, TP : SerializableTimestampParameters> invoke(
@@ -287,4 +282,3 @@ private fun <T> List<T>.headAndTail(): Pair<T, List<T>> {
     val tail = if (size > 1) drop(1) else emptyList()
     return head to tail
 }
-

@@ -350,7 +350,7 @@ value class Signature(val value: String) {
     }
 }
 
-internal data class DocumentSignatureParameters(
+data class DocumentSignatureParameters(
     val document: File,
     val signedEnvelopeProperty: SignedEnvelopeProperty,
     val asicContainer: ASiCContainer,
@@ -360,4 +360,3 @@ internal data class DocumentSignatureParameters(
     val signatureFormat: SignatureFormat,
     val conformanceLevel: ConformanceLevel,
 )
-

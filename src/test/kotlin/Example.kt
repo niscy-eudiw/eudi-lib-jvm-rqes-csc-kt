@@ -29,8 +29,8 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
-val client_id = "wallet-client-tester"
-val client_secret = "somesecrettester2"
+val client_id = "wallet-client"
+val client_secret = "somesecret2"
 
 private fun getUnsafeOkHttpClient(): OkHttpClient {
     // Create a trust manager that does not validate certificate chains

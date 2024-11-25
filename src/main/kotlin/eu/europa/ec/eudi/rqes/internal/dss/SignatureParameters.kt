@@ -18,7 +18,6 @@ package eu.europa.ec.eudi.rqes.internal.dss
 import eu.europa.ec.eudi.rqes.ASiCContainer
 import eu.europa.ec.eudi.rqes.DocumentSignatureParameters
 import eu.europa.ec.eudi.rqes.SignatureFormat
-import eu.europa.esig.dss.asic.cades.ASiCWithCAdESCommonParameters
 import eu.europa.esig.dss.asic.cades.ASiCWithCAdESSignatureParameters
 import eu.europa.esig.dss.asic.cades.ASiCWithCAdESTimestampParameters
 import eu.europa.esig.dss.asic.xades.ASiCWithXAdESSignatureParameters
@@ -28,7 +27,6 @@ import eu.europa.esig.dss.enumerations.JWSSerializationType
 import eu.europa.esig.dss.enumerations.SigDMechanism
 import eu.europa.esig.dss.jades.JAdESSignatureParameters
 import eu.europa.esig.dss.jades.JAdESTimestampParameters
-import eu.europa.esig.dss.model.SerializableSignatureParameters
 import eu.europa.esig.dss.model.TimestampParameters
 import eu.europa.esig.dss.model.x509.CertificateToken
 import eu.europa.esig.dss.pades.PAdESSignatureParameters
@@ -106,9 +104,8 @@ private fun getASicSignatureParameters(
 
         SignatureFormat.P,
         SignatureFormat.J,
-            -> error("Unsupported signature format for an ASiC container: $signatureFormat (only CAdES-XAdES are supported)")
+        -> error("Unsupported signature format for an ASiC container: $signatureFormat (only CAdES-XAdES are supported)")
     }
-
 
 private fun getTimestampParameters(
     signatureFormat: SignatureFormat,
@@ -125,7 +122,7 @@ private fun getTimestampParameters(
             SignatureFormat.X -> XAdESTimestampParameters()
             SignatureFormat.P,
             SignatureFormat.J,
-                -> error(
+            -> error(
                 "Unsupported signature format for an ASiC container: $signatureFormat (only CAdES-XAdES are supported)",
             )
         }
