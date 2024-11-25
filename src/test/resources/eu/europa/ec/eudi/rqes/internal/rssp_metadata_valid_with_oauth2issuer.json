@@ -7,17 +7,28 @@
   "description": "An efficient remote signature service",
   "authType": [
     "basic",
-    "oauth2code"
+    "external",
+    "tls",
+    "digest",
+    "oauth2code",
+    "oauth2client"
   ],
   "oauth2Issuer": "https://auth.domain.org",
   "methods": [
+    "info",
     "auth/login",
     "auth/revoke",
     "credentials/list",
     "credentials/info",
     "credentials/authorize",
+    "credentials/authorizeCheck",
+    "credentials/getChallenge",
+    "credentials/extendTransaction",
+    "signatures/signPolling",
+    "signatures/timestamp",
     "credentials/sendOTP",
-    "signatures/signHash"
+    "signatures/signHash",
+    "signatures/signDoc"
   ],
   "signAlgorithms": {
     "algos": [

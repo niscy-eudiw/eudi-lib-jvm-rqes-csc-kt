@@ -24,7 +24,7 @@ import kotlinx.serialization.Serializable
 import java.net.URL
 
 @Serializable
-private data class SignHashRequestTO(
+internal data class SignHashRequestTO(
     @SerialName("credentialID") val credentialID: String,
     @SerialName("hashes") val hashes: List<String>,
     @SerialName("hashAlgorithmOID") val hashAlgorithmOID: String,

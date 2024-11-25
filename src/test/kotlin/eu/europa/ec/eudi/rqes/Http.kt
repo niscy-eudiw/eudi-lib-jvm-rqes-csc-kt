@@ -18,6 +18,7 @@ package eu.europa.ec.eudi.rqes
 import io.ktor.client.*
 import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
@@ -82,6 +83,14 @@ internal fun mockedKtorHttpClientFactory(
             json(
                 json = Json { ignoreUnknownKeys = true },
             )
+        }
+        install(Logging) {
+            level = LogLevel.ALL
+            logger = object : Logger {
+                override fun log(message: String) {
+                    println(message)
+                }
+            }
         }
         expectSuccess = expectSuccessOnly
     }

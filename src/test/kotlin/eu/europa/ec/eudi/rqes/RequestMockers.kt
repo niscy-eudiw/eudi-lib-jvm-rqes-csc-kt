@@ -15,6 +15,7 @@
  */
 package eu.europa.ec.eudi.rqes
 
+import eu.europa.ec.eudi.rqes.internal.http.AuthorizationDetailTO
 import eu.europa.ec.eudi.rqes.internal.http.PushedAuthorizationRequestResponseTO
 import eu.europa.ec.eudi.rqes.internal.http.TokenResponseTO
 import io.ktor.client.engine.mock.*
@@ -62,7 +63,10 @@ internal fun parPostMocker(parEndpoint: String, validator: (request: HttpRequest
         requestValidator = validator,
     )
 
-internal fun tokenPostMocker(validator: (request: HttpRequestData) -> Unit = {}): RequestMocker =
+internal fun tokenPostMocker(
+    authorizationDetails: List<AuthorizationDetailTO>? = null,
+    validator: (request: HttpRequestData) -> Unit = {},
+): RequestMocker =
     RequestMocker(
         requestMatcher = endsWith("/token", HttpMethod.Post),
         responseBuilder = {
@@ -71,6 +75,7 @@ internal fun tokenPostMocker(validator: (request: HttpRequestData) -> Unit = {})
                     TokenResponseTO.Success(
                         accessToken = UUID.randomUUID().toString(),
                         expiresIn = 3600,
+                        authorizationDetails = authorizationDetails,
                     ),
                 ),
                 status = HttpStatusCode.OK,
@@ -87,6 +92,73 @@ internal fun credentialsListPostMocker(validator: (request: HttpRequestData) -> 
         requestMatcher = endsWith("/credentials/list", HttpMethod.Post),
         responseBuilder = {
             val content = getResourceAsText("eu/europa/ec/eudi/rqes/internal/credentials_list_valid.json")
+            respond(
+                content = content,
+                status = HttpStatusCode.OK,
+                headers = headersOf(
+                    HttpHeaders.ContentType to listOf("application/json"),
+                ),
+            )
+        },
+        requestValidator = validator,
+    )
+
+internal fun credentialsInfoPostMocker(
+    resource: String = "eu/europa/ec/eudi/rqes/internal/credentials_info_scal2_oauth_valid.json",
+    validator: (request: HttpRequestData) -> Unit = {},
+): RequestMocker =
+    RequestMocker(
+        requestMatcher = endsWith("/credentials/info", HttpMethod.Post),
+        responseBuilder = {
+            val content = getResourceAsText(resource)
+            respond(
+                content = content,
+                status = HttpStatusCode.OK,
+                headers = headersOf(
+                    HttpHeaders.ContentType to listOf("application/json"),
+                ),
+            )
+        },
+        requestValidator = validator,
+    )
+
+internal fun calculateHashPostMocker(validator: (request: HttpRequestData) -> Unit = {}): RequestMocker =
+    RequestMocker(
+        requestMatcher = endsWith("/signatures/calculate_hash", HttpMethod.Post),
+        responseBuilder = {
+            val content = getResourceAsText("eu/europa/ec/eudi/rqes/internal/calculate_hash_valid.json")
+            respond(
+                content = content,
+                status = HttpStatusCode.OK,
+                headers = headersOf(
+                    HttpHeaders.ContentType to listOf("application/json"),
+                ),
+            )
+        },
+        requestValidator = validator,
+    )
+
+internal fun obtainSignedDocPostMocker(validator: (request: HttpRequestData) -> Unit = {}): RequestMocker =
+    RequestMocker(
+        requestMatcher = endsWith("/signatures/obtain_signed_doc", HttpMethod.Post),
+        responseBuilder = {
+            val content = getResourceAsText("eu/europa/ec/eudi/rqes/internal/obtain_signed_doc_valid.json")
+            respond(
+                content = content,
+                status = HttpStatusCode.OK,
+                headers = headersOf(
+                    HttpHeaders.ContentType to listOf("application/json"),
+                ),
+            )
+        },
+        requestValidator = validator,
+    )
+
+internal fun signHashPostMocker(validator: (request: HttpRequestData) -> Unit = {}): RequestMocker =
+    RequestMocker(
+        requestMatcher = endsWith("/signatures/signHash", HttpMethod.Post),
+        responseBuilder = {
+            val content = getResourceAsText("eu/europa/ec/eudi/rqes/internal/sign_hash_valid.json")
             respond(
                 content = content,
                 status = HttpStatusCode.OK,

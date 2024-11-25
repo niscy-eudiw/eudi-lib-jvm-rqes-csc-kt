@@ -55,7 +55,7 @@ interface AuthorizeCredential {
      * @see <a href="https://www.rfc-editor.org/rfc/rfc7636.html">RFC7636</a>
      * @return an HTTPS URL of the authorization request to be placed
      */
-    suspend fun ServiceAccessAuthorized.prepareCredentialAuthorizationRequest(
+    suspend fun prepareCredentialAuthorizationRequest(
         credentialAuthorizationSubject: CredentialAuthorizationSubject,
         walletState: String? = null,
     ): Result<CredentialAuthorizationRequestPrepared>
