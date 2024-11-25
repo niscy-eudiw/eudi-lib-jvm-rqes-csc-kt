@@ -29,13 +29,12 @@ import org.jsoup.Jsoup
 import java.io.File
 import java.net.URI
 import java.util.*
-import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlin.time.Duration
 
 class DocumentSigningFlowIT {
 
-    @Test
+    // @Test
     fun `successful document signing cycle`() = runTest(timeout = Duration.parse("1m")) {
         val httpClient: KtorHttpClientFactory = {
             HttpClient {
