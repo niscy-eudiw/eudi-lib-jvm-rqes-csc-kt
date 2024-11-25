@@ -235,12 +235,12 @@ public final class eu/europa/ec/eudi/rqes/AuthorizationServerMetadataResolver$Co
 
 public abstract interface class eu/europa/ec/eudi/rqes/AuthorizeCredential {
 	public abstract fun authorizeWithAuthorizationCode-LnDQM3A (Leu/europa/ec/eudi/rqes/CredentialAuthorizationRequestPrepared;Ljava/lang/String;Ljava/lang/String;Leu/europa/ec/eudi/rqes/AccessTokenOption;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public abstract fun prepareCredentialAuthorizationRequest-BQ4KV-U (Leu/europa/ec/eudi/rqes/OAuth2Tokens;Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun prepareCredentialAuthorizationRequest-0E7RQCE (Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class eu/europa/ec/eudi/rqes/AuthorizeCredential$DefaultImpls {
 	public static synthetic fun authorizeWithAuthorizationCode-LnDQM3A$default (Leu/europa/ec/eudi/rqes/AuthorizeCredential;Leu/europa/ec/eudi/rqes/CredentialAuthorizationRequestPrepared;Ljava/lang/String;Ljava/lang/String;Leu/europa/ec/eudi/rqes/AccessTokenOption;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public static synthetic fun prepareCredentialAuthorizationRequest-BQ4KV-U$default (Leu/europa/ec/eudi/rqes/AuthorizeCredential;Leu/europa/ec/eudi/rqes/OAuth2Tokens;Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;Ljava/lang/String;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static synthetic fun prepareCredentialAuthorizationRequest-0E7RQCE$default (Leu/europa/ec/eudi/rqes/AuthorizeCredential;Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;Ljava/lang/String;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 }
 
 public abstract interface class eu/europa/ec/eudi/rqes/AuthorizeService {
