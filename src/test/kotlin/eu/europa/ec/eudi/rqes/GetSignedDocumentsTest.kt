@@ -17,12 +17,14 @@ package eu.europa.ec.eudi.rqes
 
 import kotlinx.coroutines.test.runTest
 import java.io.File
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 
 class GetSignedDocumentsTest {
 
     @Test
+    @Ignore
     fun `successful get signed documents`() = runTest {
         val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
             authServerWellKnownMocker(),

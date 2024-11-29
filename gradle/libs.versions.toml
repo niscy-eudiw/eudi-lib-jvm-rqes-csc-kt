@@ -33,7 +33,7 @@ dss-pades = {module="eu.europa.ec.joinup.sd-dss:dss-pades", version.ref="dss"}
 dss-xades = {module="eu.europa.ec.joinup.sd-dss:dss-xades", version.ref="dss"}
 dss-jades = {module="eu.europa.ec.joinup.sd-dss:dss-jades", version.ref="dss"}
 dss-cades = {module="eu.europa.ec.joinup.sd-dss:dss-cades", version.ref="dss"}
-dss-pades-pdfbox = {module="eu.europa.ec.joinup.sd-dss:dss-pades-pdfbox", version.ref="dss"}
+dss-pades-openpdf = {module="eu.europa.ec.joinup.sd-dss:dss-pades-openpdf", version.ref="dss"}
 dss-asic-common = {module="eu.europa.ec.joinup.sd-dss:dss-asic-common", version.ref="dss"}
 dss-asic-cades = {module="eu.europa.ec.joinup.sd-dss:dss-asic-cades", version.ref="dss"}
 dss-asic-xades = {module="eu.europa.ec.joinup.sd-dss:dss-asic-xades", version.ref="dss"}

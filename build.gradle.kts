@@ -36,7 +36,7 @@ dependencies {
     implementation(libs.dss.jades)
     implementation(libs.dss.xades)
     implementation(libs.dss.cades)
-    implementation(libs.dss.pades.pdfbox)
+    implementation(libs.dss.pades.openpdf)
     implementation(libs.dss.asic.common)
     implementation(libs.dss.asic.cades)
     implementation(libs.dss.asic.xades)
