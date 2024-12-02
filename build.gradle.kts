@@ -18,6 +18,7 @@ plugins {
     alias(libs.plugins.sonarqube)
     alias(libs.plugins.dependency.check)
     alias(libs.plugins.maven.publish)
+    alias(libs.plugins.binary.compatibility.validator)
 }
 
 repositories {

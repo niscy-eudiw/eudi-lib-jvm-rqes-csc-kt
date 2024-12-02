@@ -1,0 +1,1246 @@
+public final class eu/europa/ec/eudi/rqes/ASICContainer : java/lang/Enum {
+	public static final field ASIC_E Leu/europa/ec/eudi/rqes/ASICContainer;
+	public static final field ASIC_S Leu/europa/ec/eudi/rqes/ASICContainer;
+	public static final field NONE Leu/europa/ec/eudi/rqes/ASICContainer;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/ASICContainer;
+	public static fun values ()[Leu/europa/ec/eudi/rqes/ASICContainer;
+}
+
+public final class eu/europa/ec/eudi/rqes/AccessToken : eu/europa/ec/eudi/rqes/CanExpire, java/io/Serializable {
+	public fun <init> (Ljava/lang/String;Ljava/lang/Long;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Long;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;Ljava/time/Duration;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/time/Duration;
+	public final fun copy (Ljava/lang/String;Ljava/time/Duration;)Leu/europa/ec/eudi/rqes/AccessToken;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/AccessToken;Ljava/lang/String;Ljava/time/Duration;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/AccessToken;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAccessToken ()Ljava/lang/String;
+	public fun getExpiresIn ()Ljava/time/Duration;
+	public fun hashCode ()I
+	public fun isExpired (Ljava/time/Instant;Ljava/time/Instant;)Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class eu/europa/ec/eudi/rqes/AccessTokenOption {
+}
+
+public final class eu/europa/ec/eudi/rqes/AccessTokenOption$AsRequested : eu/europa/ec/eudi/rqes/AccessTokenOption {
+	public static final field INSTANCE Leu/europa/ec/eudi/rqes/AccessTokenOption$AsRequested;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class eu/europa/ec/eudi/rqes/AuthType {
+}
+
+public final class eu/europa/ec/eudi/rqes/AuthType$Basic : eu/europa/ec/eudi/rqes/AuthType {
+	public static final field INSTANCE Leu/europa/ec/eudi/rqes/AuthType$Basic;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/AuthType$Digest : eu/europa/ec/eudi/rqes/AuthType {
+	public static final field INSTANCE Leu/europa/ec/eudi/rqes/AuthType$Digest;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/AuthType$External : eu/europa/ec/eudi/rqes/AuthType {
+	public static final field INSTANCE Leu/europa/ec/eudi/rqes/AuthType$External;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/AuthType$OAuth2 : eu/europa/ec/eudi/rqes/AuthType {
+	public fun <init> (Ljava/lang/Object;Ljava/util/Set;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun component2 ()Ljava/util/Set;
+	public final fun copy (Ljava/lang/Object;Ljava/util/Set;)Leu/europa/ec/eudi/rqes/AuthType$OAuth2;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/AuthType$OAuth2;Ljava/lang/Object;Ljava/util/Set;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/AuthType$OAuth2;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAuthorizationServer ()Ljava/lang/Object;
+	public final fun getGrantsTypes ()Ljava/util/Set;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/AuthType$TLS : eu/europa/ec/eudi/rqes/AuthType {
+	public static final field INSTANCE Leu/europa/ec/eudi/rqes/AuthType$TLS;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class eu/europa/ec/eudi/rqes/AuthenticationObject {
+	public abstract fun getDescription ()Ljava/lang/String;
+	public abstract fun getId ()Ljava/lang/String;
+	public abstract fun getLabel ()Ljava/lang/String;
+	public abstract fun getType ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/AuthenticationObject$ChallengeResponse : eu/europa/ec/eudi/rqes/AuthenticationObject {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Leu/europa/ec/eudi/rqes/AuthenticationObjectFormat;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Leu/europa/ec/eudi/rqes/AuthenticationObjectFormat;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Leu/europa/ec/eudi/rqes/AuthenticationObjectFormat;Ljava/lang/String;)Leu/europa/ec/eudi/rqes/AuthenticationObject$ChallengeResponse;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/AuthenticationObject$ChallengeResponse;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Leu/europa/ec/eudi/rqes/AuthenticationObjectFormat;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/AuthenticationObject$ChallengeResponse;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getDescription ()Ljava/lang/String;
+	public final fun getFormat ()Leu/europa/ec/eudi/rqes/AuthenticationObjectFormat;
+	public final fun getGenerator ()Ljava/lang/String;
+	public fun getId ()Ljava/lang/String;
+	public fun getLabel ()Ljava/lang/String;
+	public fun getType ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/AuthenticationObject$InBandPassword : eu/europa/ec/eudi/rqes/AuthenticationObject {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Leu/europa/ec/eudi/rqes/AuthenticationObjectFormat;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Leu/europa/ec/eudi/rqes/AuthenticationObjectFormat;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Leu/europa/ec/eudi/rqes/AuthenticationObjectFormat;Ljava/lang/String;)Leu/europa/ec/eudi/rqes/AuthenticationObject$InBandPassword;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/AuthenticationObject$InBandPassword;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Leu/europa/ec/eudi/rqes/AuthenticationObjectFormat;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/AuthenticationObject$InBandPassword;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getDescription ()Ljava/lang/String;
+	public final fun getFormat ()Leu/europa/ec/eudi/rqes/AuthenticationObjectFormat;
+	public final fun getGenerator ()Ljava/lang/String;
+	public fun getId ()Ljava/lang/String;
+	public fun getLabel ()Ljava/lang/String;
+	public fun getType ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/AuthenticationObject$OutOfBandChallengeResponse : eu/europa/ec/eudi/rqes/AuthenticationObject {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Leu/europa/ec/eudi/rqes/AuthenticationObject$OutOfBandChallengeResponse;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/AuthenticationObject$OutOfBandChallengeResponse;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/AuthenticationObject$OutOfBandChallengeResponse;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getDescription ()Ljava/lang/String;
+	public final fun getGenerator ()Ljava/lang/String;
+	public fun getId ()Ljava/lang/String;
+	public fun getLabel ()Ljava/lang/String;
+	public fun getType ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/AuthenticationObject$OutOfBandPassword : eu/europa/ec/eudi/rqes/AuthenticationObject {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Leu/europa/ec/eudi/rqes/AuthenticationObjectFormat;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Leu/europa/ec/eudi/rqes/AuthenticationObjectFormat;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Leu/europa/ec/eudi/rqes/AuthenticationObjectFormat;Ljava/lang/String;)Leu/europa/ec/eudi/rqes/AuthenticationObject$OutOfBandPassword;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/AuthenticationObject$OutOfBandPassword;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Leu/europa/ec/eudi/rqes/AuthenticationObjectFormat;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/AuthenticationObject$OutOfBandPassword;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getDescription ()Ljava/lang/String;
+	public final fun getFormat ()Leu/europa/ec/eudi/rqes/AuthenticationObjectFormat;
+	public final fun getGenerator ()Ljava/lang/String;
+	public fun getId ()Ljava/lang/String;
+	public fun getLabel ()Ljava/lang/String;
+	public fun getType ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/AuthenticationObjectFormat : java/lang/Enum {
+	public static final field A Leu/europa/ec/eudi/rqes/AuthenticationObjectFormat;
+	public static final field N Leu/europa/ec/eudi/rqes/AuthenticationObjectFormat;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/AuthenticationObjectFormat;
+	public static fun values ()[Leu/europa/ec/eudi/rqes/AuthenticationObjectFormat;
+}
+
+public final class eu/europa/ec/eudi/rqes/AuthorizationCode {
+	public static final synthetic fun box-impl (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/AuthorizationCode;
+	public static fun constructor-impl (Ljava/lang/String;)Ljava/lang/String;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/lang/String;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun getCode ()Ljava/lang/String;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/lang/String;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/lang/String;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/lang/String;
+}
+
+public abstract class eu/europa/ec/eudi/rqes/AuthorizationError : java/lang/Throwable {
+	public synthetic fun <init> (Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class eu/europa/ec/eudi/rqes/AuthorizationError$InvalidAuthorizationState : eu/europa/ec/eudi/rqes/AuthorizationError {
+	public fun <init> ()V
+}
+
+public final class eu/europa/ec/eudi/rqes/AuthorizationMode : java/lang/Enum {
+	public static final field Explicit Leu/europa/ec/eudi/rqes/AuthorizationMode;
+	public static final field OAuth2Code Leu/europa/ec/eudi/rqes/AuthorizationMode;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/AuthorizationMode;
+	public static fun values ()[Leu/europa/ec/eudi/rqes/AuthorizationMode;
+}
+
+public final class eu/europa/ec/eudi/rqes/AuthorizationRequestPrepared {
+	public synthetic fun <init> (Ljava/net/URL;Leu/europa/ec/eudi/rqes/PKCEVerifier;Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-XCHhHR0 ()Ljava/net/URL;
+	public final fun component2 ()Leu/europa/ec/eudi/rqes/PKCEVerifier;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun copy-EVzKbiY (Ljava/net/URL;Leu/europa/ec/eudi/rqes/PKCEVerifier;Ljava/lang/String;)Leu/europa/ec/eudi/rqes/AuthorizationRequestPrepared;
+	public static synthetic fun copy-EVzKbiY$default (Leu/europa/ec/eudi/rqes/AuthorizationRequestPrepared;Ljava/net/URL;Leu/europa/ec/eudi/rqes/PKCEVerifier;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/AuthorizationRequestPrepared;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAuthorizationCodeURL-XCHhHR0 ()Ljava/net/URL;
+	public final fun getPkceVerifier ()Leu/europa/ec/eudi/rqes/PKCEVerifier;
+	public final fun getState ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/AuthorizationServerMetadataResolutionException : java/lang/Exception {
+	public fun <init> (Ljava/lang/Throwable;)V
+}
+
+public abstract interface class eu/europa/ec/eudi/rqes/AuthorizationServerMetadataResolver {
+	public static final field Companion Leu/europa/ec/eudi/rqes/AuthorizationServerMetadataResolver$Companion;
+	public abstract fun resolve-8fni4sg (Ljava/net/URL;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class eu/europa/ec/eudi/rqes/AuthorizationServerMetadataResolver$Companion {
+	public final fun invoke (Lkotlin/jvm/functions/Function0;)Leu/europa/ec/eudi/rqes/AuthorizationServerMetadataResolver;
+	public static synthetic fun invoke$default (Leu/europa/ec/eudi/rqes/AuthorizationServerMetadataResolver$Companion;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/AuthorizationServerMetadataResolver;
+}
+
+public abstract interface class eu/europa/ec/eudi/rqes/AuthorizeCredential {
+	public abstract fun authorizeWithAuthorizationCode-LnDQM3A (Leu/europa/ec/eudi/rqes/CredentialAuthorizationRequestPrepared;Ljava/lang/String;Ljava/lang/String;Leu/europa/ec/eudi/rqes/AccessTokenOption;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun prepareCredentialAuthorizationRequest-0E7RQCE (Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class eu/europa/ec/eudi/rqes/AuthorizeCredential$DefaultImpls {
+	public static synthetic fun authorizeWithAuthorizationCode-LnDQM3A$default (Leu/europa/ec/eudi/rqes/AuthorizeCredential;Leu/europa/ec/eudi/rqes/CredentialAuthorizationRequestPrepared;Ljava/lang/String;Ljava/lang/String;Leu/europa/ec/eudi/rqes/AccessTokenOption;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static synthetic fun prepareCredentialAuthorizationRequest-0E7RQCE$default (Leu/europa/ec/eudi/rqes/AuthorizeCredential;Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;Ljava/lang/String;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public abstract interface class eu/europa/ec/eudi/rqes/AuthorizeService {
+	public abstract fun authorizeWithAuthorizationCode-TkUMWgo (Leu/europa/ec/eudi/rqes/AuthorizationRequestPrepared;Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun authorizeWithClientCredentials-IoAF18A (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun prepareServiceAuthorizationRequest-gIAlu-s (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class eu/europa/ec/eudi/rqes/AuthorizeService$DefaultImpls {
+	public static synthetic fun prepareServiceAuthorizationRequest-gIAlu-s$default (Leu/europa/ec/eudi/rqes/AuthorizeService;Ljava/lang/String;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public abstract interface class eu/europa/ec/eudi/rqes/CSCClient : eu/europa/ec/eudi/rqes/AuthorizeCredential, eu/europa/ec/eudi/rqes/AuthorizeService, eu/europa/ec/eudi/rqes/CalculateDocumentHashes, eu/europa/ec/eudi/rqes/GetCredentialInfo, eu/europa/ec/eudi/rqes/GetSignedDocuments, eu/europa/ec/eudi/rqes/ListCredentials, eu/europa/ec/eudi/rqes/SignDoc, eu/europa/ec/eudi/rqes/SignHash {
+	public static final field Companion Leu/europa/ec/eudi/rqes/CSCClient$Companion;
+	public abstract fun getRsspMetadata ()Leu/europa/ec/eudi/rqes/RSSPMetadataContent;
+}
+
+public final class eu/europa/ec/eudi/rqes/CSCClient$Companion {
+	public final fun oauth2-0E7RQCE (Leu/europa/ec/eudi/rqes/CSCClientConfig;Leu/europa/ec/eudi/rqes/RSSPMetadataContent;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public static synthetic fun oauth2-0E7RQCE$default (Leu/europa/ec/eudi/rqes/CSCClient$Companion;Leu/europa/ec/eudi/rqes/CSCClientConfig;Leu/europa/ec/eudi/rqes/RSSPMetadataContent;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun oauth2-BWLJW6A (Leu/europa/ec/eudi/rqes/CSCClientConfig;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun oauth2-BWLJW6A$default (Leu/europa/ec/eudi/rqes/CSCClient$Companion;Leu/europa/ec/eudi/rqes/CSCClientConfig;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class eu/europa/ec/eudi/rqes/CSCClientConfig {
+	public fun <init> (Leu/europa/ec/eudi/rqes/OAuth2Client;Ljava/net/URI;Ljava/net/URL;Leu/europa/ec/eudi/rqes/ParUsage;Leu/europa/ec/eudi/rqes/RarUsage;Ljava/time/Clock;Ljava/util/Locale;)V
+	public synthetic fun <init> (Leu/europa/ec/eudi/rqes/OAuth2Client;Ljava/net/URI;Ljava/net/URL;Leu/europa/ec/eudi/rqes/ParUsage;Leu/europa/ec/eudi/rqes/RarUsage;Ljava/time/Clock;Ljava/util/Locale;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Leu/europa/ec/eudi/rqes/OAuth2Client;
+	public final fun component2 ()Ljava/net/URI;
+	public final fun component3 ()Ljava/net/URL;
+	public final fun component4 ()Leu/europa/ec/eudi/rqes/ParUsage;
+	public final fun component5 ()Leu/europa/ec/eudi/rqes/RarUsage;
+	public final fun component6 ()Ljava/time/Clock;
+	public final fun component7 ()Ljava/util/Locale;
+	public final fun copy (Leu/europa/ec/eudi/rqes/OAuth2Client;Ljava/net/URI;Ljava/net/URL;Leu/europa/ec/eudi/rqes/ParUsage;Leu/europa/ec/eudi/rqes/RarUsage;Ljava/time/Clock;Ljava/util/Locale;)Leu/europa/ec/eudi/rqes/CSCClientConfig;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/CSCClientConfig;Leu/europa/ec/eudi/rqes/OAuth2Client;Ljava/net/URI;Ljava/net/URL;Leu/europa/ec/eudi/rqes/ParUsage;Leu/europa/ec/eudi/rqes/RarUsage;Ljava/time/Clock;Ljava/util/Locale;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CSCClientConfig;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAuthFlowRedirectionURI ()Ljava/net/URI;
+	public final fun getClient ()Leu/europa/ec/eudi/rqes/OAuth2Client;
+	public final fun getClock ()Ljava/time/Clock;
+	public final fun getLocale ()Ljava/util/Locale;
+	public final fun getParUsage ()Leu/europa/ec/eudi/rqes/ParUsage;
+	public final fun getRarUsage ()Leu/europa/ec/eudi/rqes/RarUsage;
+	public final fun getScaBaseURL ()Ljava/net/URL;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class eu/europa/ec/eudi/rqes/CalculateDocumentHashes {
+	public abstract fun calculateDocumentHashes-Yr5hnIY (Ljava/util/List;Leu/europa/ec/eudi/rqes/CredentialCertificate;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public abstract interface class eu/europa/ec/eudi/rqes/CanExpire {
+	public abstract fun getExpiresIn ()Ljava/time/Duration;
+	public abstract fun isExpired (Ljava/time/Instant;Ljava/time/Instant;)Z
+}
+
+public final class eu/europa/ec/eudi/rqes/CanExpire$DefaultImpls {
+	public static fun isExpired (Leu/europa/ec/eudi/rqes/CanExpire;Ljava/time/Instant;Ljava/time/Instant;)Z
+}
+
+public final class eu/europa/ec/eudi/rqes/Certificates : java/lang/Enum {
+	public static final field Chain Leu/europa/ec/eudi/rqes/Certificates;
+	public static final field None Leu/europa/ec/eudi/rqes/Certificates;
+	public static final field Single Leu/europa/ec/eudi/rqes/Certificates;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/Certificates;
+	public static fun values ()[Leu/europa/ec/eudi/rqes/Certificates;
+}
+
+public final class eu/europa/ec/eudi/rqes/ConformanceLevel : java/lang/Enum {
+	public static final field ADES_B Leu/europa/ec/eudi/rqes/ConformanceLevel;
+	public static final field ADES_B_B Leu/europa/ec/eudi/rqes/ConformanceLevel;
+	public static final field ADES_B_LT Leu/europa/ec/eudi/rqes/ConformanceLevel;
+	public static final field ADES_B_LTA Leu/europa/ec/eudi/rqes/ConformanceLevel;
+	public static final field ADES_B_T Leu/europa/ec/eudi/rqes/ConformanceLevel;
+	public static final field ADES_LT Leu/europa/ec/eudi/rqes/ConformanceLevel;
+	public static final field ADES_LTA Leu/europa/ec/eudi/rqes/ConformanceLevel;
+	public static final field ADES_T Leu/europa/ec/eudi/rqes/ConformanceLevel;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/ConformanceLevel;
+	public static fun values ()[Leu/europa/ec/eudi/rqes/ConformanceLevel;
+}
+
+public abstract interface class eu/europa/ec/eudi/rqes/CredentialAuthorization {
+	public abstract fun getAuthorizationMode ()Leu/europa/ec/eudi/rqes/AuthorizationMode;
+}
+
+public final class eu/europa/ec/eudi/rqes/CredentialAuthorization$Explicit : eu/europa/ec/eudi/rqes/CredentialAuthorization {
+	public fun <init> (Leu/europa/ec/eudi/rqes/AuthorizationMode;Ljava/lang/String;Ljava/util/List;)V
+	public final fun component1 ()Leu/europa/ec/eudi/rqes/AuthorizationMode;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/util/List;
+	public final fun copy (Leu/europa/ec/eudi/rqes/AuthorizationMode;Ljava/lang/String;Ljava/util/List;)Leu/europa/ec/eudi/rqes/CredentialAuthorization$Explicit;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/CredentialAuthorization$Explicit;Leu/europa/ec/eudi/rqes/AuthorizationMode;Ljava/lang/String;Ljava/util/List;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CredentialAuthorization$Explicit;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAuthenticationObjects ()Ljava/util/List;
+	public fun getAuthorizationMode ()Leu/europa/ec/eudi/rqes/AuthorizationMode;
+	public final fun getExpression ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/CredentialAuthorization$OAuth2Code : eu/europa/ec/eudi/rqes/CredentialAuthorization {
+	public fun <init> (Leu/europa/ec/eudi/rqes/AuthorizationMode;)V
+	public final fun component1 ()Leu/europa/ec/eudi/rqes/AuthorizationMode;
+	public final fun copy (Leu/europa/ec/eudi/rqes/AuthorizationMode;)Leu/europa/ec/eudi/rqes/CredentialAuthorization$OAuth2Code;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/CredentialAuthorization$OAuth2Code;Leu/europa/ec/eudi/rqes/AuthorizationMode;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CredentialAuthorization$OAuth2Code;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getAuthorizationMode ()Leu/europa/ec/eudi/rqes/AuthorizationMode;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/CredentialAuthorizationRequestPrepared {
+	public fun <init> (Leu/europa/ec/eudi/rqes/AuthorizationRequestPrepared;Leu/europa/ec/eudi/rqes/CredentialAuthorizationRequestType;)V
+	public final fun component1 ()Leu/europa/ec/eudi/rqes/AuthorizationRequestPrepared;
+	public final fun component2 ()Leu/europa/ec/eudi/rqes/CredentialAuthorizationRequestType;
+	public final fun copy (Leu/europa/ec/eudi/rqes/AuthorizationRequestPrepared;Leu/europa/ec/eudi/rqes/CredentialAuthorizationRequestType;)Leu/europa/ec/eudi/rqes/CredentialAuthorizationRequestPrepared;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/CredentialAuthorizationRequestPrepared;Leu/europa/ec/eudi/rqes/AuthorizationRequestPrepared;Leu/europa/ec/eudi/rqes/CredentialAuthorizationRequestType;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CredentialAuthorizationRequestPrepared;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAuthorizationRequestPrepared ()Leu/europa/ec/eudi/rqes/AuthorizationRequestPrepared;
+	public final fun getCredentialAuthorizationRequestType ()Leu/europa/ec/eudi/rqes/CredentialAuthorizationRequestType;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class eu/europa/ec/eudi/rqes/CredentialAuthorizationRequestType {
+	public abstract fun getCredentialAuthorizationSubject ()Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;
+}
+
+public final class eu/europa/ec/eudi/rqes/CredentialAuthorizationRequestType$PassByAuthorizationDetails : eu/europa/ec/eudi/rqes/CredentialAuthorizationRequestType {
+	public static final synthetic fun box-impl (Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;)Leu/europa/ec/eudi/rqes/CredentialAuthorizationRequestType$PassByAuthorizationDetails;
+	public static fun constructor-impl (Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;)Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;)Z
+	public fun getCredentialAuthorizationSubject ()Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;
+}
+
+public final class eu/europa/ec/eudi/rqes/CredentialAuthorizationRequestType$PassByScope : eu/europa/ec/eudi/rqes/CredentialAuthorizationRequestType {
+	public static final synthetic fun box-impl (Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;)Leu/europa/ec/eudi/rqes/CredentialAuthorizationRequestType$PassByScope;
+	public static fun constructor-impl (Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;)Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;)Z
+	public fun getCredentialAuthorizationSubject ()Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;
+}
+
+public final class eu/europa/ec/eudi/rqes/CredentialAuthorizationSubject {
+	public fun <init> (Leu/europa/ec/eudi/rqes/CredentialRef;Leu/europa/ec/eudi/rqes/DocumentDigestList;Ljava/lang/Integer;)V
+	public synthetic fun <init> (Leu/europa/ec/eudi/rqes/CredentialRef;Leu/europa/ec/eudi/rqes/DocumentDigestList;Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Leu/europa/ec/eudi/rqes/CredentialRef;
+	public final fun component2 ()Leu/europa/ec/eudi/rqes/DocumentDigestList;
+	public final fun component3 ()Ljava/lang/Integer;
+	public final fun copy (Leu/europa/ec/eudi/rqes/CredentialRef;Leu/europa/ec/eudi/rqes/DocumentDigestList;Ljava/lang/Integer;)Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;Leu/europa/ec/eudi/rqes/CredentialRef;Leu/europa/ec/eudi/rqes/DocumentDigestList;Ljava/lang/Integer;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCredentialRef ()Leu/europa/ec/eudi/rqes/CredentialRef;
+	public final fun getDocumentDigestList ()Leu/europa/ec/eudi/rqes/DocumentDigestList;
+	public final fun getNumSignatures ()Ljava/lang/Integer;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class eu/europa/ec/eudi/rqes/CredentialAuthorized : java/io/Serializable {
+	public abstract fun getCredentialCertificate ()Leu/europa/ec/eudi/rqes/CredentialCertificate;
+	public abstract fun getCredentialID-NlVgAl8 ()Ljava/lang/String;
+	public abstract fun getTokens ()Leu/europa/ec/eudi/rqes/OAuth2Tokens;
+}
+
+public final class eu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL1 : eu/europa/ec/eudi/rqes/CredentialAuthorized {
+	public synthetic fun <init> (Leu/europa/ec/eudi/rqes/OAuth2Tokens;Ljava/lang/String;Leu/europa/ec/eudi/rqes/CredentialCertificate;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Leu/europa/ec/eudi/rqes/OAuth2Tokens;
+	public final fun component2-NlVgAl8 ()Ljava/lang/String;
+	public final fun component3 ()Leu/europa/ec/eudi/rqes/CredentialCertificate;
+	public final fun copy-miwLHSo (Leu/europa/ec/eudi/rqes/OAuth2Tokens;Ljava/lang/String;Leu/europa/ec/eudi/rqes/CredentialCertificate;)Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL1;
+	public static synthetic fun copy-miwLHSo$default (Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL1;Leu/europa/ec/eudi/rqes/OAuth2Tokens;Ljava/lang/String;Leu/europa/ec/eudi/rqes/CredentialCertificate;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL1;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getCredentialCertificate ()Leu/europa/ec/eudi/rqes/CredentialCertificate;
+	public fun getCredentialID-NlVgAl8 ()Ljava/lang/String;
+	public fun getTokens ()Leu/europa/ec/eudi/rqes/OAuth2Tokens;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL2 : eu/europa/ec/eudi/rqes/CredentialAuthorized {
+	public synthetic fun <init> (Leu/europa/ec/eudi/rqes/OAuth2Tokens;Ljava/lang/String;Leu/europa/ec/eudi/rqes/CredentialCertificate;Leu/europa/ec/eudi/rqes/DocumentDigestList;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Leu/europa/ec/eudi/rqes/OAuth2Tokens;
+	public final fun component2-NlVgAl8 ()Ljava/lang/String;
+	public final fun component3 ()Leu/europa/ec/eudi/rqes/CredentialCertificate;
+	public final fun component4 ()Leu/europa/ec/eudi/rqes/DocumentDigestList;
+	public final fun copy-HbLdyAo (Leu/europa/ec/eudi/rqes/OAuth2Tokens;Ljava/lang/String;Leu/europa/ec/eudi/rqes/CredentialCertificate;Leu/europa/ec/eudi/rqes/DocumentDigestList;)Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL2;
+	public static synthetic fun copy-HbLdyAo$default (Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL2;Leu/europa/ec/eudi/rqes/OAuth2Tokens;Ljava/lang/String;Leu/europa/ec/eudi/rqes/CredentialCertificate;Leu/europa/ec/eudi/rqes/DocumentDigestList;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL2;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getCredentialCertificate ()Leu/europa/ec/eudi/rqes/CredentialCertificate;
+	public fun getCredentialID-NlVgAl8 ()Ljava/lang/String;
+	public final fun getDocumentDigestList ()Leu/europa/ec/eudi/rqes/DocumentDigestList;
+	public fun getTokens ()Leu/europa/ec/eudi/rqes/OAuth2Tokens;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/CredentialCertificate {
+	public fun <init> (Leu/europa/ec/eudi/rqes/CredentialCertificateStatus;Ljava/util/List;Ljavax/security/auth/x500/X500Principal;Ljava/lang/String;Ljavax/security/auth/x500/X500Principal;Ljava/time/LocalDateTime;Ljava/time/LocalDateTime;)V
+	public final fun component1 ()Leu/europa/ec/eudi/rqes/CredentialCertificateStatus;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()Ljavax/security/auth/x500/X500Principal;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Ljavax/security/auth/x500/X500Principal;
+	public final fun component6 ()Ljava/time/LocalDateTime;
+	public final fun component7 ()Ljava/time/LocalDateTime;
+	public final fun copy (Leu/europa/ec/eudi/rqes/CredentialCertificateStatus;Ljava/util/List;Ljavax/security/auth/x500/X500Principal;Ljava/lang/String;Ljavax/security/auth/x500/X500Principal;Ljava/time/LocalDateTime;Ljava/time/LocalDateTime;)Leu/europa/ec/eudi/rqes/CredentialCertificate;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/CredentialCertificate;Leu/europa/ec/eudi/rqes/CredentialCertificateStatus;Ljava/util/List;Ljavax/security/auth/x500/X500Principal;Ljava/lang/String;Ljavax/security/auth/x500/X500Principal;Ljava/time/LocalDateTime;Ljava/time/LocalDateTime;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CredentialCertificate;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCertificates ()Ljava/util/List;
+	public final fun getIssuerDN ()Ljavax/security/auth/x500/X500Principal;
+	public final fun getSerialNumber ()Ljava/lang/String;
+	public final fun getStatus ()Leu/europa/ec/eudi/rqes/CredentialCertificateStatus;
+	public final fun getSubjectDN ()Ljavax/security/auth/x500/X500Principal;
+	public final fun getValidFrom ()Ljava/time/LocalDateTime;
+	public final fun getValidTo ()Ljava/time/LocalDateTime;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/CredentialCertificateStatus : java/lang/Enum {
+	public static final field Expired Leu/europa/ec/eudi/rqes/CredentialCertificateStatus;
+	public static final field Revoked Leu/europa/ec/eudi/rqes/CredentialCertificateStatus;
+	public static final field Suspended Leu/europa/ec/eudi/rqes/CredentialCertificateStatus;
+	public static final field Valid Leu/europa/ec/eudi/rqes/CredentialCertificateStatus;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/CredentialCertificateStatus;
+	public static fun values ()[Leu/europa/ec/eudi/rqes/CredentialCertificateStatus;
+}
+
+public final class eu/europa/ec/eudi/rqes/CredentialDescription {
+	public static final synthetic fun box-impl (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/CredentialDescription;
+	public static fun constructor-impl (Ljava/lang/String;)Ljava/lang/String;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/lang/String;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/lang/String;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/lang/String;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/CredentialID {
+	public static final synthetic fun box-impl (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/CredentialID;
+	public static fun constructor-impl (Ljava/lang/String;)Ljava/lang/String;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/lang/String;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/lang/String;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/lang/String;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/CredentialInfo {
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Leu/europa/ec/eudi/rqes/CredentialKey;Leu/europa/ec/eudi/rqes/CredentialCertificate;Leu/europa/ec/eudi/rqes/CredentialAuthorization;Leu/europa/ec/eudi/rqes/SCAL;ILjava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-NlVgAl8 ()Ljava/lang/String;
+	public final fun component2-NJK0t1U ()Ljava/lang/String;
+	public final fun component3-dIsRm00 ()Ljava/lang/String;
+	public final fun component4 ()Leu/europa/ec/eudi/rqes/CredentialKey;
+	public final fun component5 ()Leu/europa/ec/eudi/rqes/CredentialCertificate;
+	public final fun component6 ()Leu/europa/ec/eudi/rqes/CredentialAuthorization;
+	public final fun component7 ()Leu/europa/ec/eudi/rqes/SCAL;
+	public final fun component8 ()I
+	public final fun component9 ()Ljava/lang/String;
+	public final fun copy-JWuqEg8 (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Leu/europa/ec/eudi/rqes/CredentialKey;Leu/europa/ec/eudi/rqes/CredentialCertificate;Leu/europa/ec/eudi/rqes/CredentialAuthorization;Leu/europa/ec/eudi/rqes/SCAL;ILjava/lang/String;)Leu/europa/ec/eudi/rqes/CredentialInfo;
+	public static synthetic fun copy-JWuqEg8$default (Leu/europa/ec/eudi/rqes/CredentialInfo;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Leu/europa/ec/eudi/rqes/CredentialKey;Leu/europa/ec/eudi/rqes/CredentialCertificate;Leu/europa/ec/eudi/rqes/CredentialAuthorization;Leu/europa/ec/eudi/rqes/SCAL;ILjava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CredentialInfo;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAuthorization ()Leu/europa/ec/eudi/rqes/CredentialAuthorization;
+	public final fun getCertificate ()Leu/europa/ec/eudi/rqes/CredentialCertificate;
+	public final fun getCredentialID-NlVgAl8 ()Ljava/lang/String;
+	public final fun getDescription-NJK0t1U ()Ljava/lang/String;
+	public final fun getKey ()Leu/europa/ec/eudi/rqes/CredentialKey;
+	public final fun getLang ()Ljava/lang/String;
+	public final fun getMultisign ()I
+	public final fun getScal ()Leu/europa/ec/eudi/rqes/SCAL;
+	public final fun getSignatureQualifier-dIsRm00 ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/CredentialKey {
+	public fun <init> (Leu/europa/ec/eudi/rqes/CredentialKeyStatus;Ljava/util/List;ILjava/lang/String;)V
+	public final fun component1 ()Leu/europa/ec/eudi/rqes/CredentialKeyStatus;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()I
+	public final fun component4 ()Ljava/lang/String;
+	public final fun copy (Leu/europa/ec/eudi/rqes/CredentialKeyStatus;Ljava/util/List;ILjava/lang/String;)Leu/europa/ec/eudi/rqes/CredentialKey;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/CredentialKey;Leu/europa/ec/eudi/rqes/CredentialKeyStatus;Ljava/util/List;ILjava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CredentialKey;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCurve ()Ljava/lang/String;
+	public final fun getLength ()I
+	public final fun getStatus ()Leu/europa/ec/eudi/rqes/CredentialKeyStatus;
+	public final fun getSupportedAlgorithms ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/CredentialKeyStatus : java/lang/Enum {
+	public static final field Disabled Leu/europa/ec/eudi/rqes/CredentialKeyStatus;
+	public static final field Enabled Leu/europa/ec/eudi/rqes/CredentialKeyStatus;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/CredentialKeyStatus;
+	public static fun values ()[Leu/europa/ec/eudi/rqes/CredentialKeyStatus;
+}
+
+public abstract interface class eu/europa/ec/eudi/rqes/CredentialRef {
+}
+
+public final class eu/europa/ec/eudi/rqes/CredentialRef$ByCredentialID : eu/europa/ec/eudi/rqes/CredentialRef {
+	public synthetic fun <init> (Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-NlVgAl8 ()Ljava/lang/String;
+	public final fun copy-1BaITzg (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/CredentialRef$ByCredentialID;
+	public static synthetic fun copy-1BaITzg$default (Leu/europa/ec/eudi/rqes/CredentialRef$ByCredentialID;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CredentialRef$ByCredentialID;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCredentialID-NlVgAl8 ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/CredentialRef$BySignatureQualifier : eu/europa/ec/eudi/rqes/CredentialRef {
+	public synthetic fun <init> (Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-w75JrfI ()Ljava/lang/String;
+	public final fun copy-7kPVvXw (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/CredentialRef$BySignatureQualifier;
+	public static synthetic fun copy-7kPVvXw$default (Leu/europa/ec/eudi/rqes/CredentialRef$BySignatureQualifier;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CredentialRef$BySignatureQualifier;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getSignatureQualifier-w75JrfI ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/CredentialsInfoRequest {
+	public synthetic fun <init> (Ljava/lang/String;Leu/europa/ec/eudi/rqes/Certificates;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/String;Leu/europa/ec/eudi/rqes/Certificates;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-NlVgAl8 ()Ljava/lang/String;
+	public final fun component2 ()Leu/europa/ec/eudi/rqes/Certificates;
+	public final fun component3 ()Ljava/lang/Boolean;
+	public final fun component4 ()Ljava/lang/Boolean;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun copy-lKaqSpU (Ljava/lang/String;Leu/europa/ec/eudi/rqes/Certificates;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/String;Ljava/lang/String;)Leu/europa/ec/eudi/rqes/CredentialsInfoRequest;
+	public static synthetic fun copy-lKaqSpU$default (Leu/europa/ec/eudi/rqes/CredentialsInfoRequest;Ljava/lang/String;Leu/europa/ec/eudi/rqes/Certificates;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CredentialsInfoRequest;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAuthInfo ()Ljava/lang/Boolean;
+	public final fun getCertInfo ()Ljava/lang/Boolean;
+	public final fun getCertificates ()Leu/europa/ec/eudi/rqes/Certificates;
+	public final fun getClientData ()Ljava/lang/String;
+	public final fun getCredentialID-NlVgAl8 ()Ljava/lang/String;
+	public final fun getLang ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/CredentialsListRequest {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/Boolean;Leu/europa/ec/eudi/rqes/Certificates;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/Boolean;Leu/europa/ec/eudi/rqes/Certificates;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/Boolean;
+	public final fun component2 ()Leu/europa/ec/eudi/rqes/Certificates;
+	public final fun component3 ()Ljava/lang/Boolean;
+	public final fun component4 ()Ljava/lang/Boolean;
+	public final fun component5 ()Ljava/lang/Boolean;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/Boolean;Leu/europa/ec/eudi/rqes/Certificates;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/String;Ljava/lang/String;)Leu/europa/ec/eudi/rqes/CredentialsListRequest;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/CredentialsListRequest;Ljava/lang/Boolean;Leu/europa/ec/eudi/rqes/Certificates;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CredentialsListRequest;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAuthInfo ()Ljava/lang/Boolean;
+	public final fun getCertInfo ()Ljava/lang/Boolean;
+	public final fun getCertificates ()Leu/europa/ec/eudi/rqes/Certificates;
+	public final fun getClientData ()Ljava/lang/String;
+	public final fun getCredentialInfo ()Ljava/lang/Boolean;
+	public final fun getLang ()Ljava/lang/String;
+	public final fun getOnlyValid ()Ljava/lang/Boolean;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/Description {
+	public static final synthetic fun box-impl (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/Description;
+	public static fun constructor-impl (Ljava/lang/String;)Ljava/lang/String;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/lang/String;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/lang/String;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/lang/String;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/Digest {
+	public static final synthetic fun box-impl (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/Digest;
+	public static fun constructor-impl (Ljava/lang/String;)Ljava/lang/String;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/lang/String;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/lang/String;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/lang/String;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/Document {
+	public fun <init> (Ljava/io/File;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/io/File;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/io/File;Ljava/lang/String;)Leu/europa/ec/eudi/rqes/Document;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/Document;Ljava/io/File;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/Document;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getContent ()Ljava/io/File;
+	public final fun getLabel ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/DocumentDigest {
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-PfeMJ0o ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy--3Slz-w (Ljava/lang/String;Ljava/lang/String;)Leu/europa/ec/eudi/rqes/DocumentDigest;
+	public static synthetic fun copy--3Slz-w$default (Leu/europa/ec/eudi/rqes/DocumentDigest;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/DocumentDigest;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getHash-PfeMJ0o ()Ljava/lang/String;
+	public final fun getLabel ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/DocumentDigestList {
+	public synthetic fun <init> (Ljava/util/List;Ljava/lang/String;Ljava/time/Instant;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun component2-MWIvy3w ()Ljava/lang/String;
+	public final fun component3 ()Ljava/time/Instant;
+	public final fun copy-sBDKLA4 (Ljava/util/List;Ljava/lang/String;Ljava/time/Instant;)Leu/europa/ec/eudi/rqes/DocumentDigestList;
+	public static synthetic fun copy-sBDKLA4$default (Leu/europa/ec/eudi/rqes/DocumentDigestList;Ljava/util/List;Ljava/lang/String;Ljava/time/Instant;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/DocumentDigestList;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDocumentDigests ()Ljava/util/List;
+	public final fun getHashAlgorithmOID-MWIvy3w ()Ljava/lang/String;
+	public final fun getHashCalculationTime ()Ljava/time/Instant;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/DocumentToSign {
+	public synthetic fun <init> (Leu/europa/ec/eudi/rqes/Document;Leu/europa/ec/eudi/rqes/SignatureFormat;Leu/europa/ec/eudi/rqes/ConformanceLevel;Ljava/lang/String;Leu/europa/ec/eudi/rqes/SignedEnvelopeProperty;Leu/europa/ec/eudi/rqes/ASICContainer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Leu/europa/ec/eudi/rqes/Document;Leu/europa/ec/eudi/rqes/SignatureFormat;Leu/europa/ec/eudi/rqes/ConformanceLevel;Ljava/lang/String;Leu/europa/ec/eudi/rqes/SignedEnvelopeProperty;Leu/europa/ec/eudi/rqes/ASICContainer;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Leu/europa/ec/eudi/rqes/Document;
+	public final fun component2 ()Leu/europa/ec/eudi/rqes/SignatureFormat;
+	public final fun component3 ()Leu/europa/ec/eudi/rqes/ConformanceLevel;
+	public final fun component4-b9WZoMU ()Ljava/lang/String;
+	public final fun component5 ()Leu/europa/ec/eudi/rqes/SignedEnvelopeProperty;
+	public final fun component6 ()Leu/europa/ec/eudi/rqes/ASICContainer;
+	public final fun copy-z6Jf-sM (Leu/europa/ec/eudi/rqes/Document;Leu/europa/ec/eudi/rqes/SignatureFormat;Leu/europa/ec/eudi/rqes/ConformanceLevel;Ljava/lang/String;Leu/europa/ec/eudi/rqes/SignedEnvelopeProperty;Leu/europa/ec/eudi/rqes/ASICContainer;)Leu/europa/ec/eudi/rqes/DocumentToSign;
+	public static synthetic fun copy-z6Jf-sM$default (Leu/europa/ec/eudi/rqes/DocumentToSign;Leu/europa/ec/eudi/rqes/Document;Leu/europa/ec/eudi/rqes/SignatureFormat;Leu/europa/ec/eudi/rqes/ConformanceLevel;Ljava/lang/String;Leu/europa/ec/eudi/rqes/SignedEnvelopeProperty;Leu/europa/ec/eudi/rqes/ASICContainer;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/DocumentToSign;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAsicContainer ()Leu/europa/ec/eudi/rqes/ASICContainer;
+	public final fun getConformanceLevel ()Leu/europa/ec/eudi/rqes/ConformanceLevel;
+	public final fun getFile ()Leu/europa/ec/eudi/rqes/Document;
+	public final fun getSignAlgo-b9WZoMU ()Ljava/lang/String;
+	public final fun getSignatureFormat ()Leu/europa/ec/eudi/rqes/SignatureFormat;
+	public final fun getSignedEnvelopeProperty ()Leu/europa/ec/eudi/rqes/SignedEnvelopeProperty;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class eu/europa/ec/eudi/rqes/GetCredentialInfo {
+	public static final field Companion Leu/europa/ec/eudi/rqes/GetCredentialInfo$Companion;
+	public abstract fun credentialInfo-32wXPJQ (Leu/europa/ec/eudi/rqes/OAuth2Tokens;Leu/europa/ec/eudi/rqes/CredentialsInfoRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class eu/europa/ec/eudi/rqes/GetCredentialInfo$Companion {
+}
+
+public abstract interface class eu/europa/ec/eudi/rqes/GetSignedDocuments {
+	public abstract fun getSignedDocuments-tJEZZwM (Ljava/util/List;Ljava/util/List;Leu/europa/ec/eudi/rqes/CredentialCertificate;Ljava/lang/String;Ljava/time/Instant;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class eu/europa/ec/eudi/rqes/HashAlgorithmOID {
+	public static final field Companion Leu/europa/ec/eudi/rqes/HashAlgorithmOID$Companion;
+	public static final synthetic fun box-impl (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/HashAlgorithmOID;
+	public static fun constructor-impl (Ljava/lang/String;)Ljava/lang/String;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/lang/String;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/lang/String;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/lang/String;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/HashAlgorithmOID$Companion {
+	public final fun getMD2-MWIvy3w ()Ljava/lang/String;
+	public final fun getMD5-MWIvy3w ()Ljava/lang/String;
+	public final fun getSHA3_224-MWIvy3w ()Ljava/lang/String;
+	public final fun getSHA3_256-MWIvy3w ()Ljava/lang/String;
+	public final fun getSHA3_385-MWIvy3w ()Ljava/lang/String;
+	public final fun getSHA3_512-MWIvy3w ()Ljava/lang/String;
+	public final fun getSHA_224-MWIvy3w ()Ljava/lang/String;
+	public final fun getSHA_256-MWIvy3w ()Ljava/lang/String;
+	public final fun getSHA_385-MWIvy3w ()Ljava/lang/String;
+	public final fun getSHA_512-MWIvy3w ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/HttpsUrl {
+	public static final field Companion Leu/europa/ec/eudi/rqes/HttpsUrl$Companion;
+	public static final synthetic fun box-impl (Ljava/net/URL;)Leu/europa/ec/eudi/rqes/HttpsUrl;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/net/URL;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/net/URL;Ljava/net/URL;)Z
+	public final fun getValue ()Ljava/net/URL;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/net/URL;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/net/URL;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/net/URL;
+}
+
+public final class eu/europa/ec/eudi/rqes/HttpsUrl$Companion {
+	public final fun invoke-IoAF18A (Ljava/lang/String;)Ljava/lang/Object;
+}
+
+public final class eu/europa/ec/eudi/rqes/KtorKt {
+	public static final fun getDefaultHttpClientFactory ()Lkotlin/jvm/functions/Function0;
+}
+
+public abstract interface class eu/europa/ec/eudi/rqes/ListCredentials {
+	public static final field Companion Leu/europa/ec/eudi/rqes/ListCredentials$Companion;
+	public abstract fun listCredentials-32wXPJQ (Leu/europa/ec/eudi/rqes/OAuth2Tokens;Leu/europa/ec/eudi/rqes/CredentialsListRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class eu/europa/ec/eudi/rqes/ListCredentials$Companion {
+}
+
+public abstract interface class eu/europa/ec/eudi/rqes/OAuth2Client : java/io/Serializable {
+	public abstract fun getClientId ()Ljava/lang/String;
+}
+
+public abstract interface class eu/europa/ec/eudi/rqes/OAuth2Client$Confidential : eu/europa/ec/eudi/rqes/OAuth2Client {
+}
+
+public final class eu/europa/ec/eudi/rqes/OAuth2Client$Confidential$ClientSecretBasic : eu/europa/ec/eudi/rqes/OAuth2Client$Confidential {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Leu/europa/ec/eudi/rqes/OAuth2Client$Confidential$ClientSecretBasic;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/OAuth2Client$Confidential$ClientSecretBasic;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/OAuth2Client$Confidential$ClientSecretBasic;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getClientId ()Ljava/lang/String;
+	public final fun getClientSecret ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/OAuth2Client$Confidential$ClientSecretPost : eu/europa/ec/eudi/rqes/OAuth2Client$Confidential {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Leu/europa/ec/eudi/rqes/OAuth2Client$Confidential$ClientSecretPost;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/OAuth2Client$Confidential$ClientSecretPost;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/OAuth2Client$Confidential$ClientSecretPost;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getClientId ()Ljava/lang/String;
+	public final fun getClientSecret ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/OAuth2Client$Public : eu/europa/ec/eudi/rqes/OAuth2Client {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/OAuth2Client$Public;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/OAuth2Client$Public;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/OAuth2Client$Public;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getClientId ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/OAuth2Tokens : java/io/Serializable {
+	public fun <init> (Leu/europa/ec/eudi/rqes/AccessToken;Leu/europa/ec/eudi/rqes/RefreshToken;Ljava/time/Instant;)V
+	public final fun component1 ()Leu/europa/ec/eudi/rqes/AccessToken;
+	public final fun component2 ()Leu/europa/ec/eudi/rqes/RefreshToken;
+	public final fun component3 ()Ljava/time/Instant;
+	public final fun copy (Leu/europa/ec/eudi/rqes/AccessToken;Leu/europa/ec/eudi/rqes/RefreshToken;Ljava/time/Instant;)Leu/europa/ec/eudi/rqes/OAuth2Tokens;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/OAuth2Tokens;Leu/europa/ec/eudi/rqes/AccessToken;Leu/europa/ec/eudi/rqes/RefreshToken;Ljava/time/Instant;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/OAuth2Tokens;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAccessToken ()Leu/europa/ec/eudi/rqes/AccessToken;
+	public final fun getRefreshToken ()Leu/europa/ec/eudi/rqes/RefreshToken;
+	public final fun getTimestamp ()Ljava/time/Instant;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/Oauth2Grant : java/lang/Enum {
+	public static final field AuthorizationCode Leu/europa/ec/eudi/rqes/Oauth2Grant;
+	public static final field ClientCredentials Leu/europa/ec/eudi/rqes/Oauth2Grant;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/Oauth2Grant;
+	public static fun values ()[Leu/europa/ec/eudi/rqes/Oauth2Grant;
+}
+
+public final class eu/europa/ec/eudi/rqes/PKCEVerifier : java/io/Serializable {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Leu/europa/ec/eudi/rqes/PKCEVerifier;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/PKCEVerifier;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/PKCEVerifier;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCodeVerifier ()Ljava/lang/String;
+	public final fun getCodeVerifierMethod ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/ParUsage : java/lang/Enum {
+	public static final field IfSupported Leu/europa/ec/eudi/rqes/ParUsage;
+	public static final field Never Leu/europa/ec/eudi/rqes/ParUsage;
+	public static final field Required Leu/europa/ec/eudi/rqes/ParUsage;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/ParUsage;
+	public static fun values ()[Leu/europa/ec/eudi/rqes/ParUsage;
+}
+
+public abstract class eu/europa/ec/eudi/rqes/RQESError : java/lang/Throwable {
+	public synthetic fun <init> (Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class eu/europa/ec/eudi/rqes/RQESError$AccessTokenRequestFailed : eu/europa/ec/eudi/rqes/RQESError {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Leu/europa/ec/eudi/rqes/RQESError$AccessTokenRequestFailed;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/RQESError$AccessTokenRequestFailed;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/RQESError$AccessTokenRequestFailed;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getError ()Ljava/lang/String;
+	public final fun getErrorDescription ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/RQESError$PushedAuthorizationRequestFailed : eu/europa/ec/eudi/rqes/RQESError {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Leu/europa/ec/eudi/rqes/RQESError$PushedAuthorizationRequestFailed;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/RQESError$PushedAuthorizationRequestFailed;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/RQESError$PushedAuthorizationRequestFailed;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getError ()Ljava/lang/String;
+	public final fun getErrorDescription ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/RSSPId {
+	public static final field Companion Leu/europa/ec/eudi/rqes/RSSPId$Companion;
+	public static final synthetic fun box-impl (Ljava/net/URL;)Leu/europa/ec/eudi/rqes/RSSPId;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/net/URL;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/net/URL;Ljava/net/URL;)Z
+	public final fun getValue-XCHhHR0 ()Ljava/net/URL;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/net/URL;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/net/URL;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/net/URL;
+}
+
+public final class eu/europa/ec/eudi/rqes/RSSPId$Companion {
+	public final fun invoke-IoAF18A (Ljava/lang/String;)Ljava/lang/Object;
+}
+
+public final class eu/europa/ec/eudi/rqes/RSSPMetadataContent {
+	public synthetic fun <init> (Ljava/net/URL;Ljava/lang/String;Ljava/lang/String;Ljava/net/URI;Ljava/lang/String;Ljava/util/Locale;Ljava/lang/String;Ljava/util/Set;Ljava/lang/Boolean;Ljava/util/List;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/net/URL;Ljava/lang/String;Ljava/lang/String;Ljava/net/URI;Ljava/lang/String;Ljava/util/Locale;Ljava/lang/String;Ljava/util/Set;Ljava/lang/Boolean;Ljava/util/List;ZLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-637lPyc ()Ljava/net/URL;
+	public final fun component10 ()Ljava/util/List;
+	public final fun component11 ()Z
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/net/URI;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun component6 ()Ljava/util/Locale;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun component8 ()Ljava/util/Set;
+	public final fun component9 ()Ljava/lang/Boolean;
+	public final fun copy-Wa29aug (Ljava/net/URL;Ljava/lang/String;Ljava/lang/String;Ljava/net/URI;Ljava/lang/String;Ljava/util/Locale;Ljava/lang/String;Ljava/util/Set;Ljava/lang/Boolean;Ljava/util/List;Z)Leu/europa/ec/eudi/rqes/RSSPMetadataContent;
+	public static synthetic fun copy-Wa29aug$default (Leu/europa/ec/eudi/rqes/RSSPMetadataContent;Ljava/net/URL;Ljava/lang/String;Ljava/lang/String;Ljava/net/URI;Ljava/lang/String;Ljava/util/Locale;Ljava/lang/String;Ljava/util/Set;Ljava/lang/Boolean;Ljava/util/List;ZILjava/lang/Object;)Leu/europa/ec/eudi/rqes/RSSPMetadataContent;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAsynchronousOperationMode ()Ljava/lang/Boolean;
+	public final fun getAuthTypes ()Ljava/util/Set;
+	public final fun getDescription ()Ljava/lang/String;
+	public final fun getLang ()Ljava/util/Locale;
+	public final fun getLogo ()Ljava/net/URI;
+	public final fun getMethods ()Ljava/util/List;
+	public final fun getName ()Ljava/lang/String;
+	public final fun getRegion ()Ljava/lang/String;
+	public final fun getRsspId-637lPyc ()Ljava/net/URL;
+	public final fun getSpecs ()Ljava/lang/String;
+	public final fun getValidationInfo ()Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract class eu/europa/ec/eudi/rqes/RSSPMetadataError : java/lang/Throwable, java/io/Serializable {
+	public synthetic fun <init> (Ljava/lang/Throwable;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class eu/europa/ec/eudi/rqes/RSSPMetadataError$NonParseableRSSPMetadata : eu/europa/ec/eudi/rqes/RSSPMetadataError {
+	public fun <init> (Ljava/lang/Throwable;)V
+}
+
+public final class eu/europa/ec/eudi/rqes/RSSPMetadataError$UnableToFetchRSSPMetadata : eu/europa/ec/eudi/rqes/RSSPMetadataError {
+	public fun <init> (Ljava/lang/Throwable;)V
+}
+
+public abstract interface class eu/europa/ec/eudi/rqes/RSSPMetadataResolver {
+	public static final field Companion Leu/europa/ec/eudi/rqes/RSSPMetadataResolver$Companion;
+	public abstract fun resolve-i9aKnKY (Ljava/net/URL;Ljava/util/Locale;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class eu/europa/ec/eudi/rqes/RSSPMetadataResolver$Companion {
+	public final fun invoke (Lkotlin/jvm/functions/Function0;)Leu/europa/ec/eudi/rqes/RSSPMetadataResolver;
+	public static synthetic fun invoke$default (Leu/europa/ec/eudi/rqes/RSSPMetadataResolver$Companion;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/RSSPMetadataResolver;
+}
+
+public final class eu/europa/ec/eudi/rqes/RSSPMethod : java/lang/Enum {
+	public static final field AuthLogin Leu/europa/ec/eudi/rqes/RSSPMethod;
+	public static final field AuthRevoke Leu/europa/ec/eudi/rqes/RSSPMethod;
+	public static final field Companion Leu/europa/ec/eudi/rqes/RSSPMethod$Companion;
+	public static final field CredentialsAuthorize Leu/europa/ec/eudi/rqes/RSSPMethod;
+	public static final field CredentialsAuthorizeCheck Leu/europa/ec/eudi/rqes/RSSPMethod;
+	public static final field CredentialsExtendTransaction Leu/europa/ec/eudi/rqes/RSSPMethod;
+	public static final field CredentialsGetChallenge Leu/europa/ec/eudi/rqes/RSSPMethod;
+	public static final field CredentialsInfo Leu/europa/ec/eudi/rqes/RSSPMethod;
+	public static final field CredentialsList Leu/europa/ec/eudi/rqes/RSSPMethod;
+	public static final field CredentialsSendOTP Leu/europa/ec/eudi/rqes/RSSPMethod;
+	public static final field Info Leu/europa/ec/eudi/rqes/RSSPMethod;
+	public static final field Oauth2Authorize Leu/europa/ec/eudi/rqes/RSSPMethod;
+	public static final field Oauth2PushedAuthorize Leu/europa/ec/eudi/rqes/RSSPMethod;
+	public static final field Oauth2Revoke Leu/europa/ec/eudi/rqes/RSSPMethod;
+	public static final field Oauth2Token Leu/europa/ec/eudi/rqes/RSSPMethod;
+	public static final field SignaturesSignDoc Leu/europa/ec/eudi/rqes/RSSPMethod;
+	public static final field SignaturesSignHash Leu/europa/ec/eudi/rqes/RSSPMethod;
+	public static final field SignaturesSignPolling Leu/europa/ec/eudi/rqes/RSSPMethod;
+	public static final field SignaturesTimestamp Leu/europa/ec/eudi/rqes/RSSPMethod;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/RSSPMethod;
+	public static fun values ()[Leu/europa/ec/eudi/rqes/RSSPMethod;
+}
+
+public final class eu/europa/ec/eudi/rqes/RSSPMethod$Companion {
+}
+
+public final class eu/europa/ec/eudi/rqes/RarUsage : java/lang/Enum {
+	public static final field IfSupported Leu/europa/ec/eudi/rqes/RarUsage;
+	public static final field Never Leu/europa/ec/eudi/rqes/RarUsage;
+	public static final field Required Leu/europa/ec/eudi/rqes/RarUsage;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/RarUsage;
+	public static fun values ()[Leu/europa/ec/eudi/rqes/RarUsage;
+}
+
+public final class eu/europa/ec/eudi/rqes/RefreshToken : eu/europa/ec/eudi/rqes/CanExpire, java/io/Serializable {
+	public fun <init> (Ljava/lang/String;Ljava/lang/Long;)V
+	public fun <init> (Ljava/lang/String;Ljava/time/Duration;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/time/Duration;
+	public final fun copy (Ljava/lang/String;Ljava/time/Duration;)Leu/europa/ec/eudi/rqes/RefreshToken;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/RefreshToken;Ljava/lang/String;Ljava/time/Duration;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/RefreshToken;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getExpiresIn ()Ljava/time/Duration;
+	public final fun getRefreshToken ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun isExpired (Ljava/time/Instant;Ljava/time/Instant;)Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/SCAL : java/lang/Enum {
+	public static final field One Leu/europa/ec/eudi/rqes/SCAL;
+	public static final field Two Leu/europa/ec/eudi/rqes/SCAL;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/SCAL;
+	public static fun values ()[Leu/europa/ec/eudi/rqes/SCAL;
+}
+
+public final class eu/europa/ec/eudi/rqes/Scope {
+	public static final field Companion Leu/europa/ec/eudi/rqes/Scope$Companion;
+	public static final synthetic fun box-impl (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/Scope;
+	public static fun constructor-impl (Ljava/lang/String;)Ljava/lang/String;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/lang/String;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/lang/String;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/lang/String;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/Scope$Companion {
+	public final fun getCredential-RFE6ECM ()Ljava/lang/String;
+	public final fun getService-RFE6ECM ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/ServiceAccessAuthorized : java/io/Serializable {
+	public static final synthetic fun box-impl (Leu/europa/ec/eudi/rqes/OAuth2Tokens;)Leu/europa/ec/eudi/rqes/ServiceAccessAuthorized;
+	public static fun constructor-impl (Leu/europa/ec/eudi/rqes/OAuth2Tokens;)Leu/europa/ec/eudi/rqes/OAuth2Tokens;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Leu/europa/ec/eudi/rqes/OAuth2Tokens;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Leu/europa/ec/eudi/rqes/OAuth2Tokens;Leu/europa/ec/eudi/rqes/OAuth2Tokens;)Z
+	public final fun getTokens ()Leu/europa/ec/eudi/rqes/OAuth2Tokens;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Leu/europa/ec/eudi/rqes/OAuth2Tokens;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Leu/europa/ec/eudi/rqes/OAuth2Tokens;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Leu/europa/ec/eudi/rqes/OAuth2Tokens;
+}
+
+public final class eu/europa/ec/eudi/rqes/ServiceAuthorizationRequestPrepared {
+	public static final field Companion Leu/europa/ec/eudi/rqes/ServiceAuthorizationRequestPrepared$Companion;
+	public static final synthetic fun box-impl (Leu/europa/ec/eudi/rqes/AuthorizationRequestPrepared;)Leu/europa/ec/eudi/rqes/ServiceAuthorizationRequestPrepared;
+	public static fun constructor-impl (Leu/europa/ec/eudi/rqes/AuthorizationRequestPrepared;)Leu/europa/ec/eudi/rqes/AuthorizationRequestPrepared;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Leu/europa/ec/eudi/rqes/AuthorizationRequestPrepared;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Leu/europa/ec/eudi/rqes/AuthorizationRequestPrepared;Leu/europa/ec/eudi/rqes/AuthorizationRequestPrepared;)Z
+	public final fun getValue ()Leu/europa/ec/eudi/rqes/AuthorizationRequestPrepared;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Leu/europa/ec/eudi/rqes/AuthorizationRequestPrepared;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Leu/europa/ec/eudi/rqes/AuthorizationRequestPrepared;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Leu/europa/ec/eudi/rqes/AuthorizationRequestPrepared;
+}
+
+public final class eu/europa/ec/eudi/rqes/ServiceAuthorizationRequestPrepared$Companion {
+	public final fun invoke-vWXUuBI (Ljava/net/URL;Leu/europa/ec/eudi/rqes/PKCEVerifier;Ljava/lang/String;)Leu/europa/ec/eudi/rqes/AuthorizationRequestPrepared;
+}
+
+public abstract interface class eu/europa/ec/eudi/rqes/SignDoc {
+	public abstract fun signDoc-5KfB3zM (Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL2;Ljava/util/List;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun signDoc-YTnCqUo (Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL1;Ljava/util/List;Leu/europa/ec/eudi/rqes/DocumentDigestList;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class eu/europa/ec/eudi/rqes/SignDocResponse {
+	public fun <init> (Ljava/util/List;Ljava/util/List;Leu/europa/ec/eudi/rqes/ValidationInfo;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()Leu/europa/ec/eudi/rqes/ValidationInfo;
+	public final fun copy (Ljava/util/List;Ljava/util/List;Leu/europa/ec/eudi/rqes/ValidationInfo;)Leu/europa/ec/eudi/rqes/SignDocResponse;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/SignDocResponse;Ljava/util/List;Ljava/util/List;Leu/europa/ec/eudi/rqes/ValidationInfo;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/SignDocResponse;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDocumentWithSignature ()Ljava/util/List;
+	public final fun getSignatureObject ()Ljava/util/List;
+	public final fun getValidationInfo ()Leu/europa/ec/eudi/rqes/ValidationInfo;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class eu/europa/ec/eudi/rqes/SignHash {
+	public abstract fun signHash-5KfB3zM (Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL1;Leu/europa/ec/eudi/rqes/DocumentDigestList;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun signHash-PAqFIkU (Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL2;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class eu/europa/ec/eudi/rqes/Signature {
+	public static final synthetic fun box-impl (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/Signature;
+	public static fun constructor-impl (Ljava/lang/String;)Ljava/lang/String;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/lang/String;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/lang/String;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/lang/String;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/SignatureFormat : java/lang/Enum {
+	public static final field C Leu/europa/ec/eudi/rqes/SignatureFormat;
+	public static final field J Leu/europa/ec/eudi/rqes/SignatureFormat;
+	public static final field P Leu/europa/ec/eudi/rqes/SignatureFormat;
+	public static final field X Leu/europa/ec/eudi/rqes/SignatureFormat;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/SignatureFormat;
+	public static fun values ()[Leu/europa/ec/eudi/rqes/SignatureFormat;
+}
+
+public final class eu/europa/ec/eudi/rqes/SignatureQualifier {
+	public static final field Companion Leu/europa/ec/eudi/rqes/SignatureQualifier$Companion;
+	public static final synthetic fun box-impl (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/SignatureQualifier;
+	public static fun constructor-impl (Ljava/lang/String;)Ljava/lang/String;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/lang/String;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/lang/String;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/lang/String;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/SignatureQualifier$Companion {
+	public final fun getEU_EIDAS_AES-w75JrfI ()Ljava/lang/String;
+	public final fun getEU_EIDAS_AESEAL-w75JrfI ()Ljava/lang/String;
+	public final fun getEU_EIDAS_AESEALQC-w75JrfI ()Ljava/lang/String;
+	public final fun getEU_EIDAS_AESQC-w75JrfI ()Ljava/lang/String;
+	public final fun getEU_EIDAS_QES-w75JrfI ()Ljava/lang/String;
+	public final fun getEU_EIDAS_QESEAL-w75JrfI ()Ljava/lang/String;
+	public final fun getZA_ECTA_AES-w75JrfI ()Ljava/lang/String;
+	public final fun getZA_ECTA_OES-w75JrfI ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/SignaturesList {
+	public fun <init> (Ljava/util/List;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;)Leu/europa/ec/eudi/rqes/SignaturesList;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/SignaturesList;Ljava/util/List;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/SignaturesList;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getSignatures ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/SignedEnvelopeProperty : java/lang/Enum {
+	public static final field DETACHED Leu/europa/ec/eudi/rqes/SignedEnvelopeProperty;
+	public static final field ENVELOPED Leu/europa/ec/eudi/rqes/SignedEnvelopeProperty;
+	public static final field ENVELOPING Leu/europa/ec/eudi/rqes/SignedEnvelopeProperty;
+	public static final field INTERNALLY_DETACHED Leu/europa/ec/eudi/rqes/SignedEnvelopeProperty;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/SignedEnvelopeProperty;
+	public static fun values ()[Leu/europa/ec/eudi/rqes/SignedEnvelopeProperty;
+}
+
+public final class eu/europa/ec/eudi/rqes/SigningAlgorithmOID {
+	public static final field Companion Leu/europa/ec/eudi/rqes/SigningAlgorithmOID$Companion;
+	public static final synthetic fun box-impl (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/SigningAlgorithmOID;
+	public static fun constructor-impl (Ljava/lang/String;)Ljava/lang/String;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/lang/String;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/lang/String;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/lang/String;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/SigningAlgorithmOID$Companion {
+	public final fun getDSA-b9WZoMU ()Ljava/lang/String;
+	public final fun getECDSA-b9WZoMU ()Ljava/lang/String;
+	public final fun getECDSA_SHA256-b9WZoMU ()Ljava/lang/String;
+	public final fun getECDSA_SHA384-b9WZoMU ()Ljava/lang/String;
+	public final fun getECDSA_SHA512-b9WZoMU ()Ljava/lang/String;
+	public final fun getRSA-b9WZoMU ()Ljava/lang/String;
+	public final fun getRSA_SHA256-b9WZoMU ()Ljava/lang/String;
+	public final fun getRSA_SHA384-b9WZoMU ()Ljava/lang/String;
+	public final fun getRSA_SHA512-b9WZoMU ()Ljava/lang/String;
+	public final fun getX25519-b9WZoMU ()Ljava/lang/String;
+	public final fun getX448-b9WZoMU ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/ValidationInfo {
+	public fun <init> (Ljava/util/List;Ljava/util/List;Ljava/util/List;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;Ljava/util/List;Ljava/util/List;)Leu/europa/ec/eudi/rqes/ValidationInfo;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/ValidationInfo;Ljava/util/List;Ljava/util/List;Ljava/util/List;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/ValidationInfo;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCertificate ()Ljava/util/List;
+	public final fun getCrl ()Ljava/util/List;
+	public final fun getOcsp ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
