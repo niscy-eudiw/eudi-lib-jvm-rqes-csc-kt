@@ -13,6 +13,7 @@ dokka = "1.9.20"
 maven-publish = "0.29.0"
 logback = "1.5.12"
 binary-compatibility-validator = "0.16.3"
+uri-kmp = "0.0.18"
 
 [libraries]
 nimbus-oauth2-oidc-sdk = { module = "com.nimbusds:oauth2-oidc-sdk", version.ref = "nimbus-sdk" }
@@ -28,6 +29,7 @@ ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+uri-kmp = { module = "com.eygraber:uri-kmp", version.ref = "uri-kmp" }
 
 [plugins]
 dependency-check = { id = "org.owasp.dependencycheck", version.ref = "dependency-check" }

@@ -1,3 +1,737 @@
+public abstract interface class eu/europa/ec/eudi/documentretrieval/AccessMethod {
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/AccessMethod$BasicAuth : eu/europa/ec/eudi/documentretrieval/AccessMethod {
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/AccessMethod$BasicAuth;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/AccessMethod$DigestAuth : eu/europa/ec/eudi/documentretrieval/AccessMethod {
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/AccessMethod$DigestAuth;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/AccessMethod$OAuth2 : eu/europa/ec/eudi/documentretrieval/AccessMethod {
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/AccessMethod$OAuth2;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/AccessMethod$OTP : eu/europa/ec/eudi/documentretrieval/AccessMethod {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Leu/europa/ec/eudi/documentretrieval/AccessMethod$OTP;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/AccessMethod$OTP;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/AccessMethod$OTP;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getOneTimePassword ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/AccessMethod$Public : eu/europa/ec/eudi/documentretrieval/AccessMethod {
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/AccessMethod$Public;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class eu/europa/ec/eudi/documentretrieval/AuthorizationRequestError : java/io/Serializable {
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/AuthorizationRequestException : java/lang/RuntimeException {
+	public fun <init> (Leu/europa/ec/eudi/documentretrieval/AuthorizationRequestError;)V
+	public final fun component1 ()Leu/europa/ec/eudi/documentretrieval/AuthorizationRequestError;
+	public final fun copy (Leu/europa/ec/eudi/documentretrieval/AuthorizationRequestError;)Leu/europa/ec/eudi/documentretrieval/AuthorizationRequestException;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/AuthorizationRequestException;Leu/europa/ec/eudi/documentretrieval/AuthorizationRequestError;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/AuthorizationRequestException;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getError ()Leu/europa/ec/eudi/documentretrieval/AuthorizationRequestError;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class eu/europa/ec/eudi/documentretrieval/AuthorizationRequestResolver {
+	public abstract fun resolveRequestUri (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/AuthorizationRequestResolverKt {
+	public static final fun asException (Leu/europa/ec/eudi/documentretrieval/AuthorizationRequestError;)Leu/europa/ec/eudi/documentretrieval/AuthorizationRequestException;
+}
+
+public abstract interface class eu/europa/ec/eudi/documentretrieval/Client : java/io/Serializable {
+	public abstract fun getId ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/Client$DefaultImpls {
+	public static fun getId (Leu/europa/ec/eudi/documentretrieval/Client;)Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/Client$Preregistered : eu/europa/ec/eudi/documentretrieval/Client {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Leu/europa/ec/eudi/documentretrieval/Client$Preregistered;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/Client$Preregistered;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/Client$Preregistered;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getClientId ()Ljava/lang/String;
+	public fun getId ()Ljava/lang/String;
+	public final fun getLegalName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/Client$X509SanDns : eu/europa/ec/eudi/documentretrieval/Client {
+	public fun <init> (Ljava/lang/String;Ljava/security/cert/X509Certificate;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/security/cert/X509Certificate;
+	public final fun copy (Ljava/lang/String;Ljava/security/cert/X509Certificate;)Leu/europa/ec/eudi/documentretrieval/Client$X509SanDns;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/Client$X509SanDns;Ljava/lang/String;Ljava/security/cert/X509Certificate;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/Client$X509SanDns;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCert ()Ljava/security/cert/X509Certificate;
+	public final fun getClientId ()Ljava/lang/String;
+	public fun getId ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/Client$X509SanUri : eu/europa/ec/eudi/documentretrieval/Client {
+	public fun <init> (Ljava/net/URI;Ljava/security/cert/X509Certificate;)V
+	public final fun component1 ()Ljava/net/URI;
+	public final fun component2 ()Ljava/security/cert/X509Certificate;
+	public final fun copy (Ljava/net/URI;Ljava/security/cert/X509Certificate;)Leu/europa/ec/eudi/documentretrieval/Client$X509SanUri;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/Client$X509SanUri;Ljava/net/URI;Ljava/security/cert/X509Certificate;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/Client$X509SanUri;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCert ()Ljava/security/cert/X509Certificate;
+	public final fun getClientId ()Ljava/net/URI;
+	public fun getId ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/ClientIdScheme : java/lang/Enum {
+	public static final field Companion Leu/europa/ec/eudi/documentretrieval/ClientIdScheme$Companion;
+	public static final field PreRegistered Leu/europa/ec/eudi/documentretrieval/ClientIdScheme;
+	public static final field X509_SAN_DNS Leu/europa/ec/eudi/documentretrieval/ClientIdScheme;
+	public static final field X509_SAN_URI Leu/europa/ec/eudi/documentretrieval/ClientIdScheme;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public final fun value ()Ljava/lang/String;
+	public static fun valueOf (Ljava/lang/String;)Leu/europa/ec/eudi/documentretrieval/ClientIdScheme;
+	public static fun values ()[Leu/europa/ec/eudi/documentretrieval/ClientIdScheme;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/ClientIdScheme$Companion {
+	public final fun make (Ljava/lang/String;)Leu/europa/ec/eudi/documentretrieval/ClientIdScheme;
+}
+
+public abstract interface class eu/europa/ec/eudi/documentretrieval/Consensus : java/io/Serializable {
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/Consensus$Negative : eu/europa/ec/eudi/documentretrieval/Consensus {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Leu/europa/ec/eudi/documentretrieval/Consensus$Negative;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/Consensus$Negative;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/Consensus$Negative;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getError ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/Consensus$Positive : eu/europa/ec/eudi/documentretrieval/Consensus {
+	public fun <init> (Ljava/util/List;Ljava/util/List;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun component2 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;Ljava/util/List;)Leu/europa/ec/eudi/documentretrieval/Consensus$Positive;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/Consensus$Positive;Ljava/util/List;Ljava/util/List;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/Consensus$Positive;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDocumentWithSignature ()Ljava/util/List;
+	public final fun getSignatureObject ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class eu/europa/ec/eudi/documentretrieval/DispatchOutcome : java/io/Serializable {
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/DispatchOutcome$Accepted : eu/europa/ec/eudi/documentretrieval/DispatchOutcome {
+	public fun <init> (Ljava/net/URI;)V
+	public final fun component1 ()Ljava/net/URI;
+	public final fun copy (Ljava/net/URI;)Leu/europa/ec/eudi/documentretrieval/DispatchOutcome$Accepted;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/DispatchOutcome$Accepted;Ljava/net/URI;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/DispatchOutcome$Accepted;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getRedirectURI ()Ljava/net/URI;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/DispatchOutcome$Rejected : eu/europa/ec/eudi/documentretrieval/DispatchOutcome {
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/DispatchOutcome$Rejected;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class eu/europa/ec/eudi/documentretrieval/Dispatcher {
+	public abstract fun dispatch (Leu/europa/ec/eudi/documentretrieval/ResolvedRequestObject;Leu/europa/ec/eudi/documentretrieval/Consensus;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/DocumentDigest {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Leu/europa/ec/eudi/documentretrieval/DocumentDigest;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/DocumentDigest;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/DocumentDigest;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getHash ()Ljava/lang/String;
+	public final fun getLabel ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/DocumentLocation {
+	public fun <init> (Ljava/net/URL;Leu/europa/ec/eudi/documentretrieval/AccessMethod;)V
+	public final fun component1 ()Ljava/net/URL;
+	public final fun component2 ()Leu/europa/ec/eudi/documentretrieval/AccessMethod;
+	public final fun copy (Ljava/net/URL;Leu/europa/ec/eudi/documentretrieval/AccessMethod;)Leu/europa/ec/eudi/documentretrieval/DocumentLocation;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/DocumentLocation;Ljava/net/URL;Leu/europa/ec/eudi/documentretrieval/AccessMethod;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/DocumentLocation;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getMethod ()Leu/europa/ec/eudi/documentretrieval/AccessMethod;
+	public final fun getUri ()Ljava/net/URL;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class eu/europa/ec/eudi/documentretrieval/DocumentRetrieval : eu/europa/ec/eudi/documentretrieval/AuthorizationRequestResolver, eu/europa/ec/eudi/documentretrieval/Dispatcher {
+	public static final field Companion Leu/europa/ec/eudi/documentretrieval/DocumentRetrieval$Companion;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/DocumentRetrieval$Companion {
+	public final fun invoke (Leu/europa/ec/eudi/documentretrieval/DocumentRetrievalConfig;Lkotlin/jvm/functions/Function0;)Leu/europa/ec/eudi/documentretrieval/DocumentRetrieval;
+	public static synthetic fun invoke$default (Leu/europa/ec/eudi/documentretrieval/DocumentRetrieval$Companion;Leu/europa/ec/eudi/documentretrieval/DocumentRetrievalConfig;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/DocumentRetrieval;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/DocumentRetrievalConfig {
+	public static final field Companion Leu/europa/ec/eudi/documentretrieval/DocumentRetrievalConfig$Companion;
+	public fun <init> (Lcom/nimbusds/oauth2/sdk/id/Issuer;Leu/europa/ec/eudi/documentretrieval/JarConfiguration;Ljava/time/Clock;Ljava/time/Duration;[Leu/europa/ec/eudi/documentretrieval/SupportedClientIdScheme;)V
+	public synthetic fun <init> (Lcom/nimbusds/oauth2/sdk/id/Issuer;Leu/europa/ec/eudi/documentretrieval/JarConfiguration;Ljava/time/Clock;Ljava/time/Duration;[Leu/europa/ec/eudi/documentretrieval/SupportedClientIdScheme;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Leu/europa/ec/eudi/documentretrieval/JarConfiguration;Ljava/time/Clock;Ljava/time/Duration;Ljava/util/List;)V
+	public synthetic fun <init> (Leu/europa/ec/eudi/documentretrieval/JarConfiguration;Ljava/time/Clock;Ljava/time/Duration;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Leu/europa/ec/eudi/documentretrieval/JarConfiguration;
+	public final fun component2 ()Ljava/time/Clock;
+	public final fun component3 ()Ljava/time/Duration;
+	public final fun component4 ()Ljava/util/List;
+	public final fun copy (Leu/europa/ec/eudi/documentretrieval/JarConfiguration;Ljava/time/Clock;Ljava/time/Duration;Ljava/util/List;)Leu/europa/ec/eudi/documentretrieval/DocumentRetrievalConfig;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/DocumentRetrievalConfig;Leu/europa/ec/eudi/documentretrieval/JarConfiguration;Ljava/time/Clock;Ljava/time/Duration;Ljava/util/List;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/DocumentRetrievalConfig;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getClock ()Ljava/time/Clock;
+	public final fun getJarClockSkew ()Ljava/time/Duration;
+	public final fun getJarConfiguration ()Leu/europa/ec/eudi/documentretrieval/JarConfiguration;
+	public final fun getSupportedClientIdSchemes ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/DocumentRetrievalConfig$Companion {
+	public final fun getSelfIssued ()Lcom/nimbusds/oauth2/sdk/id/Issuer;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/HttpError : eu/europa/ec/eudi/documentretrieval/AuthorizationRequestError {
+	public fun <init> (Ljava/lang/Throwable;)V
+	public final fun component1 ()Ljava/lang/Throwable;
+	public final fun copy (Ljava/lang/Throwable;)Leu/europa/ec/eudi/documentretrieval/HttpError;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/HttpError;Ljava/lang/Throwable;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/HttpError;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCause ()Ljava/lang/Throwable;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/JarConfiguration {
+	public static final field Companion Leu/europa/ec/eudi/documentretrieval/JarConfiguration$Companion;
+	public fun <init> (Ljava/util/List;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;)Leu/europa/ec/eudi/documentretrieval/JarConfiguration;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/JarConfiguration;Ljava/util/List;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/JarConfiguration;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getSupportedAlgorithms ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/JarConfiguration$Companion {
+	public final fun getDefault ()Leu/europa/ec/eudi/documentretrieval/JarConfiguration;
+}
+
+public abstract interface class eu/europa/ec/eudi/documentretrieval/JwkSetSource {
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/JwkSetSource$ByReference : eu/europa/ec/eudi/documentretrieval/JwkSetSource {
+	public fun <init> (Ljava/net/URI;)V
+	public final fun component1 ()Ljava/net/URI;
+	public final fun copy (Ljava/net/URI;)Leu/europa/ec/eudi/documentretrieval/JwkSetSource$ByReference;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/JwkSetSource$ByReference;Ljava/net/URI;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/JwkSetSource$ByReference;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getJwksUri ()Ljava/net/URI;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/JwkSetSource$ByValue : eu/europa/ec/eudi/documentretrieval/JwkSetSource {
+	public fun <init> (Lkotlinx/serialization/json/JsonObject;)V
+	public final fun component1 ()Lkotlinx/serialization/json/JsonObject;
+	public final fun copy (Lkotlinx/serialization/json/JsonObject;)Leu/europa/ec/eudi/documentretrieval/JwkSetSource$ByValue;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/JwkSetSource$ByValue;Lkotlinx/serialization/json/JsonObject;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/JwkSetSource$ByValue;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getJwks ()Lkotlinx/serialization/json/JsonObject;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/OpenId4VPSpec {
+	public static final field CLIENT_ID_SCHEME_PRE_REGISTERED Ljava/lang/String;
+	public static final field CLIENT_ID_SCHEME_X509_SAN_DNS Ljava/lang/String;
+	public static final field CLIENT_ID_SCHEME_X509_SAN_URI Ljava/lang/String;
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/OpenId4VPSpec;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/PreregisteredClient {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Lkotlin/Pair;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lkotlin/Pair;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Lkotlin/Pair;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Lkotlin/Pair;)Leu/europa/ec/eudi/documentretrieval/PreregisteredClient;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/PreregisteredClient;Ljava/lang/String;Ljava/lang/String;Lkotlin/Pair;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/PreregisteredClient;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getClientId ()Ljava/lang/String;
+	public final fun getJarConfig ()Lkotlin/Pair;
+	public final fun getLegalName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class eu/europa/ec/eudi/documentretrieval/RequestValidationError : eu/europa/ec/eudi/documentretrieval/AuthorizationRequestError {
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/RequestValidationError$InvalidClientId : eu/europa/ec/eudi/documentretrieval/RequestValidationError {
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/RequestValidationError$InvalidClientId;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/RequestValidationError$InvalidClientIdScheme : eu/europa/ec/eudi/documentretrieval/RequestValidationError {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Leu/europa/ec/eudi/documentretrieval/RequestValidationError$InvalidClientIdScheme;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/RequestValidationError$InvalidClientIdScheme;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/RequestValidationError$InvalidClientIdScheme;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/RequestValidationError$InvalidDocumentDigests : eu/europa/ec/eudi/documentretrieval/RequestValidationError {
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/RequestValidationError$InvalidDocumentDigests;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/RequestValidationError$InvalidDocumentLocations : eu/europa/ec/eudi/documentretrieval/RequestValidationError {
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/RequestValidationError$InvalidDocumentLocations;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/RequestValidationError$InvalidJarJwt : eu/europa/ec/eudi/documentretrieval/AuthorizationRequestError {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Leu/europa/ec/eudi/documentretrieval/RequestValidationError$InvalidJarJwt;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/RequestValidationError$InvalidJarJwt;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/RequestValidationError$InvalidJarJwt;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCause ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/RequestValidationError$InvalidRequestUriMethod : eu/europa/ec/eudi/documentretrieval/RequestValidationError {
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/RequestValidationError$InvalidRequestUriMethod;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/RequestValidationError$InvalidResponseUri : eu/europa/ec/eudi/documentretrieval/RequestValidationError {
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/RequestValidationError$InvalidResponseUri;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingClientId : eu/europa/ec/eudi/documentretrieval/RequestValidationError {
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingClientId;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingDocumentDigestHash : eu/europa/ec/eudi/documentretrieval/RequestValidationError {
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingDocumentDigestHash;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingDocumentDigestLabel : eu/europa/ec/eudi/documentretrieval/RequestValidationError {
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingDocumentDigestLabel;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingDocumentDigests : eu/europa/ec/eudi/documentretrieval/RequestValidationError {
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingDocumentDigests;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingDocumentLocationMethod : eu/europa/ec/eudi/documentretrieval/RequestValidationError {
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingDocumentLocationMethod;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingDocumentLocationOTP : eu/europa/ec/eudi/documentretrieval/RequestValidationError {
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingDocumentLocationOTP;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingDocumentLocationUri : eu/europa/ec/eudi/documentretrieval/RequestValidationError {
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingDocumentLocationUri;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingDocumentLocations : eu/europa/ec/eudi/documentretrieval/RequestValidationError {
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingDocumentLocations;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingHashAlgorithmOID : eu/europa/ec/eudi/documentretrieval/RequestValidationError {
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingHashAlgorithmOID;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingNonce : eu/europa/ec/eudi/documentretrieval/RequestValidationError {
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingNonce;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingRequestUri : eu/europa/ec/eudi/documentretrieval/RequestValidationError {
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingRequestUri;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingResponseType : eu/europa/ec/eudi/documentretrieval/RequestValidationError {
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingResponseType;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingResponseUri : eu/europa/ec/eudi/documentretrieval/RequestValidationError {
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingResponseUri;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingSignatureQualifier : eu/europa/ec/eudi/documentretrieval/RequestValidationError {
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/RequestValidationError$MissingSignatureQualifier;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/RequestValidationError$UnsupportedClientIdScheme : eu/europa/ec/eudi/documentretrieval/RequestValidationError {
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/RequestValidationError$UnsupportedClientIdScheme;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/RequestValidationError$UnsupportedDocumentLocationMethod : eu/europa/ec/eudi/documentretrieval/RequestValidationError {
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/RequestValidationError$UnsupportedDocumentLocationMethod;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/RequestValidationError$UnsupportedResponseMode : eu/europa/ec/eudi/documentretrieval/RequestValidationError {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Leu/europa/ec/eudi/documentretrieval/RequestValidationError$UnsupportedResponseMode;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/RequestValidationError$UnsupportedResponseMode;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/RequestValidationError$UnsupportedResponseMode;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/RequestValidationError$UnsupportedResponseType : eu/europa/ec/eudi/documentretrieval/RequestValidationError {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Leu/europa/ec/eudi/documentretrieval/RequestValidationError$UnsupportedResponseType;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/RequestValidationError$UnsupportedResponseType;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/RequestValidationError$UnsupportedResponseType;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/RequestValidationError$UnsupportedSignatureQualifier : eu/europa/ec/eudi/documentretrieval/RequestValidationError {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Leu/europa/ec/eudi/documentretrieval/RequestValidationError$UnsupportedSignatureQualifier;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/RequestValidationError$UnsupportedSignatureQualifier;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/RequestValidationError$UnsupportedSignatureQualifier;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class eu/europa/ec/eudi/documentretrieval/Resolution {
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/Resolution$Invalid : eu/europa/ec/eudi/documentretrieval/Resolution {
+	public fun <init> (Leu/europa/ec/eudi/documentretrieval/AuthorizationRequestError;)V
+	public final fun component1 ()Leu/europa/ec/eudi/documentretrieval/AuthorizationRequestError;
+	public final fun copy (Leu/europa/ec/eudi/documentretrieval/AuthorizationRequestError;)Leu/europa/ec/eudi/documentretrieval/Resolution$Invalid;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/Resolution$Invalid;Leu/europa/ec/eudi/documentretrieval/AuthorizationRequestError;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/Resolution$Invalid;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getError ()Leu/europa/ec/eudi/documentretrieval/AuthorizationRequestError;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/Resolution$Success : eu/europa/ec/eudi/documentretrieval/Resolution {
+	public fun <init> (Leu/europa/ec/eudi/documentretrieval/ResolvedRequestObject;)V
+	public final fun component1 ()Leu/europa/ec/eudi/documentretrieval/ResolvedRequestObject;
+	public final fun copy (Leu/europa/ec/eudi/documentretrieval/ResolvedRequestObject;)Leu/europa/ec/eudi/documentretrieval/Resolution$Success;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/Resolution$Success;Leu/europa/ec/eudi/documentretrieval/ResolvedRequestObject;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/Resolution$Success;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getRequestObject ()Leu/europa/ec/eudi/documentretrieval/ResolvedRequestObject;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/ResolvedRequestObject : java/io/Serializable {
+	public synthetic fun <init> (Leu/europa/ec/eudi/documentretrieval/Client;Leu/europa/ec/eudi/documentretrieval/ResponseMode;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Leu/europa/ec/eudi/documentretrieval/Client;
+	public final fun component2 ()Leu/europa/ec/eudi/documentretrieval/ResponseMode;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5-w75JrfI ()Ljava/lang/String;
+	public final fun component6 ()Ljava/util/List;
+	public final fun component7 ()Ljava/util/List;
+	public final fun component8-MWIvy3w ()Ljava/lang/String;
+	public final fun component9 ()Ljava/lang/String;
+	public final fun copy-EfSGrUc (Leu/europa/ec/eudi/documentretrieval/Client;Leu/europa/ec/eudi/documentretrieval/ResponseMode;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;)Leu/europa/ec/eudi/documentretrieval/ResolvedRequestObject;
+	public static synthetic fun copy-EfSGrUc$default (Leu/europa/ec/eudi/documentretrieval/ResolvedRequestObject;Leu/europa/ec/eudi/documentretrieval/Client;Leu/europa/ec/eudi/documentretrieval/ResponseMode;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/ResolvedRequestObject;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getClient ()Leu/europa/ec/eudi/documentretrieval/Client;
+	public final fun getClientData ()Ljava/lang/String;
+	public final fun getDocumentDigests ()Ljava/util/List;
+	public final fun getDocumentLocations ()Ljava/util/List;
+	public final fun getHashAlgorithmOID-MWIvy3w ()Ljava/lang/String;
+	public final fun getNonce ()Ljava/lang/String;
+	public final fun getResponseMode ()Leu/europa/ec/eudi/documentretrieval/ResponseMode;
+	public final fun getSignatureQualifier-w75JrfI ()Ljava/lang/String;
+	public final fun getState ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class eu/europa/ec/eudi/documentretrieval/ResponseMode : java/io/Serializable {
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/ResponseMode$DirectPost : eu/europa/ec/eudi/documentretrieval/ResponseMode {
+	public fun <init> (Ljava/net/URL;)V
+	public final fun component1 ()Ljava/net/URL;
+	public final fun copy (Ljava/net/URL;)Leu/europa/ec/eudi/documentretrieval/ResponseMode$DirectPost;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/ResponseMode$DirectPost;Ljava/net/URL;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/ResponseMode$DirectPost;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getResponseURI ()Ljava/net/URL;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class eu/europa/ec/eudi/documentretrieval/SupportedClientIdScheme {
+	public abstract fun scheme ()Leu/europa/ec/eudi/documentretrieval/ClientIdScheme;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/SupportedClientIdScheme$DefaultImpls {
+	public static fun scheme (Leu/europa/ec/eudi/documentretrieval/SupportedClientIdScheme;)Leu/europa/ec/eudi/documentretrieval/ClientIdScheme;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/SupportedClientIdScheme$Preregistered : eu/europa/ec/eudi/documentretrieval/SupportedClientIdScheme {
+	public fun <init> (Ljava/util/Map;)V
+	public fun <init> ([Leu/europa/ec/eudi/documentretrieval/PreregisteredClient;)V
+	public final fun component1 ()Ljava/util/Map;
+	public final fun copy (Ljava/util/Map;)Leu/europa/ec/eudi/documentretrieval/SupportedClientIdScheme$Preregistered;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/SupportedClientIdScheme$Preregistered;Ljava/util/Map;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/SupportedClientIdScheme$Preregistered;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getClients ()Ljava/util/Map;
+	public fun hashCode ()I
+	public fun scheme ()Leu/europa/ec/eudi/documentretrieval/ClientIdScheme;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/SupportedClientIdScheme$X509SanDns : eu/europa/ec/eudi/documentretrieval/SupportedClientIdScheme {
+	public static final field Companion Leu/europa/ec/eudi/documentretrieval/SupportedClientIdScheme$X509SanDns$Companion;
+	public fun <init> (Leu/europa/ec/eudi/documentretrieval/X509CertificateTrust;)V
+	public final fun component1 ()Leu/europa/ec/eudi/documentretrieval/X509CertificateTrust;
+	public final fun copy (Leu/europa/ec/eudi/documentretrieval/X509CertificateTrust;)Leu/europa/ec/eudi/documentretrieval/SupportedClientIdScheme$X509SanDns;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/SupportedClientIdScheme$X509SanDns;Leu/europa/ec/eudi/documentretrieval/X509CertificateTrust;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/SupportedClientIdScheme$X509SanDns;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getTrust ()Leu/europa/ec/eudi/documentretrieval/X509CertificateTrust;
+	public fun hashCode ()I
+	public fun scheme ()Leu/europa/ec/eudi/documentretrieval/ClientIdScheme;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/SupportedClientIdScheme$X509SanDns$Companion {
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/SupportedClientIdScheme$X509SanUri : eu/europa/ec/eudi/documentretrieval/SupportedClientIdScheme {
+	public static final field Companion Leu/europa/ec/eudi/documentretrieval/SupportedClientIdScheme$X509SanUri$Companion;
+	public fun <init> (Leu/europa/ec/eudi/documentretrieval/X509CertificateTrust;)V
+	public final fun component1 ()Leu/europa/ec/eudi/documentretrieval/X509CertificateTrust;
+	public final fun copy (Leu/europa/ec/eudi/documentretrieval/X509CertificateTrust;)Leu/europa/ec/eudi/documentretrieval/SupportedClientIdScheme$X509SanUri;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/SupportedClientIdScheme$X509SanUri;Leu/europa/ec/eudi/documentretrieval/X509CertificateTrust;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/SupportedClientIdScheme$X509SanUri;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getTrust ()Leu/europa/ec/eudi/documentretrieval/X509CertificateTrust;
+	public fun hashCode ()I
+	public fun scheme ()Leu/europa/ec/eudi/documentretrieval/ClientIdScheme;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/SupportedClientIdScheme$X509SanUri$Companion {
+}
+
+public abstract interface class eu/europa/ec/eudi/documentretrieval/X509CertificateTrust {
+	public abstract fun isTrusted (Ljava/util/List;)Z
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/internal/X509SubjectAlternativeNameKt {
+	public static final fun sanOfDNSName (Ljava/security/cert/X509Certificate;)Ljava/lang/Object;
+	public static final fun sanOfUniformResourceIdentifier (Ljava/security/cert/X509Certificate;)Ljava/lang/Object;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/internal/request/DocumentDigestDTO {
+	public static final field Companion Leu/europa/ec/eudi/documentretrieval/internal/request/DocumentDigestDTO$Companion;
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Leu/europa/ec/eudi/documentretrieval/internal/request/DocumentDigestDTO;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/internal/request/DocumentDigestDTO;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/internal/request/DocumentDigestDTO;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getHash ()Ljava/lang/String;
+	public final fun getLabel ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public synthetic class eu/europa/ec/eudi/documentretrieval/internal/request/DocumentDigestDTO$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Leu/europa/ec/eudi/documentretrieval/internal/request/DocumentDigestDTO$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Leu/europa/ec/eudi/documentretrieval/internal/request/DocumentDigestDTO;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Leu/europa/ec/eudi/documentretrieval/internal/request/DocumentDigestDTO;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/internal/request/DocumentDigestDTO$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/internal/request/FetchedRequest {
+	public fun <init> (Ljava/lang/String;Lcom/nimbusds/jwt/SignedJWT;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lcom/nimbusds/jwt/SignedJWT;
+	public final fun copy (Ljava/lang/String;Lcom/nimbusds/jwt/SignedJWT;)Leu/europa/ec/eudi/documentretrieval/internal/request/FetchedRequest;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/internal/request/FetchedRequest;Ljava/lang/String;Lcom/nimbusds/jwt/SignedJWT;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/internal/request/FetchedRequest;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getClientId ()Ljava/lang/String;
+	public final fun getJwt ()Lcom/nimbusds/jwt/SignedJWT;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/internal/request/UnvalidatedRequest {
+	public static final field Companion Leu/europa/ec/eudi/documentretrieval/internal/request/UnvalidatedRequest$Companion;
+	public fun <init> (Ljava/lang/String;Ljava/net/URL;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/net/URL;
+	public final fun copy (Ljava/lang/String;Ljava/net/URL;)Leu/europa/ec/eudi/documentretrieval/internal/request/UnvalidatedRequest;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/documentretrieval/internal/request/UnvalidatedRequest;Ljava/lang/String;Ljava/net/URL;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/internal/request/UnvalidatedRequest;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getClientId ()Ljava/lang/String;
+	public final fun getJwtURI ()Ljava/net/URL;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/internal/request/UnvalidatedRequest$Companion {
+	public final fun make-IoAF18A (Ljava/lang/String;)Ljava/lang/Object;
+}
+
+public final class eu/europa/ec/eudi/documentretrieval/internal/request/ValidatedRequestObject {
+	public synthetic fun <init> (Leu/europa/ec/eudi/documentretrieval/ResponseMode;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Leu/europa/ec/eudi/documentretrieval/ResponseMode;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4-w75JrfI ()Ljava/lang/String;
+	public final fun component5 ()Ljava/util/List;
+	public final fun component6 ()Ljava/util/List;
+	public final fun component7-MWIvy3w ()Ljava/lang/String;
+	public final fun component8 ()Ljava/lang/String;
+	public final fun copy-f8Vr480 (Leu/europa/ec/eudi/documentretrieval/ResponseMode;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;)Leu/europa/ec/eudi/documentretrieval/internal/request/ValidatedRequestObject;
+	public static synthetic fun copy-f8Vr480$default (Leu/europa/ec/eudi/documentretrieval/internal/request/ValidatedRequestObject;Leu/europa/ec/eudi/documentretrieval/ResponseMode;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/documentretrieval/internal/request/ValidatedRequestObject;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getClientData ()Ljava/lang/String;
+	public final fun getDocumentDigests ()Ljava/util/List;
+	public final fun getDocumentLocations ()Ljava/util/List;
+	public final fun getHashAlgorithmOID-MWIvy3w ()Ljava/lang/String;
+	public final fun getNonce ()Ljava/lang/String;
+	public final fun getResponseMode ()Leu/europa/ec/eudi/documentretrieval/ResponseMode;
+	public final fun getSignatureQualifier-w75JrfI ()Ljava/lang/String;
+	public final fun getState ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class eu/europa/ec/eudi/rqes/ASICContainer : java/lang/Enum {
 	public static final field ASIC_E Leu/europa/ec/eudi/rqes/ASICContainer;
 	public static final field ASIC_S Leu/europa/ec/eudi/rqes/ASICContainer;
