@@ -31,7 +31,7 @@ fun main() {
     runBlocking {
         val config = DocumentRetrievalConfig(
             jarConfiguration = JarConfiguration(
-                supportedAlgorithms = listOf(JWSAlgorithm.HS256, JWSAlgorithm.ES256),
+                supportedAlgorithms = listOf(JWSAlgorithm.ES256),
             ),
             clock = Clock.systemDefaultZone(),
             jarClockSkew = Duration.ofSeconds(15L),
