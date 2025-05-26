@@ -32,6 +32,7 @@ dependencies {
     api(libs.ktor.client.serialization)
     api(libs.ktor.serialization.kotlinx.json)
     implementation(libs.uri.kmp)
+    implementation(files("libs/podofo-android.aar"))
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.jsoup)
     testImplementation(kotlin("test"))

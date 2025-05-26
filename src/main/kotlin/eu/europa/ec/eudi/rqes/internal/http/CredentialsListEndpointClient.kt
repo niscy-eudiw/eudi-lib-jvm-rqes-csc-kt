@@ -159,6 +159,7 @@ internal class CredentialKeyCertificateTO(
                 val x509CertificateFactory = CertificateFactory.getInstance("X.509")
                 x509CertificateFactory.generateCertificate(inputStream) as X509Certificate
             },
+            rawCertificates = certificates ?: emptyList(),
             issuerDN = X500Principal(issuerDN),
             serialNumber = serialNumber,
             subjectDN = X500Principal(subjectDN),

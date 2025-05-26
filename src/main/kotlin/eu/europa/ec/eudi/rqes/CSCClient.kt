@@ -15,6 +15,8 @@
  */
 package eu.europa.ec.eudi.rqes
 
+
+import eu.europa.ec.eudi.podofomanager.PodofoManager
 import eu.europa.ec.eudi.rqes.internal.*
 import eu.europa.ec.eudi.rqes.internal.http.*
 
@@ -25,7 +27,7 @@ interface CSCClient :
     GetCredentialInfo,
     SignHash,
     SignDoc,
-    GetSignedDocuments,
+    CreateSignedDocuments,
     CalculateDocumentHashes {
 
     val rsspMetadata: RSSPMetadata
@@ -50,6 +52,8 @@ interface CSCClient :
             rsspMetadata: RSSPMetadata,
             ktorHttpClientFactory: KtorHttpClientFactory = DefaultHttpClientFactory,
         ): Result<CSCClient> = runCatching {
+
+            val podofoManager = PodofoManager()
             val oauth2AuthType =
                 requireNotNull(rsspMetadata.oauth2AuthType()) { "RSSP doesn't support OAUTH2" }
             val (authServerMetadata, grants) = oauth2AuthType
@@ -81,12 +85,6 @@ interface CSCClient :
                     ktorHttpClientFactory,
                 )
 
-            val scaCalculateHashEndpointClient =
-                SCACalculateHashEndpointClient(
-                    cscClientConfig.scaBaseURL,
-                    ktorHttpClientFactory,
-                )
-
             val authorizeCredentialImpl = AuthorizeCredentialImpl(
                 authorizationEndpointClient,
                 tokenEndpointClient,
@@ -112,21 +110,17 @@ interface CSCClient :
                 signHashEndpointClient,
             )
 
-            val calculateDocumentHashesImpl = CalculateDocumentHashesImpl(
-                scaCalculateHashEndpointClient,
-            )
-
-            val scaObtainSignedDocEndpointClient =
-                SCAObtainSignedDocEndpointClient(
-                    cscClientConfig.scaBaseURL,
-                    ktorHttpClientFactory,
-                )
+            val calculateDocumentHashesImpl = CalculateDocumentHashesImpl().also {
+                CalculateDocumentHashesImpl.initialize(podofoManager)
+            }
 
             val signDocImpl = SignDocImpl(
                 signHashEndpointClient,
             )
 
-            val embedSignatureImpl = GetSignedDocumentsImpl(scaObtainSignedDocEndpointClient)
+            val embedSignatureImpl = CreateSignedDocumentsImpl().also {
+                CreateSignedDocumentsImpl.initialize(podofoManager)
+            }
 
             object :
                 CSCClient,
@@ -136,7 +130,7 @@ interface CSCClient :
                 GetCredentialInfo by getCredentialInfoImpl,
                 SignHash by signHashImpl,
                 SignDoc by signDocImpl,
-                GetSignedDocuments by embedSignatureImpl,
+                CreateSignedDocuments by embedSignatureImpl,
                 CalculateDocumentHashes by calculateDocumentHashesImpl {
                 override val rsspMetadata: RSSPMetadata = rsspMetadata
             }

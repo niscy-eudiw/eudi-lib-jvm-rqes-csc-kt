@@ -122,10 +122,11 @@ value class Digest(val value: String) {
 }
 
 data class DocumentToSign(
-    val file: Document,
+    val documentInputPath: String,
+    val documentOutputPath: String,
+    val label: String,
     val signatureFormat: SignatureFormat,
     val conformanceLevel: ConformanceLevel = ConformanceLevel.ADES_B_B,
-    val signAlgo: SigningAlgorithmOID,
     val signedEnvelopeProperty: SignedEnvelopeProperty,
     val asicContainer: ASICContainer,
 )
