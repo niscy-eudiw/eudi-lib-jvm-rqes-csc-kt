@@ -1,4 +1,5 @@
 [versions]
+agp = "8.2.0"
 kotlin = "2.0.21"
 coroutines = "1.9.0"
 dependency-check = "12.1.1"
@@ -33,8 +34,9 @@ logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "lo
 uri-kmp = { module = "com.eygraber:uri-kmp", version.ref = "uri-kmp" }
 
 [plugins]
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 dependency-check = { id = "org.owasp.dependencycheck", version.ref = "dependency-check" }
-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
