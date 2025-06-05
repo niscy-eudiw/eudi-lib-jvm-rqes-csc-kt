@@ -16,6 +16,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.dokka)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.spotless)
     alias(libs.plugins.kover)
@@ -41,6 +42,14 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
+    buildFeatures {
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
+    }
 }
 
 dependencies {
@@ -50,6 +59,16 @@ dependencies {
     api(libs.ktor.client.serialization)
     api(libs.ktor.serialization.kotlinx.json)
     implementation(libs.uri.kmp)
+    implementation("podofo-android:podofo-android:@aar")
+
+    // Jetpack Compose Dependencies
+    implementation(platform(libs.compose.bom))
+    implementation(libs.compose.runtime)
+    implementation(libs.compose.ui)
+    implementation(libs.compose.ui.graphics)
+    implementation(libs.compose.material3)
+    debugImplementation(libs.compose.ui.tooling.preview)
+
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.jsoup)
     testImplementation(kotlin("test"))
@@ -141,4 +160,91 @@ val dependencyCheckExtension = extensions.findByType(DependencyCheckExtension::c
 dependencyCheckExtension?.apply {
     formats = mutableListOf("XML", "HTML")
     nvd.apiKey = nvdApiKey ?: ""
+}
+
+// Task to create fat AAR with embedded dependencies
+tasks.register("fatAar") {
+    dependsOn("assembleRelease")
+    doLast {
+        val releaseAar = file("build/outputs/aar/${project.name}-release.aar")
+        val fatAar = file("build/outputs/aar/${project.name}-fat-release.aar")
+        val tempDir = file("build/tmp/fatAar")
+
+        // Clean temp directory
+        tempDir.deleteRecursively()
+        tempDir.mkdirs()
+
+        // Extract main AAR
+        copy {
+            from(zipTree(releaseAar))
+            into(tempDir)
+        }
+
+        // Extract and merge podofo AAR
+        val podofoAar = file("libs/podofo-android.aar")
+        if (podofoAar.exists()) {
+            val podofoTemp = file("build/tmp/podofo")
+            podofoTemp.deleteRecursively()
+            podofoTemp.mkdirs()
+
+            copy {
+                from(zipTree(podofoAar))
+                into(podofoTemp)
+            }
+
+            // Merge classes.jar files
+            val mainClassesJar = file("$tempDir/classes.jar")
+            val podofoClassesJar = file("$podofoTemp/classes.jar")
+
+            if (podofoClassesJar.exists()) {
+                val mergedClassesDir = file("build/tmp/mergedClasses")
+                mergedClassesDir.deleteRecursively()
+                mergedClassesDir.mkdirs()
+
+                // Extract both JARs
+                copy {
+                    from(zipTree(mainClassesJar))
+                    into(mergedClassesDir)
+                }
+                copy {
+                    from(zipTree(podofoClassesJar))
+                    into(mergedClassesDir)
+                }
+
+                // Create merged classes.jar
+                ant.withGroovyBuilder {
+                    "jar"("destfile" to mainClassesJar) {
+                        "fileset"("dir" to mergedClassesDir)
+                    }
+                }
+            }
+
+            // Copy native libraries
+            val podofoJniLibs = file("$podofoTemp/jni")
+            if (podofoJniLibs.exists()) {
+                copy {
+                    from(podofoJniLibs)
+                    into("$tempDir/jni")
+                }
+            }
+
+            // Copy resources
+            val podofoRes = file("$podofoTemp/res")
+            if (podofoRes.exists()) {
+                copy {
+                    from(podofoRes)
+                    into("$tempDir/res")
+                }
+            }
+        }
+
+        // Create fat AAR
+        ant.withGroovyBuilder {
+            "zip"("destfile" to fatAar) {
+                "fileset"("dir" to tempDir)
+            }
+        }
+
+        println("Fat AAR created: ${fatAar.absolutePath}")
+    }
 }
