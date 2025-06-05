@@ -21,6 +21,8 @@ This is a Kotlin library, targeting JVM, that supports
 the [Cloud Signature Consortium API (version 2)](https://cloudsignatureconsortium.org/wp-content/uploads/2023/04/csc-api-v2.0.0.2.pdf)
 protocol.
 
+See [CHANGELOG.md](./CHANGELOG.md) for the latest updates.
+
 ## Implemented features
 
 The library supports the following remote service API endpoints:
