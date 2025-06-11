@@ -30,8 +30,7 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        minSdk = 21
-        // targetSdk = 34 // Warning about this, can be removed if not specifically needed for library testOptions/lint
+        minSdk = 26
     }
 
     compileOptions {
