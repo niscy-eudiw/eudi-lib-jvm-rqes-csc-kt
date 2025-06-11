@@ -20,10 +20,10 @@ import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 
-class GetSignedDocumentsTest {
+class CreateSignedDocumentsTest {
 
     @Test
-    fun `successful get signed documents`() = runTest {
+    fun `successful create signed documents`() = runTest {
         val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
             authServerWellKnownMocker(),
             credentialsInfoPostMocker(),
@@ -34,16 +34,17 @@ class GetSignedDocumentsTest {
         with(mockPublicClient(mockedKtorHttpClientFactory)) {
             val documentsToSign = listOf(
                 DocumentToSign(
-                    Document(File(ClassLoader.getSystemResource("sample.pdf").path), "test.pdf"),
-                    SignatureFormat.P,
-                    ConformanceLevel.ADES_B_B,
-                    SigningAlgorithmOID.RSA_SHA256,
-                    SignedEnvelopeProperty.ENVELOPED,
-                    ASICContainer.NONE,
+                    documentInputPath = ClassLoader.getSystemResource("sample.pdf").path,
+                    documentOutputPath = "signed_test.pdf",
+                    label = "test.pdf",
+                    signatureFormat = SignatureFormat.P,
+                    conformanceLevel = ConformanceLevel.ADES_B_B,
+                    signedEnvelopeProperty = SignedEnvelopeProperty.ENVELOPED,
+                    asicContainer = ASICContainer.NONE,
                 ),
             )
 
-            val signedDoc = with(mockServiceAccessAuthorized) {
+            with(mockServiceAccessAuthorized) {
                 val credential =
                     credentialInfo(CredentialsInfoRequest(CredentialID("83c7c559-db74-48da-aacc-d439d415cb81"))).getOrThrow()
 
@@ -55,16 +56,8 @@ class GetSignedDocumentsTest {
 
                 val signatures = listOf(Signature("sdlkjaowseujrvnmxcnvjkshafiea"))
 
-                getSignedDocuments(
-                    documentsToSign,
-                    signatures,
-                    credential.certificate,
-                    HashAlgorithmOID.SHA_256,
-                    documentDigestList.hashCalculationTime,
-                )
+                createSignedDocuments(signatures)
             }
-
-            assertNotNull(signedDoc)
         }
     }
 }

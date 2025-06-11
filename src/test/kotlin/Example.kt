@@ -168,24 +168,18 @@ fun main() {
 
             require(credentialAuthorized is CredentialAuthorized.SCAL2)
 
-            val signedFiles = with(credentialAuthorized) {
+            with(credentialAuthorized) {
                 // sign the hashes of the documents
                 val signatures = signHash(SigningAlgorithmOID.RSA).getOrThrow()
 
-                // get the signed documents using the signatures (old R3)
-//                getSignedDocuments(
-//                    listOf(documentToSign),
-//                    signatures.signatures,
-//                    credentialCertificate,
-//                    documentDigestList.hashAlgorithmOID,
-//                    documentDigestList.hashCalculationTime,
-//                )
 
-                createSignedDocuments(signatures.signatures)   (new R5)
+                // createSignedDocuments creates the signed files on disk (new R5)
+                createSignedDocuments(signatures.signatures)
 
             }
 
-            File("signed.pdf").writeBytes(Base64.getDecoder().decode(signedFiles[0].readAllBytes()))
+            // The signed document should now be available at the output path specified in documentToSign
+            println("Document signing completed. Check the output path for the signed document.")
         }
     }
 }

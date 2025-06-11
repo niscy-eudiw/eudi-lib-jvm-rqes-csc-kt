@@ -151,8 +151,8 @@ internal val mockCredential = CredentialInfo(
         null,
     ),
     CredentialCertificate(
-        CredentialCertificateStatus.Valid,
-        listOf(
+        status = CredentialCertificateStatus.Valid,
+        certificates = listOf(
             run {
                 val certificateBytes: ByteArray = Base64.getDecoder().decode(
                     """
@@ -198,9 +198,40 @@ internal val mockCredential = CredentialInfo(
                 x509CertificateFactory.generateCertificate(inputStream) as X509Certificate
             },
         ),
-        X500Principal("C=UT, O=EUDI Wallet Reference Implementation, CN=PID Issuer CA - UT 01"),
-        "276059244570899245834283519267490992286096069660",
-        X500Principal("C=FC, GIVENNAME=FirstName, SURNAME=TesterUser, CN=FirstName TesterUser"),
+        rawCertificates = listOf(
+            """
+                MIIDZDCCAuqgAwIBAgIUMFrstjahbrxp7w4ok1mScfbilBwwCgYIKoZIzj0EAwIwXDEeMBwGA1UEAwwVUElEIElzc3VlciBD
+                QSAtIFVUIDAxMS0wKwYDVQQKDCRFVURJIFdhbGxldCBSZWZlcmVuY2UgSW1wbGVtZW50YXRpb24xCzAJBgNVBAYTAlVUMB4X
+                DTI0MTAyMTE0MTE0M1oXDTI2MTAyMTE0MTE0MlowVTEdMBsGA1UEAwwURmlyc3ROYW1lIFRlc3RlclVzZXIxEzARBgNVBAQM
+                ClRlc3RlclVzZXIxEjAQBgNVBCoMCUZpcnN0TmFtZTELMAkGA1UEBhMCRkMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEK
+                AoIBAQChx+kEQrJbwL+1y1BSALT+XorS3AMU2LioWWBn2NW8sMmybhPI+5rzZA1zwldGm+ibDgfenxBZzSKCHzqSi7jRzlxA
+                I1vKNxE+fzpx9gfCKXvHwbCFTi2vS4YLpPuMy6irjCOJ5c2paciWVdL9k7MRSZz906YzU/j0N5hIE15asz5X5fGxq+mXr8V+
+                UXYZddgiJMFKRcyg1UGoyLpXdBrscMVH5fpbEJXwhdadjmORMed7JbBxGLQrzHqCrJM6SPn5ONXJsfkm1JPXBQUgleaTS3hx
+                FTm3+qql8GC7h1wHZ+3DscnM32tTx1SJtUK9pg6IvWHlxodT5iRKg5Lu5N9vAgMBAAGjgcUwgcIwDAYDVR0TAQH/BAIwADAf
+                BgNVHSMEGDAWgBSzbLiRFxzXpBpmMYdC4YvAQMyVGzAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwQwQwYDVR0fBDww
+                OjA4oDagNIYyaHR0cHM6Ly9wcmVwcm9kLnBraS5ldWRpdy5kZXYvY3JsL3BpZF9DQV9VVF8wMS5jcmwwHQYDVR0OBBYEFMSf
+                REXHBB5/QOShd41wc7hds+g6MA4GA1UdDwEB/wQEAwIGQDAKBggqhkjOPQQDAgNoADBlAjBExuJApXiH8ydkCOZV9M+jO2Rm
+                3vam03nsKvDBJ8pwus6n4IebetX6aHgue7WztGoCMQCI7vDaejO5mCgJGK6f/78onRQI6bm9/VWZnM6DSAnZ/gzQFC4EnJh4
+                cePfOzgUEjU=
+            """.trimIndent().replace("\n", ""),
+            """
+                MIIDHTCCAqOgAwIBAgIUVqjgtJqf4hUYJkqdYzi+0xwhwFYwCgYIKoZIzj0EAwMwXDEeMBwGA1UEAwwVUElEIElzc3VlciBD
+                QSAtIFVUIDAxMS0wKwYDVQQKDCRFVURJIFdhbGxldCBSZWZlcmVuY2UgSW1wbGVtZW50YXRpb24xCzAJBgNVBAYTAlVUMB4X
+                DTIzMDkwMTE4MzQxN1oXDTMyMTEyNzE4MzQxNlowXDEeMBwGA1UEAwwVUElEIElzc3VlciBDQSAtIFVUIDAxMS0wKwYDVQQK
+                DCRFVURJIFdhbGxldCBSZWZlcmVuY2UgSW1wbGVtZW50YXRpb24xCzAJBgNVBAYTAlVUMHYwEAYHKoZIzj0CAQYFK4EEACID
+                YgAEFg5Shfsxp5R/UFIEKS3L27dwnFhnjSgUh2btKOQEnfb3doyeqMAvBtUMlClhsF3uefKinCw08NB31rwC+dtj6X/LE3n2
+                C9jROIUN8PrnlLS5Qs4Rs4ZU5OIgztoaO8G9o4IBJDCCASAwEgYDVR0TAQH/BAgwBgEB/wIBADAfBgNVHSMEGDAWgBSzbLiR
+                FxzXpBpmMYdC4YvAQMyVGzAWBgNVHSUBAf8EDDAKBggrgQICAAABBzBDBgNVHR8EPDA6MDigNqA0hjJodHRwczovL3ByZXBy
+                b2QucGtpLmV1ZGl3LmRldi9jcmwvcGlkX0NBX1VUXzAxLmNybDAdBgNVHQ4EFgQUs2y4kRcc16QaZjGHQuGLwEDMlRswDgYD
+                VR0PAQH/BAQDAgEGMF0GA1UdEgRWMFSGUmh0dHBzOi8vZ2l0aHViLmNvbS9ldS1kaWdpdGFsLWlkZW50aXR5LXdhbGxldC9h
+                cmNoaXRlY3R1cmUtYW5kLXJlZmVyZW5jZS1mcmFtZXdvcmswCgYIKoZIzj0EAwMDaAAwZQIwaXUA3j++xl/tdD76tXEWCikf
+                M1CaRz4vzBC7NS0wCdItKiz6HZeV8EPtNCnsfKpNAjEAqrdeKDnr5Kwf8BA7tATehxNlOV4Hnc10XO1XULtigCwb49RpkqlS
+                2Hul+DpqObUs
+            """.trimIndent().replace("\n", ""),
+        ),
+        issuerDN = X500Principal("C=UT, O=EUDI Wallet Reference Implementation, CN=PID Issuer CA - UT 01"),
+        serialNumber = "276059244570899245834283519267490992286096069660",
+        subjectDN = X500Principal("C=FC, GIVENNAME=FirstName, SURNAME=TesterUser, CN=FirstName TesterUser"),
         validFrom = LocalDateTime.now().minusDays(1),
         validTo = LocalDateTime.now().plusYears(1),
     ),
@@ -223,11 +254,12 @@ internal val mockDocumentDigestList = DocumentDigestList(
 
 internal val mockDocumentsToSign = listOf(
     DocumentToSign(
-        Document(File(ClassLoader.getSystemResource("sample.pdf").path), "test.pdf"),
-        SignatureFormat.P,
-        ConformanceLevel.ADES_B_B,
-        SigningAlgorithmOID.RSA_SHA256,
-        SignedEnvelopeProperty.ENVELOPED,
-        ASICContainer.NONE,
+        documentInputPath = ClassLoader.getSystemResource("sample.pdf").path,
+        documentOutputPath = "signed_sample.pdf",
+        label = "test.pdf",
+        signatureFormat = SignatureFormat.P,
+        conformanceLevel = ConformanceLevel.ADES_B_B,
+        signedEnvelopeProperty = SignedEnvelopeProperty.ENVELOPED,
+        asicContainer = ASICContainer.NONE,
     ),
 )

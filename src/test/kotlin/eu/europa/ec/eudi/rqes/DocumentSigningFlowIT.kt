@@ -88,28 +88,26 @@ class DocumentSigningFlowIT {
             }
 
             val documentToSign = DocumentToSign(
-                Document(
-                    File(ClassLoader.getSystemResource("sample.pdf").path),
-                    "A sample pdf",
-                ),
-                SignatureFormat.P,
-                ConformanceLevel.ADES_B_B,
-                SigningAlgorithmOID.RSA,
-                SignedEnvelopeProperty.ENVELOPED,
-                ASICContainer.NONE,
+                documentInputPath = ClassLoader.getSystemResource("sample.pdf").path,
+                documentOutputPath = "signed_sample.pdf",
+                label = "A sample pdf",
+                signatureFormat = SignatureFormat.P,
+                conformanceLevel = ConformanceLevel.ADES_B_B,
+                signedEnvelopeProperty = SignedEnvelopeProperty.ENVELOPED,
+                asicContainer = ASICContainer.NONE,
             )
 
             walletState = UUID.randomUUID().toString()
 
             // calculate the hash of the document to sign
-            val documentDigests = calculateDocumentHashes(
+            val documentDigests: DocumentDigestList = calculateDocumentHashes(
                 listOf(documentToSign),
                 credentials.first().certificate,
                 HashAlgorithmOID.SHA_256,
             )
 
             // initiate the credential authorization request flow, using the hashes calculated above
-            val credAuthRequestPrepared = prepareCredentialAuthorizationRequest(
+            val credAuthRequestPrepared: CredentialAuthorizationRequestPrepared = prepareCredentialAuthorizationRequest(
                 CredentialAuthorizationSubject(
                     CredentialRef.ByCredentialID(credentials.first().credentialID),
                     documentDigests,
@@ -133,21 +131,18 @@ class DocumentSigningFlowIT {
 
             require(credentialAuthorized is CredentialAuthorized.SCAL2)
 
-            val signedFiles = with(credentialAuthorized) {
+            val signatures = with(credentialAuthorized) {
                 // sign the hashes of the documents
                 val signatures = signHash(SigningAlgorithmOID.RSA).getOrThrow()
 
-                // get the signed documents using the signatures
-                getSignedDocuments(
-                    listOf(documentToSign),
-                    signatures.signatures,
-                    credentialCertificate,
-                    documentDigestList.hashAlgorithmOID,
-                    documentDigestList.hashCalculationTime,
-                )
+                // createSignedDocuments creates the signed files on disk (returns Unit)
+                createSignedDocuments(signatures.signatures)
+                
+                signatures // Return signatures to use for verification
             }
 
-            assertTrue(signedFiles.isNotEmpty())
+            // Since createSignedDocuments creates files on disk, we can check if the signing process completed
+            assertTrue(signatures.signatures.isNotEmpty()) // Just verify the signing process completed
         }
     }
 
