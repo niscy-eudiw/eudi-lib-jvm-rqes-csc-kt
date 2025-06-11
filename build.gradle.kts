@@ -77,7 +77,6 @@ dependencies {
     testImplementation(libs.ktor.server.content.negotiation)
     testImplementation(libs.ktor.client.mock)
     testImplementation(libs.ktor.client.logging)
-    testImplementation(libs.logback.classic)
 }
 
 /* // Commenting out for Android compatibility
