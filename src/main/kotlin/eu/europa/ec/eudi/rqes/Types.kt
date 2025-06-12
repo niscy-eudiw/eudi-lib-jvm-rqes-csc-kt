@@ -246,7 +246,7 @@ interface CanExpire {
         require(issued.isBefore(at) || issued == at) { "At should be after or equal to $issued" }
         val expiresIn = expiresIn
         return if (expiresIn != null) {
-            val expiration = issued.plusSeconds(expiresIn.toSeconds())
+            val expiration = issued.plusSeconds(expiresIn.toMillis() / 1000)
             !expiration.isAfter(at)
         } else false
     }
