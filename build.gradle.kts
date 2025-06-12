@@ -3,10 +3,6 @@ import org.jetbrains.dokka.gradle.DokkaTask
 import org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension
 import java.net.URL
 
-// Set project group and version for publishing
-project.group = "eu.europa.ec.eudi.rqes.csc"
-project.version = "1.0.0-SNAPSHOT"
-
 object Meta {
     const val BASE_URL = "https://github.com/eu-digital-identity-wallet/eudi-lib-jvm-rqes-csc-kt"
 }
@@ -30,16 +26,16 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        minSdk = 34
+        minSdk = 26
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.toVersion(libs.versions.java.get())
+        targetCompatibility = JavaVersion.toVersion(libs.versions.java.get())
     }
 
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = libs.versions.java.get()
     }
 
     buildFeatures {
@@ -63,10 +59,6 @@ dependencies {
     // Jetpack Compose Dependencies
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.runtime)
-    implementation(libs.compose.ui)
-    implementation(libs.compose.ui.graphics)
-    implementation(libs.compose.material3)
-    debugImplementation(libs.compose.ui.tooling.preview)
 
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.jsoup)
