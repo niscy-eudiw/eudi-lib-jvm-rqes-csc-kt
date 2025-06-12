@@ -30,13 +30,13 @@ internal class DefaultAuthorizationServerMetadataResolverTest {
 
     @Test
     internal fun `resolution success with compliant oidc well-known url`() = runTest {
-        val issuer = HttpsUrl("https://keycloak-eudi.netcompany-intrasoft.com/realms/pid-issuer-realm")
+        val issuer = HttpsUrl("https://keycloak.relying-party.com/realms/pid-issuer-realm")
             .getOrThrow()
 
         val resolver = mockResolver(
             RequestMocker(
                 match(
-                    URI.create("https://keycloak-eudi.netcompany-intrasoft.com/.well-known/openid-configuration/realms/pid-issuer-realm"),
+                    URI.create("https://keycloak.relying-party.com/.well-known/openid-configuration/realms/pid-issuer-realm"),
                 ),
                 jsonResponse("eu/europa/ec/eudi/rqes/internal/oidc_authorization_server_metadata.json"),
             ),
@@ -48,14 +48,14 @@ internal class DefaultAuthorizationServerMetadataResolverTest {
 
     @Test
     internal fun `resolution success with compliant oauth2 well-known url`() = runTest {
-        val issuer = HttpsUrl("https://keycloak-eudi.netcompany-intrasoft.com/realms/pid-issuer-realm")
+        val issuer = HttpsUrl("https://keycloak.relying-party.com/realms/pid-issuer-realm")
             .getOrThrow()
 
         val resolver = mockResolver(
             RequestMocker(
                 match(
                     URI.create(
-                        "https://keycloak-eudi.netcompany-intrasoft.com/.well-known/oauth-authorization-server/realms/pid-issuer-realm",
+                        "https://keycloak.relying-party.com/.well-known/oauth-authorization-server/realms/pid-issuer-realm",
                     ),
                 ),
                 jsonResponse("eu/europa/ec/eudi/rqes/internal/oauth_authorization_server_metadata.json"),
