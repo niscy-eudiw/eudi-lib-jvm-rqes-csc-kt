@@ -7,4 +7,6 @@
          <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="34" />
          However, minSdkVersion and targetSdkVersion are primarily controlled by build.gradle.kts.
     -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 </manifest> 
