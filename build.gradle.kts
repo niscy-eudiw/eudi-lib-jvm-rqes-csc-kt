@@ -157,7 +157,6 @@ tasks.register("fatAar") {
     dependsOn("assembleRelease")
     doLast {
         val releaseAar = file("build/outputs/aar/${project.name}-release.aar")
-        val fatAar = file("build/outputs/aar/${project.name}-fat-release.aar")
         val tempDir = file("build/tmp/fatAar")
 
         // Clean temp directory
@@ -229,6 +228,7 @@ tasks.register("fatAar") {
         }
 
         // Create fat AAR
+        val fatAar = file("build/outputs/aar/${project.name}-release.aar")
         ant.withGroovyBuilder {
             "zip"("destfile" to fatAar) {
                 "fileset"("dir" to tempDir)
