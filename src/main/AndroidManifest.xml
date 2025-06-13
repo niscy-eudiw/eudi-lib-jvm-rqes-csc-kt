@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- You can add <uses-permission> tags here if your library inherently requires certain permissions,
+         though it's generally better for the consuming app to declare them.
+ 
+         If your library targets a specific Android version for certain features, you can specify it:
+         <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="34" />
+         However, minSdkVersion and targetSdkVersion are primarily controlled by build.gradle.kts.
+    -->
+</manifest> 

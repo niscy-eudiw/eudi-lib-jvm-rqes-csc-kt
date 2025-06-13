@@ -1,4 +1,5 @@
 [versions]
+agp = "8.2.0"
 kotlin = "2.0.21"
 coroutines = "1.9.0"
 dependency-check = "12.1.1"
@@ -10,10 +11,11 @@ java = "17"
 ktlint = "0.50.0"
 dokka = "1.9.20"
 maven-publish = "0.32.0"
-logback = "1.5.12"
 binary-compatibility-validator = "0.16.3"
 uri-kmp = "0.0.18"
 kover = "0.9.1"
+composeBom = "2024.06.00"
+composeCompiler = "1.5.13"
 
 
 [libraries]
@@ -29,12 +31,19 @@ ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negoti
 ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
-logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 uri-kmp = { module = "com.eygraber:uri-kmp", version.ref = "uri-kmp" }
+compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
+compose-ui = { group = "androidx.compose.ui", name = "ui" }
+compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 
 [plugins]
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 dependency-check = { id = "org.owasp.dependencycheck", version.ref = "dependency-check" }
-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }

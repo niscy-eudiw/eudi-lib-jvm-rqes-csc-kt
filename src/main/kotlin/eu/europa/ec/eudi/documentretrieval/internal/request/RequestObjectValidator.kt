@@ -36,6 +36,7 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.decodeFromJsonElement
 import java.net.URI
 import java.net.URL
+import java.util.stream.Collectors
 
 data class ValidatedRequestObject(
     val responseMode: ResponseMode,
@@ -92,7 +93,7 @@ private fun requiredDocumentDigests(
             ensureNotNull(it.hash) { MissingDocumentDigestHash.asException() }
             ensureNotNull(it.label) { MissingDocumentDigestLabel.asException() }
             DocumentDigest(it.hash, it.label)
-        }.toList()
+        }.collect(Collectors.toList())
     } catch (_: Exception) {
         throw InvalidDocumentDigests.asException()
     }
@@ -121,7 +122,7 @@ private fun requiredDocumentLocations(
                 uri = it.uri.asURL { MissingDocumentLocationUri.asException() }.getOrThrow(),
                 method = method,
             )
-        }.toList()
+        }.collect(Collectors.toList())
     } catch (e: AuthorizationRequestException) {
         throw e
     } catch (_: Exception) {

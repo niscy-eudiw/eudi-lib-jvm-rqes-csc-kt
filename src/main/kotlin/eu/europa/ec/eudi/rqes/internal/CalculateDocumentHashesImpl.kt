@@ -15,23 +15,25 @@
  */
 package eu.europa.ec.eudi.rqes.internal
 
+import eu.europa.ec.eudi.podofomanager.PodofoManager
 import eu.europa.ec.eudi.rqes.*
-import eu.europa.ec.eudi.rqes.internal.http.SCACalculateHashEndpointClient
 
-internal class CalculateDocumentHashesImpl(
-    private val scaCalculateHashEndpointClient: SCACalculateHashEndpointClient,
-) : CalculateDocumentHashes {
+
+internal class CalculateDocumentHashesImpl() : CalculateDocumentHashes {
+    companion object {
+        private var podofoManager: PodofoManager? = null
+
+        internal fun initialize(podofoManager: PodofoManager) {
+            this.podofoManager = podofoManager
+        }
+    }
+
     override suspend fun calculateDocumentHashes(
         documents: List<DocumentToSign>,
         credentialCertificate: CredentialCertificate,
         hashAlgorithmOID: HashAlgorithmOID,
     ): DocumentDigestList {
-        val hashesResponse =
-            scaCalculateHashEndpointClient.calculateHash(documents, credentialCertificate, hashAlgorithmOID)
-        documents.zip(hashesResponse.hashes).map {
-            DocumentDigest(Digest(it.second), it.first.file.label)
-        }.let {
-            return DocumentDigestList(it, hashAlgorithmOID, hashesResponse.signatureDate)
-        }
+        val pdfManager = podofoManager ?: throw IllegalStateException("PodofoManager is not initialized")
+        return pdfManager.calculateDocumentHashes(documents,credentialCertificate,hashAlgorithmOID)
     }
 }

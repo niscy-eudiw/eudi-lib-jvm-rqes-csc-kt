@@ -9,9 +9,10 @@ object Meta {
 
 plugins {
     base
-    `java-library`
+    alias(libs.plugins.android.library)
     alias(libs.plugins.dokka)
-    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.spotless)
     alias(libs.plugins.kover)
@@ -20,9 +21,30 @@ plugins {
     alias(libs.plugins.binary.compatibility.validator)
 }
 
-repositories {
-    mavenCentral()
-    mavenLocal()
+android {
+    namespace = "eu.europa.ec.eudi.rqes.csc"
+    compileSdk = 34
+
+    defaultConfig {
+        minSdk = 26
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.toVersion(libs.versions.java.get())
+        targetCompatibility = JavaVersion.toVersion(libs.versions.java.get())
+    }
+
+    kotlinOptions {
+        jvmTarget = libs.versions.java.get()
+    }
+
+    buildFeatures {
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
+    }
 }
 
 dependencies {
@@ -32,27 +54,36 @@ dependencies {
     api(libs.ktor.client.serialization)
     api(libs.ktor.serialization.kotlinx.json)
     implementation(libs.uri.kmp)
+    implementation("podofo-android:podofo-android:@aar")
+
+    // Jetpack Compose Dependencies
+    implementation(platform(libs.compose.bom))
+    implementation(libs.compose.runtime)
+
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.jsoup)
     testImplementation(kotlin("test"))
-    testImplementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.okhttp)
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.ktor.server.content.negotiation)
     testImplementation(libs.ktor.client.mock)
     testImplementation(libs.ktor.client.logging)
-    testImplementation(libs.logback.classic)
 }
 
+/* // Commenting out for Android compatibility
 java {
     sourceCompatibility = JavaVersion.toVersion(libs.versions.java.get())
 }
+*/
 
+/* // Commenting out for Android compatibility
 kotlin {
     jvmToolchain {
         languageVersion.set(JavaLanguageVersion.of(libs.versions.java.get()))
         vendor.set(JvmVendorSpec.ADOPTIUM)
     }
 }
+*/
 
 spotless {
     kotlin {
@@ -64,32 +95,11 @@ spotless {
     }
 }
 
-testing {
-    suites {
-        val test by getting(JvmTestSuite::class) {
-            useJUnitJupiter()
-        }
-    }
-}
-
-tasks.jar {
-    manifest {
-        attributes(
-            mapOf(
-                "Implementation-Title" to project.name,
-                "Implementation-Version" to project.version,
-            ),
-        )
-    }
-}
-
 tasks.withType<DokkaTask>().configureEach {
     dokkaSourceSets {
         named("main") {
-            // used as project name in the header
             moduleName.set("EUDI rQES CSC library")
 
-            // contains descriptions for the module and the packages
             includes.from("Module.md")
 
             documentedVisibilities.set(setOf(DokkaConfiguration.Visibility.PUBLIC, DokkaConfiguration.Visibility.PROTECTED))
@@ -109,9 +119,28 @@ tasks.withType<DokkaTask>().configureEach {
 
 mavenPublishing {
     pom {
+        name.set(project.name)
+        description.set("EUDI rQES CSC library for Android")
+        url.set(Meta.BASE_URL)
+
         ciManagement {
             system = "github"
-            url = "${Meta.BASE_URL}/actions"
+            url = Meta.BASE_URL + "/actions"
+        }
+        licenses {
+            license {
+                name.set("The Apache License, Version 2.0")
+                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+            }
+        }
+        developers {
+            developer {
+            }
+        }
+        scm {
+            connection.set("scm:git:" + Meta.BASE_URL + ".git")
+            developerConnection.set("scm:git:ssh://git@github.com" + Meta.BASE_URL.substringAfter("https://github.com") + ".git")
+            url.set(Meta.BASE_URL)
         }
     }
 }
@@ -121,4 +150,91 @@ val dependencyCheckExtension = extensions.findByType(DependencyCheckExtension::c
 dependencyCheckExtension?.apply {
     formats = mutableListOf("XML", "HTML")
     nvd.apiKey = nvdApiKey ?: ""
+}
+
+// Task to create fat AAR with embedded dependencies
+tasks.register("fatAar") {
+    dependsOn("assembleRelease")
+    doLast {
+        val releaseAar = file("build/outputs/aar/${project.name}-release.aar")
+        val fatAar = file("build/outputs/aar/${project.name}-fat-release.aar")
+        val tempDir = file("build/tmp/fatAar")
+
+        // Clean temp directory
+        tempDir.deleteRecursively()
+        tempDir.mkdirs()
+
+        // Extract main AAR
+        copy {
+            from(zipTree(releaseAar))
+            into(tempDir)
+        }
+
+        // Extract and merge podofo AAR
+        val podofoAar = file("libs/podofo-android.aar")
+        if (podofoAar.exists()) {
+            val podofoTemp = file("build/tmp/podofo")
+            podofoTemp.deleteRecursively()
+            podofoTemp.mkdirs()
+
+            copy {
+                from(zipTree(podofoAar))
+                into(podofoTemp)
+            }
+
+            // Merge classes.jar files
+            val mainClassesJar = file("$tempDir/classes.jar")
+            val podofoClassesJar = file("$podofoTemp/classes.jar")
+
+            if (podofoClassesJar.exists()) {
+                val mergedClassesDir = file("build/tmp/mergedClasses")
+                mergedClassesDir.deleteRecursively()
+                mergedClassesDir.mkdirs()
+
+                // Extract both JARs
+                copy {
+                    from(zipTree(mainClassesJar))
+                    into(mergedClassesDir)
+                }
+                copy {
+                    from(zipTree(podofoClassesJar))
+                    into(mergedClassesDir)
+                }
+
+                // Create merged classes.jar
+                ant.withGroovyBuilder {
+                    "jar"("destfile" to mainClassesJar) {
+                        "fileset"("dir" to mergedClassesDir)
+                    }
+                }
+            }
+
+            // Copy native libraries
+            val podofoJniLibs = file("$podofoTemp/jni")
+            if (podofoJniLibs.exists()) {
+                copy {
+                    from(podofoJniLibs)
+                    into("$tempDir/jni")
+                }
+            }
+
+            // Copy resources
+            val podofoRes = file("$podofoTemp/res")
+            if (podofoRes.exists()) {
+                copy {
+                    from(podofoRes)
+                    into("$tempDir/res")
+                }
+            }
+        }
+
+        // Create fat AAR
+        ant.withGroovyBuilder {
+            "zip"("destfile" to fatAar) {
+                "fileset"("dir" to tempDir)
+            }
+        }
+
+        println("Fat AAR created: ${fatAar.absolutePath}")
+    }
 }

@@ -111,16 +111,28 @@ fun main() {
                 listCredentials(CredentialsListRequest()).getOrThrow()
             }
 
-            val documentToSign = DocumentToSign(
-                Document(
-                    File(ClassLoader.getSystemResource("sample.pdf").path),
-                    "A sample pdf",
-                ),
+            // old (r3)
+//            val documentToSign = DocumentToSign(
+//                Document(
+//                    File(ClassLoader.getSystemResource("sample.pdf").path),
+//                    "A sample pdf",
+//                ),
+//                SignatureFormat.P,
+//                ConformanceLevel.ADES_B_B,
+//                SigningAlgorithmOID.RSA,
+//                SignedEnvelopeProperty.ENVELOPED,
+//                ASICContainer.NONE,
+//            )
+
+            // new (R5)
+            val documentToSign =  DocumentToSign(
+                "/storage/emulated/0/Android/data/com.example.demorqesmobile/files/Documents/sample.pdf",            //input path
+                "/storage/emulated/0/Android/data/com.example.demorqesmobile/files/Documents/signed-sample.pdf",	 //output path
+                "A sample pdf",
                 SignatureFormat.P,
                 ConformanceLevel.ADES_B_B,
-                SigningAlgorithmOID.RSA,
                 SignedEnvelopeProperty.ENVELOPED,
-                ASICContainer.NONE,
+                ASICContainer.NONE
             )
 
             walletState = UUID.randomUUID().toString()
@@ -156,21 +168,18 @@ fun main() {
 
             require(credentialAuthorized is CredentialAuthorized.SCAL2)
 
-            val signedFiles = with(credentialAuthorized) {
+            with(credentialAuthorized) {
                 // sign the hashes of the documents
                 val signatures = signHash(SigningAlgorithmOID.RSA).getOrThrow()
 
-                // get the signed documents using the signatures
-                getSignedDocuments(
-                    listOf(documentToSign),
-                    signatures.signatures,
-                    credentialCertificate,
-                    documentDigestList.hashAlgorithmOID,
-                    documentDigestList.hashCalculationTime,
-                )
+
+                // createSignedDocuments creates the signed files on disk (new R5)
+                createSignedDocuments(signatures.signatures)
+
             }
 
-            File("signed.pdf").writeBytes(Base64.getDecoder().decode(signedFiles[0].readAllBytes()))
+            // The signed document should now be available at the output path specified in documentToSign
+            println("Document signing completed. Check the output path for the signed document.")
         }
     }
 }

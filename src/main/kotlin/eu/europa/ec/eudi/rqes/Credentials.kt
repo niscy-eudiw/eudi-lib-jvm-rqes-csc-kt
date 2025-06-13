@@ -53,6 +53,7 @@ data class CredentialKey(
 data class CredentialCertificate(
     val status: CredentialCertificateStatus?,
     val certificates: List<X509Certificate>?,
+    val rawCertificates: List<String>,
     val issuerDN: X500Principal?,
     val serialNumber: String?,
     val subjectDN: X500Principal?,
