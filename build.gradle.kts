@@ -234,7 +234,10 @@ tasks.register("fatAar") {
                 "fileset"("dir" to tempDir)
             }
         }
-
-        println("Fat AAR created: ${fatAar.absolutePath}")
     }
+}
+
+// Ensure fatAar task runs after assemble task
+tasks.named("assemble") {
+    finalizedBy("fatAar")
 }
