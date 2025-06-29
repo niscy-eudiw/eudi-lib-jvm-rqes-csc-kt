@@ -36,12 +36,14 @@ internal fun mockPublicClient(
     ktorHttpClientFactory: KtorHttpClientFactory,
     parUsage: ParUsage = ParUsage.Never,
     rarUsage: RarUsage = RarUsage.IfSupported,
+    tsaurl: String? = URI("http://ts.cartaodecidadao.pt/tsa/server").toString(),
 ) =
     mockClient(
         OAuth2Client.Public("client-id"),
         ktorHttpClientFactory,
         parUsage,
         rarUsage,
+        tsaurl,
     )
 
 internal fun mockConfidentialClient(
@@ -60,6 +62,7 @@ private fun mockClient(
     ktorHttpClientFactory: KtorHttpClientFactory,
     parUsage: ParUsage = ParUsage.Never,
     rarUsage: RarUsage = RarUsage.IfSupported,
+    tsaurl: String? = URI("http://ts.cartaodecidadao.pt/tsa/server").toString(),
 ) = CSCClient.oauth2(
     rsspMetadata = rsspMetadata(),
     cscClientConfig = CSCClientConfig(
@@ -68,6 +71,7 @@ private fun mockClient(
         URI("https://walletcentric.signer.eudiw.dev").toURL(),
         parUsage,
         rarUsage,
+        tsaurl = tsaurl,
     ),
     ktorHttpClientFactory = ktorHttpClientFactory,
 ).getOrThrow()

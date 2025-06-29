@@ -54,7 +54,8 @@ dependencies {
     api(libs.ktor.client.serialization)
     api(libs.ktor.serialization.kotlinx.json)
     implementation(libs.uri.kmp)
-    implementation("podofo-android:podofo-android:@aar")
+    // implementation("podofo-android:podofo-android:@aar")
+    implementation("eu.europa.ec.eudi:eudi-lib-podofo-android:0.1.0-SNAPSHOT")
 
     // Jetpack Compose Dependencies
     implementation(platform(libs.compose.bom))

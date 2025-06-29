@@ -111,7 +111,7 @@ interface CSCClient :
             )
 
             val calculateDocumentHashesImpl = CalculateDocumentHashesImpl().also {
-                CalculateDocumentHashesImpl.initialize(podofoManager)
+                CalculateDocumentHashesImpl.initialize(podofoManager, cscClientConfig.tsaurl)
             }
 
             val signDocImpl = SignDocImpl(
@@ -119,7 +119,7 @@ interface CSCClient :
             )
 
             val embedSignatureImpl = CreateSignedDocumentsImpl().also {
-                CreateSignedDocumentsImpl.initialize(podofoManager)
+                CreateSignedDocumentsImpl.initialize(podofoManager, cscClientConfig.tsaurl)
             }
 
             object :

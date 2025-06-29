@@ -795,8 +795,8 @@ public final class eu/europa/ec/eudi/documentretrieval/internal/request/Validate
 public final class eu/europa/ec/eudi/podofomanager/PodofoManager {
 	public static final field $stable I
 	public fun <init> ()V
-	public final fun calculateDocumentHashes-Yr5hnIY (Ljava/util/List;Leu/europa/ec/eudi/rqes/CredentialCertificate;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun createSignedDocuments (Ljava/util/List;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun calculateDocumentHashes-hi2GuDc (Ljava/util/List;Leu/europa/ec/eudi/rqes/CredentialCertificate;Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun createSignedDocuments (Ljava/util/List;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class eu/europa/ec/eudi/podofomanager/PodofoSession {
@@ -1097,8 +1097,8 @@ public final class eu/europa/ec/eudi/rqes/CSCClient$Companion {
 
 public final class eu/europa/ec/eudi/rqes/CSCClientConfig {
 	public static final field $stable I
-	public fun <init> (Leu/europa/ec/eudi/rqes/OAuth2Client;Ljava/net/URI;Ljava/net/URL;Leu/europa/ec/eudi/rqes/ParUsage;Leu/europa/ec/eudi/rqes/RarUsage;Ljava/time/Clock;Ljava/util/Locale;)V
-	public synthetic fun <init> (Leu/europa/ec/eudi/rqes/OAuth2Client;Ljava/net/URI;Ljava/net/URL;Leu/europa/ec/eudi/rqes/ParUsage;Leu/europa/ec/eudi/rqes/RarUsage;Ljava/time/Clock;Ljava/util/Locale;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Leu/europa/ec/eudi/rqes/OAuth2Client;Ljava/net/URI;Ljava/net/URL;Leu/europa/ec/eudi/rqes/ParUsage;Leu/europa/ec/eudi/rqes/RarUsage;Ljava/time/Clock;Ljava/util/Locale;Ljava/lang/String;)V
+	public synthetic fun <init> (Leu/europa/ec/eudi/rqes/OAuth2Client;Ljava/net/URI;Ljava/net/URL;Leu/europa/ec/eudi/rqes/ParUsage;Leu/europa/ec/eudi/rqes/RarUsage;Ljava/time/Clock;Ljava/util/Locale;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Leu/europa/ec/eudi/rqes/OAuth2Client;
 	public final fun component2 ()Ljava/net/URI;
 	public final fun component3 ()Ljava/net/URL;
@@ -1106,8 +1106,9 @@ public final class eu/europa/ec/eudi/rqes/CSCClientConfig {
 	public final fun component5 ()Leu/europa/ec/eudi/rqes/RarUsage;
 	public final fun component6 ()Ljava/time/Clock;
 	public final fun component7 ()Ljava/util/Locale;
-	public final fun copy (Leu/europa/ec/eudi/rqes/OAuth2Client;Ljava/net/URI;Ljava/net/URL;Leu/europa/ec/eudi/rqes/ParUsage;Leu/europa/ec/eudi/rqes/RarUsage;Ljava/time/Clock;Ljava/util/Locale;)Leu/europa/ec/eudi/rqes/CSCClientConfig;
-	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/CSCClientConfig;Leu/europa/ec/eudi/rqes/OAuth2Client;Ljava/net/URI;Ljava/net/URL;Leu/europa/ec/eudi/rqes/ParUsage;Leu/europa/ec/eudi/rqes/RarUsage;Ljava/time/Clock;Ljava/util/Locale;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CSCClientConfig;
+	public final fun component8 ()Ljava/lang/String;
+	public final fun copy (Leu/europa/ec/eudi/rqes/OAuth2Client;Ljava/net/URI;Ljava/net/URL;Leu/europa/ec/eudi/rqes/ParUsage;Leu/europa/ec/eudi/rqes/RarUsage;Ljava/time/Clock;Ljava/util/Locale;Ljava/lang/String;)Leu/europa/ec/eudi/rqes/CSCClientConfig;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/CSCClientConfig;Leu/europa/ec/eudi/rqes/OAuth2Client;Ljava/net/URI;Ljava/net/URL;Leu/europa/ec/eudi/rqes/ParUsage;Leu/europa/ec/eudi/rqes/RarUsage;Ljava/time/Clock;Ljava/util/Locale;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CSCClientConfig;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getAuthFlowRedirectionURI ()Ljava/net/URI;
 	public final fun getClient ()Leu/europa/ec/eudi/rqes/OAuth2Client;
@@ -1116,6 +1117,7 @@ public final class eu/europa/ec/eudi/rqes/CSCClientConfig {
 	public final fun getParUsage ()Leu/europa/ec/eudi/rqes/ParUsage;
 	public final fun getRarUsage ()Leu/europa/ec/eudi/rqes/RarUsage;
 	public final fun getScaBaseURL ()Ljava/net/URL;
+	public final fun getTsaurl ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -2094,6 +2096,38 @@ public final class eu/europa/ec/eudi/rqes/SigningAlgorithmOID$Companion {
 	public final fun getRSA_SHA512-b9WZoMU ()Ljava/lang/String;
 	public final fun getX25519-b9WZoMU ()Ljava/lang/String;
 	public final fun getX448-b9WZoMU ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/TimestampRequestTO {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Leu/europa/ec/eudi/rqes/TimestampRequestTO;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/TimestampRequestTO;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/TimestampRequestTO;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getSignedHash ()Ljava/lang/String;
+	public final fun getTsaUrl ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/TimestampResponseTO {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/TimestampResponseTO;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/TimestampResponseTO;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/TimestampResponseTO;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBase64Tsr ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/TimestampServiceImpl {
+	public static final field $stable I
+	public fun <init> ()V
+	public final fun requestTimestamp (Leu/europa/ec/eudi/rqes/TimestampRequestTO;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class eu/europa/ec/eudi/rqes/ValidationInfo {

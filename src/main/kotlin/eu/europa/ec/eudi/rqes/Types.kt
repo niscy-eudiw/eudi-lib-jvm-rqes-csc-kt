@@ -16,6 +16,7 @@
 package eu.europa.ec.eudi.rqes
 
 import com.nimbusds.oauth2.sdk.`as`.ReadOnlyAuthorizationServerMetadata
+import kotlinx.serialization.Serializable
 import java.io.File
 import java.net.URI
 import java.net.URL
@@ -350,3 +351,12 @@ value class Signature(val value: String) {
         require(value.isNotEmpty()) { "Signature value must not be empty" }
     }
 }
+
+data class TimestampRequestTO(
+    val signedHash: String,
+    val tsaUrl: String
+)
+
+data class TimestampResponseTO(
+    val base64Tsr: String
+)

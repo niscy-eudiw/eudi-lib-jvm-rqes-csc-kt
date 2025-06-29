@@ -22,9 +22,11 @@ import eu.europa.ec.eudi.rqes.*
 internal class CalculateDocumentHashesImpl() : CalculateDocumentHashes {
     companion object {
         private var podofoManager: PodofoManager? = null
+        private var tsaUrl: String? = null
 
-        internal fun initialize(podofoManager: PodofoManager) {
+        internal fun initialize(podofoManager: PodofoManager, tsaUrl: String?) {
             this.podofoManager = podofoManager
+            this.tsaUrl = tsaUrl
         }
     }
 
@@ -34,6 +36,7 @@ internal class CalculateDocumentHashesImpl() : CalculateDocumentHashes {
         hashAlgorithmOID: HashAlgorithmOID,
     ): DocumentDigestList {
         val pdfManager = podofoManager ?: throw IllegalStateException("PodofoManager is not initialized")
-        return pdfManager.calculateDocumentHashes(documents,credentialCertificate,hashAlgorithmOID)
+        val tsaUrl = tsaUrl ?: ""
+        return pdfManager.calculateDocumentHashes(documents,credentialCertificate,hashAlgorithmOID, tsaUrl)
     }
 }

@@ -38,6 +38,7 @@ class CSCClientTest {
                     URI("https://walletcentric.signer.eudiw.dev").toURL(),
                     ParUsage.Never,
                     RarUsage.Never,
+                    tsaurl = URI("http://ts.cartaodecidadao.pt/tsa/server").toString()
                 ),
                 ktorHttpClientFactory = mockedKtorHttpClientFactory,
             ).getOrThrow()

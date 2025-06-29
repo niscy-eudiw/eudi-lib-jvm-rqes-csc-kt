@@ -57,4 +57,5 @@ data class CSCClientConfig(
     val rarUsage: RarUsage = RarUsage.IfSupported,
     val clock: Clock = Clock.systemDefaultZone(),
     val locale: Locale? = null,
+    val tsaurl: String? = "",
 )

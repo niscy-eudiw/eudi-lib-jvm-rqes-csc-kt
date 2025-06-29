@@ -19,12 +19,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.podofo.android.PoDoFoWrapper
+import eu.europa.ec.eudi.rqes.ConformanceLevel
 import eu.europa.ec.eudi.rqes.CredentialCertificate
 import eu.europa.ec.eudi.rqes.Digest
 import eu.europa.ec.eudi.rqes.DocumentDigest
 import eu.europa.ec.eudi.rqes.DocumentDigestList
 import eu.europa.ec.eudi.rqes.DocumentToSign
 import eu.europa.ec.eudi.rqes.HashAlgorithmOID
+import eu.europa.ec.eudi.rqes.TimestampRequestTO
+import eu.europa.ec.eudi.rqes.TimestampServiceImpl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.Instant
@@ -35,7 +38,8 @@ class PodofoManager {
     public suspend fun calculateDocumentHashes(
         documents: List<DocumentToSign>,
         credentialCertificate: CredentialCertificate,
-        hashAlgorithmOID : HashAlgorithmOID
+        hashAlgorithmOID : HashAlgorithmOID,
+        tsaUrl: String
     ): DocumentDigestList {
         try {
             podofoSessions = emptyList()
@@ -44,6 +48,8 @@ class PodofoManager {
 
             val hashes = mutableListOf<String>()
             var c = 1
+
+            validateTsaUrlRequirement(documents, tsaUrl)
 
             for (doc in documents) {
                 try {
@@ -91,7 +97,7 @@ class PodofoManager {
         }
     }
 
-    public suspend fun createSignedDocuments(signatures: List<String>) = withContext(Dispatchers.IO) {
+    public suspend fun createSignedDocuments(signatures: List<String>, tsaUrl: String?) = withContext(Dispatchers.IO) {
 
         try {
             if (signatures.size != podofoSessions.size) {
@@ -100,16 +106,29 @@ class PodofoManager {
 
             podofoSessions.forEachIndexed { index, sessionWrapper ->
                 val signedHash = signatures[index]
-
-                // print internal state if you need it
                 sessionWrapper.session.printState()
 
-                sessionWrapper.session.finalizeSigningWithSignedHash(signedHash)
+                val tsRequest = TimestampRequestTO(
+                    signedHash = signedHash,
+                    tsaUrl = tsaUrl ?: ""
+                )
+                val service = TimestampServiceImpl()
+                val response = service.requestTimestamp(tsRequest)
+
+                sessionWrapper.session.finalizeSigningWithSignedHash(signedHash, response.base64Tsr)
             }
 
         }
         finally {
             podofoSessions = emptyList()
+        }
+    }
+
+    private fun validateTsaUrlRequirement(docs: List<DocumentToSign>, tsaUrl: String) {
+        for (doc in docs) {
+            if (doc.conformanceLevel.name != ConformanceLevel.ADES_B_B.toString() && tsaUrl.isEmpty()) {
+                error("Missing TSA URL for conformance level: ${doc.conformanceLevel.name}")
+            }
         }
     }
 }

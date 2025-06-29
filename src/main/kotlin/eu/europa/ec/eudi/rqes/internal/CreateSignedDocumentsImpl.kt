@@ -22,9 +22,11 @@ import kotlinx.coroutines.runBlocking
 internal class CreateSignedDocumentsImpl() : CreateSignedDocuments {
     companion object {
         private var podofoManager: PodofoManager? = null
+        private var tsaUrl: String? = null
 
-        internal fun initialize(podofoManager: PodofoManager) {
+        internal fun initialize(podofoManager: PodofoManager, tsaUrl: String?) {
             this.podofoManager = podofoManager
+            this.tsaUrl = tsaUrl
         }
     }
 
@@ -32,6 +34,7 @@ internal class CreateSignedDocumentsImpl() : CreateSignedDocuments {
         signatures: List<Signature>
     ) = runBlocking {
         val pdfManager = podofoManager ?: throw IllegalStateException("PodofoManager is not initialized")
-        pdfManager.createSignedDocuments(signatures.map { it.value })
+        val tsaUrl = tsaUrl ?: ""
+        pdfManager.createSignedDocuments(signatures.map { it.value }, tsaUrl)
     }
 }

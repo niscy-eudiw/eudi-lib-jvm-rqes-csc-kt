@@ -40,8 +40,9 @@ public class PoDoFoWrapper {
         System.out.println("PoDoFoWrapper: Mock state - document: " + documentInputPath);
     }
     
-    public void finalizeSigningWithSignedHash(String signedHash) {
+    public void finalizeSigningWithSignedHash(String signedHash, String base64Tsr) {
         System.out.println("PoDoFoWrapper: Mock finalization with hash: " + signedHash);
+        System.out.println("PoDoFoWrapper: Mock timestamp response: " + base64Tsr);
         System.out.println("PoDoFoWrapper: Would create signed document at: " + documentOutputPath);
     }
 } 
