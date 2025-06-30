@@ -16,7 +16,7 @@ uri-kmp = "0.0.18"
 kover = "0.9.1"
 composeBom = "2024.06.00"
 composeCompiler = "1.5.13"
-
+eudi-podofo="0.1.0-SNAPSHOT"
 
 [libraries]
 nimbus-oauth2-oidc-sdk = { module = "com.nimbusds:oauth2-oidc-sdk", version.ref = "nimbus-sdk" }
@@ -34,10 +34,7 @@ jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 uri-kmp = { module = "com.eygraber:uri-kmp", version.ref = "uri-kmp" }
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
-compose-ui = { group = "androidx.compose.ui", name = "ui" }
-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+eudi-podofo = { module = "eu.europa.ec.eudi:eudi-lib-android-podofo", version.ref = "eudi-podofo" }
 
 [plugins]
 android-library = { id = "com.android.library", version.ref = "agp" }

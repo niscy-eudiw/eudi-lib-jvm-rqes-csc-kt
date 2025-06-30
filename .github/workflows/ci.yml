@@ -49,7 +49,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Publish with Gradle Wrapper
-        run: ./gradlew fatAar publishAllPublicationsToMavenCentral --full-stacktrace
+        run: ./gradlew publishAllPublicationsToMavenCentral --full-stacktrace
         env:
           CI: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

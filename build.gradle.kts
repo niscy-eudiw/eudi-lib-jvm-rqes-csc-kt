@@ -54,8 +54,7 @@ dependencies {
     api(libs.ktor.client.serialization)
     api(libs.ktor.serialization.kotlinx.json)
     implementation(libs.uri.kmp)
-    // implementation("podofo-android:podofo-android:@aar")
-    implementation("eu.europa.ec.eudi:eudi-lib-podofo-android:0.1.0-SNAPSHOT")
+    implementation(libs.eudi.podofo)
 
     // Jetpack Compose Dependencies
     implementation(platform(libs.compose.bom))
@@ -70,21 +69,6 @@ dependencies {
     testImplementation(libs.ktor.client.mock)
     testImplementation(libs.ktor.client.logging)
 }
-
-/* // Commenting out for Android compatibility
-java {
-    sourceCompatibility = JavaVersion.toVersion(libs.versions.java.get())
-}
-*/
-
-/* // Commenting out for Android compatibility
-kotlin {
-    jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of(libs.versions.java.get()))
-        vendor.set(JvmVendorSpec.ADOPTIUM)
-    }
-}
-*/
 
 spotless {
     kotlin {
@@ -153,92 +137,3 @@ dependencyCheckExtension?.apply {
     nvd.apiKey = nvdApiKey ?: ""
 }
 
-// Task to create fat AAR with embedded dependencies
-tasks.register("fatAar") {
-    dependsOn("assembleRelease")
-    doLast {
-        val releaseAar = file("build/outputs/aar/${project.name}-release.aar")
-        val tempDir = file("build/tmp/fatAar")
-
-        // Clean temp directory
-        tempDir.deleteRecursively()
-        tempDir.mkdirs()
-
-        // Extract main AAR
-        copy {
-            from(zipTree(releaseAar))
-            into(tempDir)
-        }
-
-        // Extract and merge podofo AAR
-        val podofoAar = file("libs/podofo-android.aar")
-        if (podofoAar.exists()) {
-            val podofoTemp = file("build/tmp/podofo")
-            podofoTemp.deleteRecursively()
-            podofoTemp.mkdirs()
-
-            copy {
-                from(zipTree(podofoAar))
-                into(podofoTemp)
-            }
-
-            // Merge classes.jar files
-            val mainClassesJar = file("$tempDir/classes.jar")
-            val podofoClassesJar = file("$podofoTemp/classes.jar")
-
-            if (podofoClassesJar.exists()) {
-                val mergedClassesDir = file("build/tmp/mergedClasses")
-                mergedClassesDir.deleteRecursively()
-                mergedClassesDir.mkdirs()
-
-                // Extract both JARs
-                copy {
-                    from(zipTree(mainClassesJar))
-                    into(mergedClassesDir)
-                }
-                copy {
-                    from(zipTree(podofoClassesJar))
-                    into(mergedClassesDir)
-                }
-
-                // Create merged classes.jar
-                ant.withGroovyBuilder {
-                    "jar"("destfile" to mainClassesJar) {
-                        "fileset"("dir" to mergedClassesDir)
-                    }
-                }
-            }
-
-            // Copy native libraries
-            val podofoJniLibs = file("$podofoTemp/jni")
-            if (podofoJniLibs.exists()) {
-                copy {
-                    from(podofoJniLibs)
-                    into("$tempDir/jni")
-                }
-            }
-
-            // Copy resources
-            val podofoRes = file("$podofoTemp/res")
-            if (podofoRes.exists()) {
-                copy {
-                    from(podofoRes)
-                    into("$tempDir/res")
-                }
-            }
-        }
-
-        // Create fat AAR
-        val fatAar = file("build/outputs/aar/${project.name}-release.aar")
-        ant.withGroovyBuilder {
-            "zip"("destfile" to fatAar) {
-                "fileset"("dir" to tempDir)
-            }
-        }
-    }
-}
-
-// Ensure fatAar task runs after assemble task
-tasks.named("assemble") {
-    finalizedBy("fatAar")
-}
