@@ -136,4 +136,3 @@ dependencyCheckExtension?.apply {
     formats = mutableListOf("XML", "HTML")
     nvd.apiKey = nvdApiKey ?: ""
 }
-
