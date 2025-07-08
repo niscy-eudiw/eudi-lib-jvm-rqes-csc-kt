@@ -35,9 +35,9 @@ class CSCClientTest {
                 cscClientConfig = CSCClientConfig(
                     OAuth2Client.Public("client-id"),
                     URI("https://example.com/redirect"),
-                    URI("https://walletcentric.signer.eudiw.dev").toURL(),
                     ParUsage.Never,
                     RarUsage.Never,
+                    tsaurl = URI("http://ts.cartaodecidadao.pt/tsa/server").toString()
                 ),
                 ktorHttpClientFactory = mockedKtorHttpClientFactory,
             ).getOrThrow()
@@ -52,7 +52,6 @@ class CSCClientTest {
                 cscClientConfig = CSCClientConfig(
                     OAuth2Client.Public("client-id"),
                     URI("https://example.com/redirect"),
-                    URI("https://walletcentric.signer.eudiw.dev").toURL(),
                     ParUsage.Never,
                     RarUsage.Never,
                 ),

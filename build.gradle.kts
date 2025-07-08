@@ -9,9 +9,10 @@ object Meta {
 
 plugins {
     base
-    `java-library`
+    alias(libs.plugins.android.library)
     alias(libs.plugins.dokka)
-    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.spotless)
     alias(libs.plugins.kover)
@@ -20,9 +21,30 @@ plugins {
     alias(libs.plugins.binary.compatibility.validator)
 }
 
-repositories {
-    mavenCentral()
-    mavenLocal()
+android {
+    namespace = "eu.europa.ec.eudi.rqes.csc"
+    compileSdk = 34
+
+    defaultConfig {
+        minSdk = 26
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.toVersion(libs.versions.java.get())
+        targetCompatibility = JavaVersion.toVersion(libs.versions.java.get())
+    }
+
+    kotlinOptions {
+        jvmTarget = libs.versions.java.get()
+    }
+
+    buildFeatures {
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
+    }
 }
 
 dependencies {
@@ -32,26 +54,20 @@ dependencies {
     api(libs.ktor.client.serialization)
     api(libs.ktor.serialization.kotlinx.json)
     implementation(libs.uri.kmp)
+    implementation(libs.eudi.podofo)
+
+    // Jetpack Compose Dependencies
+    implementation(platform(libs.compose.bom))
+    implementation(libs.compose.runtime)
+
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.jsoup)
     testImplementation(kotlin("test"))
-    testImplementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.okhttp)
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.ktor.server.content.negotiation)
     testImplementation(libs.ktor.client.mock)
     testImplementation(libs.ktor.client.logging)
-    testImplementation(libs.logback.classic)
-}
-
-java {
-    sourceCompatibility = JavaVersion.toVersion(libs.versions.java.get())
-}
-
-kotlin {
-    jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of(libs.versions.java.get()))
-        vendor.set(JvmVendorSpec.ADOPTIUM)
-    }
 }
 
 spotless {
@@ -64,32 +80,11 @@ spotless {
     }
 }
 
-testing {
-    suites {
-        val test by getting(JvmTestSuite::class) {
-            useJUnitJupiter()
-        }
-    }
-}
-
-tasks.jar {
-    manifest {
-        attributes(
-            mapOf(
-                "Implementation-Title" to project.name,
-                "Implementation-Version" to project.version,
-            ),
-        )
-    }
-}
-
 tasks.withType<DokkaTask>().configureEach {
     dokkaSourceSets {
         named("main") {
-            // used as project name in the header
             moduleName.set("EUDI rQES CSC library")
 
-            // contains descriptions for the module and the packages
             includes.from("Module.md")
 
             documentedVisibilities.set(setOf(DokkaConfiguration.Visibility.PUBLIC, DokkaConfiguration.Visibility.PROTECTED))
@@ -109,9 +104,28 @@ tasks.withType<DokkaTask>().configureEach {
 
 mavenPublishing {
     pom {
+        name.set(project.name)
+        description.set("EUDI rQES CSC library for Android")
+        url.set(Meta.BASE_URL)
+
         ciManagement {
             system = "github"
-            url = "${Meta.BASE_URL}/actions"
+            url = Meta.BASE_URL + "/actions"
+        }
+        licenses {
+            license {
+                name.set("The Apache License, Version 2.0")
+                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+            }
+        }
+        developers {
+            developer {
+            }
+        }
+        scm {
+            connection.set("scm:git:" + Meta.BASE_URL + ".git")
+            developerConnection.set("scm:git:ssh://git@github.com" + Meta.BASE_URL.substringAfter("https://github.com") + ".git")
+            url.set(Meta.BASE_URL)
         }
     }
 }

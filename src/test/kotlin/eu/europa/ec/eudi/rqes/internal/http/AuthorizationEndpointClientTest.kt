@@ -40,7 +40,6 @@ class AuthorizationEndpointClientTest {
             CSCClientConfig(
                 client = OAuth2Client.Public("wallet-client-tester"),
                 authFlowRedirectionURI = URI("https://oauthdebugger.com/debug").toURL().toURI(),
-                scaBaseURL = URI("http://localhost:8080").toURL(),
                 parUsage = ParUsage.IfSupported,
             ),
             mockedKtorHttpClientFactory,

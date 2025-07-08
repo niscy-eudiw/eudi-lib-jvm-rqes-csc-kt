@@ -17,9 +17,11 @@ the [EUDI Wallet Reference Implementation project description](https://github.co
 
 ## Overview
 
-This is a Kotlin library, targeting JVM, that supports
+This is a Kotlin library, targeting Android, that supports
 the [Cloud Signature Consortium API (version 2)](https://cloudsignatureconsortium.org/wp-content/uploads/2023/04/csc-api-v2.0.0.2.pdf)
 protocol.
+
+See [CHANGELOG.md](./CHANGELOG.md) for the latest updates.
 
 ## Implemented features
 
@@ -48,15 +50,6 @@ Additionally, the library supports the following authorization methods:
 | Service    | ✅         | ❌        |
 | Credential | ✅         | ❌        | 
 
-### ❗Important note on hash calculation and signature embedding
-
-This library is exposing methods for calculating a document's digest and for embedding a signature to the document. 
-However, this functionality is not implemented in the library itself, but is delegated to an external component.   
-This component is not part of the library and must be provided by the library consumer. Alternative, the library consumer 
-can implement the hash calculation and signature embedding logic in their own application.
-
-In future versions of the library, this functionality may be implemented directly in the library.
-
 ## Interactions between the library, the caller and the RSSP
 
 ### Legend
@@ -66,7 +59,6 @@ In future versions of the library, this functionality may be implemented directl
 | Caller     | The application that is using the library to interact with the RSSP                 |
 | Lib        | This library                                                                        |
 | RSSP       | The Remote Signing Service Provider                                                 |
-| Remote SCA | A remote component that is responsible for hash calculation and signature embedding |
 
 ### Get RSSP information
 
@@ -188,30 +180,6 @@ sequenceDiagram
     deactivate Library
 ```
 
-### Credential Authorization flow with remote SCA
-
-```mermaid
-sequenceDiagram
-    autonumber
-    Caller ->> Library: Initiate credential authorization
-    activate Library
-    Note left of Library: Inputs: <br/>1) the credential<br/>2) the document to be signed<br/>3) the service access token
-    Library ->> Remote SCA: request hash calculation
-    activate Remote SCA
-    Remote SCA ->> Library: return hash
-    deactivate Remote SCA
-    Library ->> Caller: return prepared authorization URL
-    deactivate Library
-    Note over Caller, Library: At this the Caller is responsible<br/>to open the authorization URL<br/> in a browser. <br/>After the authorization is complete, <br/>the Caller must obtain<br/> the authorization code
-    Caller ->> Library: provide authorization code
-    activate Library
-    Library ->> Authorization Server: Use token endpoint to exchange<br/> auth code for access token
-    activate Authorization Server
-    Authorization Server ->> Library: return access token
-    deactivate Authorization Server
-    Library ->> Caller: return access token
-    deactivate Library
-```
 
 ### Hash signing
 

@@ -16,6 +16,7 @@
 package eu.europa.ec.eudi.rqes
 
 import com.nimbusds.oauth2.sdk.`as`.ReadOnlyAuthorizationServerMetadata
+import kotlinx.serialization.Serializable
 import java.io.File
 import java.net.URI
 import java.net.URL
@@ -122,10 +123,11 @@ value class Digest(val value: String) {
 }
 
 data class DocumentToSign(
-    val file: Document,
+    val documentInputPath: String,
+    val documentOutputPath: String,
+    val label: String,
     val signatureFormat: SignatureFormat,
     val conformanceLevel: ConformanceLevel = ConformanceLevel.ADES_B_B,
-    val signAlgo: SigningAlgorithmOID,
     val signedEnvelopeProperty: SignedEnvelopeProperty,
     val asicContainer: ASICContainer,
 )
@@ -245,7 +247,7 @@ interface CanExpire {
         require(issued.isBefore(at) || issued == at) { "At should be after or equal to $issued" }
         val expiresIn = expiresIn
         return if (expiresIn != null) {
-            val expiration = issued.plusSeconds(expiresIn.toSeconds())
+            val expiration = issued.plusSeconds(expiresIn.toMillis() / 1000)
             !expiration.isAfter(at)
         } else false
     }
@@ -349,3 +351,12 @@ value class Signature(val value: String) {
         require(value.isNotEmpty()) { "Signature value must not be empty" }
     }
 }
+
+data class TimestampRequestTO(
+    val signedHash: String,
+    val tsaUrl: String
+)
+
+data class TimestampResponseTO(
+    val base64Tsr: String
+)

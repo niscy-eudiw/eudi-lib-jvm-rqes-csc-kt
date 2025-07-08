@@ -15,25 +15,13 @@
  */
 package eu.europa.ec.eudi.rqes
 
-import java.io.InputStream
-import java.time.Instant
-
-interface GetSignedDocuments {
+interface CreateSignedDocuments {
 
     /**
      * Embeds the signatures into the documents.
-     * @param documents the documents
      * @param signatures the signatures
-     * @param credentialCertificate the credential certificate
-     * @param hashAlgorithmOID the hash algorithm OID
-     * @param signatureTimestamp the signature timestamp
-     * @return the signed documents, encoded in base64
      */
-    suspend fun getSignedDocuments(
-        documents: List<DocumentToSign>,
-        signatures: List<Signature>,
-        credentialCertificate: CredentialCertificate,
-        hashAlgorithmOID: HashAlgorithmOID,
-        signatureTimestamp: Instant,
-    ): List<InputStream>
+    suspend fun createSignedDocuments(
+        signatures: List<Signature>
+    )
 }

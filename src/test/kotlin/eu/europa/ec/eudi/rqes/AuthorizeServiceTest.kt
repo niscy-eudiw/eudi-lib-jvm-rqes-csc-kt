@@ -218,7 +218,6 @@ class AuthorizeServiceTest {
             cscClientConfig = CSCClientConfig(
                 client = OAuth2Client.Public("client-id"),
                 authFlowRedirectionURI = URI("https://example.com/redirect"),
-                URI("https://walletcentric.signer.eudiw.dev").toURL(),
                 parUsage = ParUsage.Required,
             ),
             ktorHttpClientFactory = mockedKtorHttpClientFactory,

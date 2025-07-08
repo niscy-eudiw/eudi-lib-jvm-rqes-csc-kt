@@ -38,12 +38,10 @@ class CalculateDocumentHashesTest {
                     HashAlgorithmOID.SHA_256,
                 )
             }
-
             assertNotNull(documentDigestList)
             assertEquals(1, documentDigestList.documentDigests.size)
             assertEquals(HashAlgorithmOID.SHA_256, documentDigestList.hashAlgorithmOID)
             assertTrue(documentDigestList.documentDigests[0].hash.value.startsWith("MYIBAzAYBgkqhkiG9w0BCQMxCwYJKoZIhvc"))
-            assertEquals(1731313375117L, documentDigestList.hashCalculationTime.toEpochMilli())
         }
     }
 }

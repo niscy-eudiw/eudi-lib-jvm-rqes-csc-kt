@@ -17,13 +17,14 @@ package eu.europa.ec.eudi.rqes
 
 import kotlinx.coroutines.test.runTest
 import java.io.File
+import java.net.URI
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 
-class GetSignedDocumentsTest {
+class CreateSignedDocumentsTest {
 
     @Test
-    fun `successful get signed documents`() = runTest {
+    fun `successful create signed documents`() = runTest {
         val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
             authServerWellKnownMocker(),
             credentialsInfoPostMocker(),
@@ -31,19 +32,23 @@ class GetSignedDocumentsTest {
             obtainSignedDocPostMocker(),
         )
 
-        with(mockPublicClient(mockedKtorHttpClientFactory)) {
+        with(mockPublicClient(
+            mockedKtorHttpClientFactory,
+            tsaurl = URI("http://ts.cartaodecidadao.pt/tsa/server").toString()
+        )) {
             val documentsToSign = listOf(
                 DocumentToSign(
-                    Document(File(ClassLoader.getSystemResource("sample.pdf").path), "test.pdf"),
-                    SignatureFormat.P,
-                    ConformanceLevel.ADES_B_B,
-                    SigningAlgorithmOID.RSA_SHA256,
-                    SignedEnvelopeProperty.ENVELOPED,
-                    ASICContainer.NONE,
+                    documentInputPath = ClassLoader.getSystemResource("sample.pdf").path,
+                    documentOutputPath = "signed_test.pdf",
+                    label = "test.pdf",
+                    signatureFormat = SignatureFormat.P,
+                    conformanceLevel = ConformanceLevel.ADES_B_B,
+                    signedEnvelopeProperty = SignedEnvelopeProperty.ENVELOPED,
+                    asicContainer = ASICContainer.NONE,
                 ),
             )
 
-            val signedDoc = with(mockServiceAccessAuthorized) {
+            with(mockServiceAccessAuthorized) {
                 val credential =
                     credentialInfo(CredentialsInfoRequest(CredentialID("83c7c559-db74-48da-aacc-d439d415cb81"))).getOrThrow()
 
@@ -53,18 +58,10 @@ class GetSignedDocumentsTest {
                     HashAlgorithmOID.SHA_256,
                 )
 
-                val signatures = listOf(Signature("sdlkjaowseujrvnmxcnvjkshafiea"))
+                val signatures = listOf(Signature("MEUCIG5WwZcgN68iRdkGNqUYFpn6Q7v5Up1rqU7/9iHYm3MHAiEAmthZYmnIiUAmKsfElOOBcNtEQuI9LKJTeK2Vd9WUBYA="))
 
-                getSignedDocuments(
-                    documentsToSign,
-                    signatures,
-                    credential.certificate,
-                    HashAlgorithmOID.SHA_256,
-                    documentDigestList.hashCalculationTime,
-                )
+                createSignedDocuments(signatures)
             }
-
-            assertNotNull(signedDoc)
         }
     }
 }

@@ -17,9 +17,9 @@ package eu.europa.ec.eudi.rqes.internal
 
 import eu.europa.ec.eudi.podofomanager.PodofoManager
 import eu.europa.ec.eudi.rqes.*
+import kotlinx.coroutines.runBlocking
 
-
-internal class CalculateDocumentHashesImpl() : CalculateDocumentHashes {
+internal class CreateSignedDocumentsImpl() : CreateSignedDocuments {
     companion object {
         private var podofoManager: PodofoManager? = null
         private var tsaUrl: String? = null
@@ -30,13 +30,11 @@ internal class CalculateDocumentHashesImpl() : CalculateDocumentHashes {
         }
     }
 
-    override suspend fun calculateDocumentHashes(
-        documents: List<DocumentToSign>,
-        credentialCertificate: CredentialCertificate,
-        hashAlgorithmOID: HashAlgorithmOID,
-    ): DocumentDigestList {
+    override suspend fun createSignedDocuments(
+        signatures: List<Signature>
+    ) = runBlocking {
         val pdfManager = podofoManager ?: throw IllegalStateException("PodofoManager is not initialized")
         val tsaUrl = tsaUrl ?: ""
-        return pdfManager.calculateDocumentHashes(documents,credentialCertificate,hashAlgorithmOID, tsaUrl)
+        pdfManager.createSignedDocuments(signatures.map { it.value }, tsaUrl)
     }
 }

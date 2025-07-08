@@ -52,9 +52,9 @@ enum class RarUsage {
 data class CSCClientConfig(
     val client: OAuth2Client,
     val authFlowRedirectionURI: URI,
-    val scaBaseURL: URL,
     val parUsage: ParUsage = ParUsage.IfSupported,
     val rarUsage: RarUsage = RarUsage.IfSupported,
     val clock: Clock = Clock.systemDefaultZone(),
     val locale: Locale? = null,
+    val tsaurl: String? = "",
 )
