@@ -360,3 +360,11 @@ data class TimestampRequestTO(
 data class TimestampResponseTO(
     val base64Tsr: String
 )
+
+data class CrlRequest(
+    val crlUrl: String
+)
+
+data class CrlResponse(
+    val crlInfoBase64: String
+)

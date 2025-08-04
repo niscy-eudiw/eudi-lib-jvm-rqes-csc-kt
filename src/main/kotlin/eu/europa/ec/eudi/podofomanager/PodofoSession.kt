@@ -16,8 +16,16 @@
 package eu.europa.ec.eudi.podofomanager
 
 import com.podofo.android.PoDoFoWrapper
+import eu.europa.ec.eudi.rqes.ConformanceLevel
 
 data class PodofoSession(
     val id: String,
-    val session: PoDoFoWrapper
+    val session: PoDoFoWrapper,
+    var conformanceLevel: ConformanceLevel,
+    var endCertificate: String,
+    var chainCertificates: List<String> = emptyList(),
+    var tsrLT: String? = null,
+    var tsrLTA: String? = null,
+    var crlUrls: Set<String> = emptySet(),
+    var ocspUrls: Set<String> = emptySet()
 )

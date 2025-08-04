@@ -801,15 +801,37 @@ public final class eu/europa/ec/eudi/podofomanager/PodofoManager {
 
 public final class eu/europa/ec/eudi/podofomanager/PodofoSession {
 	public static final field $stable I
-	public fun <init> (Ljava/lang/String;Lcom/podofo/android/PoDoFoWrapper;)V
+	public fun <init> (Ljava/lang/String;Lcom/podofo/android/PoDoFoWrapper;Leu/europa/ec/eudi/rqes/ConformanceLevel;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;Ljava/util/Set;Ljava/util/Set;)V
+	public synthetic fun <init> (Ljava/lang/String;Lcom/podofo/android/PoDoFoWrapper;Leu/europa/ec/eudi/rqes/ConformanceLevel;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;Ljava/util/Set;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
 	public final fun component2 ()Lcom/podofo/android/PoDoFoWrapper;
-	public final fun copy (Ljava/lang/String;Lcom/podofo/android/PoDoFoWrapper;)Leu/europa/ec/eudi/podofomanager/PodofoSession;
-	public static synthetic fun copy$default (Leu/europa/ec/eudi/podofomanager/PodofoSession;Ljava/lang/String;Lcom/podofo/android/PoDoFoWrapper;ILjava/lang/Object;)Leu/europa/ec/eudi/podofomanager/PodofoSession;
+	public final fun component3 ()Leu/europa/ec/eudi/rqes/ConformanceLevel;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Ljava/util/List;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun component8 ()Ljava/util/Set;
+	public final fun component9 ()Ljava/util/Set;
+	public final fun copy (Ljava/lang/String;Lcom/podofo/android/PoDoFoWrapper;Leu/europa/ec/eudi/rqes/ConformanceLevel;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;Ljava/util/Set;Ljava/util/Set;)Leu/europa/ec/eudi/podofomanager/PodofoSession;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/podofomanager/PodofoSession;Ljava/lang/String;Lcom/podofo/android/PoDoFoWrapper;Leu/europa/ec/eudi/rqes/ConformanceLevel;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;Ljava/util/Set;Ljava/util/Set;ILjava/lang/Object;)Leu/europa/ec/eudi/podofomanager/PodofoSession;
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getChainCertificates ()Ljava/util/List;
+	public final fun getConformanceLevel ()Leu/europa/ec/eudi/rqes/ConformanceLevel;
+	public final fun getCrlUrls ()Ljava/util/Set;
+	public final fun getEndCertificate ()Ljava/lang/String;
 	public final fun getId ()Ljava/lang/String;
+	public final fun getOcspUrls ()Ljava/util/Set;
 	public final fun getSession ()Lcom/podofo/android/PoDoFoWrapper;
+	public final fun getTsrLT ()Ljava/lang/String;
+	public final fun getTsrLTA ()Ljava/lang/String;
 	public fun hashCode ()I
+	public final fun setChainCertificates (Ljava/util/List;)V
+	public final fun setConformanceLevel (Leu/europa/ec/eudi/rqes/ConformanceLevel;)V
+	public final fun setCrlUrls (Ljava/util/Set;)V
+	public final fun setEndCertificate (Ljava/lang/String;)V
+	public final fun setOcspUrls (Ljava/util/Set;)V
+	public final fun setTsrLT (Ljava/lang/String;)V
+	public final fun setTsrLTA (Ljava/lang/String;)V
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -1489,6 +1511,30 @@ public final class eu/europa/ec/eudi/rqes/CredentialsListRequest {
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class eu/europa/ec/eudi/rqes/CrlRequest {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/CrlRequest;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/CrlRequest;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CrlRequest;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCrlUrl ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/CrlResponse {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/CrlResponse;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/CrlResponse;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CrlResponse;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCrlInfoBase64 ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class eu/europa/ec/eudi/rqes/Description {
 	public static final synthetic fun box-impl (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/Description;
 	public static fun constructor-impl (Ljava/lang/String;)Ljava/lang/String;
@@ -1906,6 +1952,16 @@ public final class eu/europa/ec/eudi/rqes/RefreshToken : eu/europa/ec/eudi/rqes/
 	public fun hashCode ()I
 	public fun isExpired (Ljava/time/Instant;Ljava/time/Instant;)Z
 	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class eu/europa/ec/eudi/rqes/RevocationService {
+	public abstract fun getCrlData (Leu/europa/ec/eudi/rqes/CrlRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class eu/europa/ec/eudi/rqes/RevocationServiceImpl : eu/europa/ec/eudi/rqes/RevocationService {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun getCrlData (Leu/europa/ec/eudi/rqes/CrlRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class eu/europa/ec/eudi/rqes/SCAL : java/lang/Enum {
