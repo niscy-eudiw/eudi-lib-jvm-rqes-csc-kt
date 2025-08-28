@@ -22,13 +22,15 @@ import java.util.Base64
 
 interface RevocationService {
     suspend fun getCrlData(request: CrlRequest): CrlResponse
+    suspend fun getOcspData(request: OcspRequest): OcspResponse
+    suspend fun getCertificateData(request: CertificateRequest): CertificateResponse
 }
 
 class RevocationServiceImpl : RevocationService {
 
     override suspend fun getCrlData(request: CrlRequest): CrlResponse {
         return try {
-            val crlData = makeRequest(request.crlUrl)
+            val crlData = makeCrlRequest(request.crlUrl)
             val base64Crl = Base64.getEncoder().encodeToString(crlData)
             CrlResponse(crlInfoBase64 = base64Crl)
         } catch (e: Exception) {
@@ -36,7 +38,27 @@ class RevocationServiceImpl : RevocationService {
         }
     }
 
-    private fun makeRequest(crlUrl: String): ByteArray {
+    override suspend fun getOcspData(request: OcspRequest): OcspResponse {
+        return try {
+            val ocspData = makeOcspRequest(request)
+            val base64Ocsp = Base64.getEncoder().encodeToString(ocspData)
+            OcspResponse(ocspInfoBase64 = base64Ocsp)
+        } catch (e: Exception) {
+            throw RuntimeException("Failed to get OCSP data", e)
+        }
+    }
+
+    override suspend fun getCertificateData(request: CertificateRequest): CertificateResponse {
+        return try {
+            val certificateData = makeCertificateRequest(request.certificateUrl)
+            val base64Certificate = Base64.getEncoder().encodeToString(certificateData)
+            CertificateResponse(certificateBase64 = base64Certificate)
+        } catch (e: Exception) {
+            throw RuntimeException("Failed to get certificate data", e)
+        }
+    }
+
+    private fun makeCrlRequest(crlUrl: String): ByteArray {
         val url = try {
             URL(crlUrl)
         } catch (e: Exception) {
@@ -52,6 +74,53 @@ class RevocationServiceImpl : RevocationService {
         val responseCode = connection.responseCode
         if (responseCode != HttpURLConnection.HTTP_OK) {
             throw IOException("CRL server responded with HTTP $responseCode")
+        }
+
+        return connection.inputStream.use { it.readBytes() }
+    }
+
+    private fun makeOcspRequest(request: OcspRequest): ByteArray {
+        val url = try {
+            URL(request.ocspUrl)
+        } catch (e: Exception) {
+            throw IllegalArgumentException("Invalid OCSP URL", e)
+        }
+
+        val connection = (url.openConnection() as HttpURLConnection).apply {
+            requestMethod = "POST"
+            setRequestProperty("Content-Type", "application/ocsp-request")
+            connectTimeout = 5000
+            readTimeout = 5000
+            doOutput = true
+        }
+
+        val postData = Base64.getDecoder().decode(request.ocspRequest)
+        connection.outputStream.use { it.write(postData) }
+
+        val responseCode = connection.responseCode
+        if (responseCode !in 200..299) {
+            throw IOException("OCSP server responded with HTTP $responseCode")
+        }
+
+        return connection.inputStream.use { it.readBytes() }
+    }
+
+    private fun makeCertificateRequest(certificateUrl: String): ByteArray {
+        val url = try {
+            URL(certificateUrl)
+        } catch (e: Exception) {
+            throw IllegalArgumentException("Invalid certificate URL", e)
+        }
+
+        val connection = (url.openConnection() as HttpURLConnection).apply {
+            requestMethod = "GET"
+            connectTimeout = 5000
+            readTimeout = 5000
+        }
+
+        val responseCode = connection.responseCode
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            throw IOException("Certificate server responded with HTTP $responseCode")
         }
 
         return connection.inputStream.use { it.readBytes() }

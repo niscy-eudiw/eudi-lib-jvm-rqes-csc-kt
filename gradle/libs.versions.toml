@@ -16,7 +16,7 @@ uri-kmp = "0.0.18"
 kover = "0.9.1"
 composeBom = "2024.06.00"
 composeCompiler = "1.5.13"
-eudi-podofo="0.2.0"
+eudi-podofo="0.3.0"
 
 [libraries]
 nimbus-oauth2-oidc-sdk = { module = "com.nimbusds:oauth2-oidc-sdk", version.ref = "nimbus-sdk" }

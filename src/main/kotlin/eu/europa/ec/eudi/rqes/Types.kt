@@ -368,3 +368,20 @@ data class CrlRequest(
 data class CrlResponse(
     val crlInfoBase64: String
 )
+
+data class OcspRequest(
+    val ocspUrl: String,
+    val ocspRequest: String,
+)
+
+data class OcspResponse(
+    val ocspInfoBase64: String,
+)
+
+data class CertificateRequest(
+    val certificateUrl: String,
+)
+
+data class CertificateResponse(
+    val certificateBase64: String,
+)

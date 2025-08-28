@@ -21,12 +21,21 @@ import java.net.URL
 import java.io.IOException
 import java.net.HttpURLConnection
 
-public class TimestampServiceImpl {
+class TimestampServiceImpl {
 
     suspend fun requestTimestamp(request: TimestampRequestTO): TimestampResponseTO {
+        val tsq = buildTSQ(request.signedHash)
+        return getTimestampResponse(tsq, request.tsaUrl)
+    }
+
+    suspend fun requestDocTimestamp(request: TimestampRequestTO): TimestampResponseTO {
+        val tsq = buildTSQForDocTimestamp(request.signedHash)
+        return getTimestampResponse(tsq, request.tsaUrl)
+    }
+
+    private suspend fun getTimestampResponse(tsq: ByteArray, tsaUrl: String): TimestampResponseTO {
         return try {
-            val tsqData = buildTSQ(request.signedHash)
-            val tsrData = makeRequest(tsqData, request.tsaUrl)
+            val tsrData = makeRequest(tsq, tsaUrl)
             val base64Tsr = encodeTSRToBase64(tsrData)
             TimestampResponseTO(base64Tsr = base64Tsr)
         } catch (e: Exception) {
@@ -47,6 +56,24 @@ public class TimestampServiceImpl {
 
         val digest = MessageDigest.getInstance("SHA-256").digest(rawHash)
 
+        return createTSQ(digest)
+    }
+
+    private fun buildTSQForDocTimestamp(rawHashBase64: String): ByteArray {
+        if (rawHashBase64.isBlank()) {
+            throw IllegalArgumentException("Empty hash")
+        }
+
+        val digestData = try {
+            Base64.getDecoder().decode(rawHashBase64)
+        } catch (e: IllegalArgumentException) {
+            throw IllegalArgumentException("Invalid Base64", e)
+        }
+
+        return createTSQ(digestData)
+    }
+
+    private fun createTSQ(digestData: ByteArray): ByteArray {
         val oidSHA256 = byteArrayOf(
             0x06, 0x09, 0x60.toByte(), 0x86.toByte(), 0x48, 0x01, 0x65,
             0x03, 0x04, 0x02, 0x01
@@ -54,14 +81,15 @@ public class TimestampServiceImpl {
         val nullBytes = byteArrayOf(0x05, 0x00)
         val algIDSeq = tlv(0x30, oidSHA256 + nullBytes)
 
-        val octetDigest = tlv(0x04, digest)
+        val octetDigest = tlv(0x04, digestData)
         val msgImprintSeq = tlv(0x30, algIDSeq + octetDigest)
 
         val versionBytes = byteArrayOf(0x02, 0x01, 0x01)
         val certReqBytes = byteArrayOf(0x01, 0x01, 0xFF.toByte())
 
         val tsReqBody = versionBytes + msgImprintSeq + certReqBytes
-        return tlv(0x30, tsReqBody)
+        val tsq = tlv(0x30, tsReqBody)
+        return tsq
     }
 
     private fun tlv(tag: Int, value: ByteArray): ByteArray {
@@ -107,7 +135,8 @@ public class TimestampServiceImpl {
             throw IOException("TSA server responded with HTTP $responseCode")
         }
 
-        return connection.inputStream.use { it.readBytes() }
+        val responseData = connection.inputStream.use { it.readBytes() }
+        return responseData
     }
 
     private fun encodeTSRToBase64(tsrData: ByteArray): String {

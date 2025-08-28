@@ -1155,6 +1155,30 @@ public final class eu/europa/ec/eudi/rqes/CanExpire$DefaultImpls {
 	public static fun isExpired (Leu/europa/ec/eudi/rqes/CanExpire;Ljava/time/Instant;Ljava/time/Instant;)Z
 }
 
+public final class eu/europa/ec/eudi/rqes/CertificateRequest {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/CertificateRequest;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/CertificateRequest;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CertificateRequest;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCertificateUrl ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/CertificateResponse {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/CertificateResponse;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/CertificateResponse;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CertificateResponse;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCertificateBase64 ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class eu/europa/ec/eudi/rqes/Certificates : java/lang/Enum {
 	public static final field Chain Leu/europa/ec/eudi/rqes/Certificates;
 	public static final field None Leu/europa/ec/eudi/rqes/Certificates;
@@ -1769,6 +1793,32 @@ public final class eu/europa/ec/eudi/rqes/Oauth2Grant : java/lang/Enum {
 	public static fun values ()[Leu/europa/ec/eudi/rqes/Oauth2Grant;
 }
 
+public final class eu/europa/ec/eudi/rqes/OcspRequest {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Leu/europa/ec/eudi/rqes/OcspRequest;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/OcspRequest;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/OcspRequest;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getOcspRequest ()Ljava/lang/String;
+	public final fun getOcspUrl ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/OcspResponse {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/OcspResponse;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/OcspResponse;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/OcspResponse;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getOcspInfoBase64 ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class eu/europa/ec/eudi/rqes/PKCEVerifier : java/io/Serializable {
 	public static final field $stable I
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
@@ -1955,13 +2005,17 @@ public final class eu/europa/ec/eudi/rqes/RefreshToken : eu/europa/ec/eudi/rqes/
 }
 
 public abstract interface class eu/europa/ec/eudi/rqes/RevocationService {
+	public abstract fun getCertificateData (Leu/europa/ec/eudi/rqes/CertificateRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun getCrlData (Leu/europa/ec/eudi/rqes/CrlRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun getOcspData (Leu/europa/ec/eudi/rqes/OcspRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class eu/europa/ec/eudi/rqes/RevocationServiceImpl : eu/europa/ec/eudi/rqes/RevocationService {
 	public static final field $stable I
 	public fun <init> ()V
+	public fun getCertificateData (Leu/europa/ec/eudi/rqes/CertificateRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun getCrlData (Leu/europa/ec/eudi/rqes/CrlRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun getOcspData (Leu/europa/ec/eudi/rqes/OcspRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class eu/europa/ec/eudi/rqes/SCAL : java/lang/Enum {
@@ -2181,6 +2235,7 @@ public final class eu/europa/ec/eudi/rqes/TimestampResponseTO {
 public final class eu/europa/ec/eudi/rqes/TimestampServiceImpl {
 	public static final field $stable I
 	public fun <init> ()V
+	public final fun requestDocTimestamp (Leu/europa/ec/eudi/rqes/TimestampRequestTO;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun requestTimestamp (Leu/europa/ec/eudi/rqes/TimestampRequestTO;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 

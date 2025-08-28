@@ -27,7 +27,9 @@ import eu.europa.ec.eudi.rqes.DocumentDigest
 import eu.europa.ec.eudi.rqes.DocumentDigestList
 import eu.europa.ec.eudi.rqes.DocumentToSign
 import eu.europa.ec.eudi.rqes.HashAlgorithmOID
+import eu.europa.ec.eudi.rqes.OcspRequest
 import eu.europa.ec.eudi.rqes.TimestampRequestTO
+import eu.europa.ec.eudi.rqes.TimestampResponseTO
 import eu.europa.ec.eudi.rqes.TimestampServiceImpl
 import eu.europa.ec.eudi.rqes.CrlRequest
 import eu.europa.ec.eudi.rqes.RevocationServiceImpl
@@ -81,7 +83,7 @@ class PodofoManager {
                     } ?: throw IllegalStateException("Failed to calculate hash for document: ${doc.documentInputPath}")
 
                 } catch (e: Exception) {
-                    println("Failed to calculate hash for ${doc.documentOutputPath}")
+                    error("Failed to calculate hash for ${doc.documentOutputPath}")
                 }
             }
 
@@ -102,13 +104,11 @@ class PodofoManager {
                 hashCalculationTime = Instant.now()
             )
         } catch (e: Exception) {
-            println("Error in calculateDocumentHashes for ${documents.map { it.label }}")
             throw e
         }
     }
 
     public suspend fun createSignedDocuments(signatures: List<String>, tsaUrl: String?) = withContext(Dispatchers.IO) {
-
         try {
             if (signatures.size != podofoSessions.size) {
                 throw IllegalArgumentException("Signatures count (${signatures.size}) does not match session count (${podofoSessions.size})")
@@ -156,13 +156,7 @@ class PodofoManager {
     }
 
     private suspend fun handleAdesB_T(sessionWrapper: PodofoSession, signedHash: String, tsaUrl: String) {
-        println("Handling ADES-B-T...")
-        val tsRequest = TimestampRequestTO(
-            signedHash = signedHash,
-            tsaUrl = tsaUrl
-        )
-        val service = TimestampServiceImpl()
-        val response = service.requestTimestamp(tsRequest)
+        val response = requestTimestamp(signedHash, tsaUrl)
 
         sessionWrapper.session.finalizeSigningWithSignedHash(
             signedHash,
@@ -174,94 +168,169 @@ class PodofoManager {
     }
 
     private suspend fun handleAdesB_LT(sessionWrapper: PodofoSession, signedHash: String, tsaUrl: String) {
-        val tsRequest = TimestampRequestTO(
-            signedHash = signedHash,
-            tsaUrl = tsaUrl
+        val timestampAndRevocationData = addTimestampAndRevocationInfo(
+            sessionWrapper,
+            signedHash,
+            tsaUrl
         )
-        val service = TimestampServiceImpl()
-        val tsResponse = service.requestTimestamp(tsRequest)
-
-        val validationCertificates = mutableListOf(sessionWrapper.endCertificate)
-        validationCertificates.addAll(sessionWrapper.chainCertificates)
-        validationCertificates.add(tsResponse.base64Tsr)
-
-        val certificatesForCrlExtraction = listOf(sessionWrapper.endCertificate) + sessionWrapper.chainCertificates
-        val crlUrls = mutableSetOf<String>()
-
-        for (certificate in certificatesForCrlExtraction) {
-            try {
-                sessionWrapper.session.getCrlFromCertificate(certificate)?.let { crlUrl ->
-                    crlUrls.add(crlUrl)
-                    println("CRL URL: $crlUrl")
-                }
-            } catch (e: Exception) {
-                println("Could not extract CRL from certificate: ${e.message}")
-            }
-        }
-
-        val validationCrls = fetchCrlDataFromUrls(crlUrls.toList())
 
         sessionWrapper.session.finalizeSigningWithSignedHash(
             signedHash,
-            tsResponse.base64Tsr,
-            validationCertificates,
-            validationCrls,
-            mutableListOf() // validationOCSPs
+            timestampAndRevocationData.tsResponse.base64Tsr,
+            timestampAndRevocationData.validationCertificates,
+            timestampAndRevocationData.validationCrls,
+            timestampAndRevocationData.validationOCSPs
         )
     }
 
     private suspend fun handleAdesB_LTA(sessionWrapper: PodofoSession, signedHash: String, tsaUrl: String) {
-        val tsRequest = TimestampRequestTO(
-            signedHash = signedHash,
-            tsaUrl = tsaUrl
+        val timestampAndRevocationData = addTimestampAndRevocationInfo(
+            sessionWrapper,
+            signedHash,
+            tsaUrl
         )
-        val service = TimestampServiceImpl()
-        val tsResponse = service.requestTimestamp(tsRequest)
 
-        val validationCertificates = mutableListOf(sessionWrapper.endCertificate)
-        validationCertificates.addAll(sessionWrapper.chainCertificates)
-        validationCertificates.add(tsResponse.base64Tsr)
+        sessionWrapper.session.finalizeSigningWithSignedHash(
+            signedHash,
+            timestampAndRevocationData.tsResponse.base64Tsr,
+            timestampAndRevocationData.validationCertificates,
+            timestampAndRevocationData.validationCrls,
+            timestampAndRevocationData.validationOCSPs
+        )
+
+        val ltaRawHash = sessionWrapper.session.beginSigningLTA()
+        if (ltaRawHash != null) {
+            val tsLtaResponse = requestDocTimestamp(ltaRawHash, tsaUrl)
+
+            val validationLTACertificates: MutableList<String> = mutableListOf()
+            val validationLTACrls: MutableList<String> = mutableListOf()
+            val validationLTAOCSPs: MutableList<String> = mutableListOf()
+
+            try {
+                val base64LTAOcspResponse = fetchOcspResponse(
+                    sessionWrapper,
+                    tsLtaResponse.base64Tsr
+                )
+                validationLTAOCSPs.add(base64LTAOcspResponse)
+
+                val tsaLTASignerCert =
+                    sessionWrapper.session.extractSignerCertFromTSR(tsLtaResponse.base64Tsr)
+                validationLTACertificates.add(tsaLTASignerCert)
+
+                val tsaLTAIssuerCert =
+                    sessionWrapper.session.extractIssuerCertFromTSR(tsLtaResponse.base64Tsr)
+                validationLTACertificates.add(tsaLTAIssuerCert)
+
+                val crlLTAUrls = mutableSetOf<String>()
+                sessionWrapper.session.getCrlFromCertificate(tsaLTASignerCert)
+                    ?.let { crlSignerLTAUrl ->
+                        crlLTAUrls.add(crlSignerLTAUrl)
+                    }
+                val crls = fetchCrlDataFromUrls(crlLTAUrls.toList())
+                validationLTACrls.addAll(crls)
+            } catch (e: Exception) {
+                // Graceful fallback: continue with TSR only (OCSP/CRL/cert enrichment may be incomplete)
+            }
+            sessionWrapper.session.finishSigningLTA(
+                tsLtaResponse.base64Tsr,
+                validationLTACertificates,
+                validationLTACrls,
+                validationLTAOCSPs
+            )
+        } else {
+            error("Failed to begin LTA signing, hash was null.")
+        }
+    }
+
+    private data class TimestampAndRevocationData(
+        val tsResponse: TimestampResponseTO,
+        val validationCertificates: List<String>,
+        val validationCrls: List<String>,
+        val validationOCSPs: List<String>
+    )
+
+    private suspend fun addTimestampAndRevocationInfo(
+        sessionWrapper: PodofoSession,
+        signedHash: String,
+        tsaUrl: String
+    ): TimestampAndRevocationData {
+        val tsResponse = requestTimestamp(signedHash, tsaUrl)
+
+        val validationCertificates = prepareValidationCertificates(
+            sessionWrapper,
+            tsResponse.base64Tsr
+        )
 
         val certificatesForCrlExtraction = listOf(sessionWrapper.endCertificate) + sessionWrapper.chainCertificates
         val crlUrls = mutableSetOf<String>()
 
         for (certificate in certificatesForCrlExtraction) {
-            try {
-                sessionWrapper.session.getCrlFromCertificate(certificate)?.let { crlUrl ->
-                    crlUrls.add(crlUrl)
-                    println("CRL URL: $crlUrl")
-                }
-            } catch (e: Exception) {
-                println("Could not extract CRL from certificate: ${e.message}")
+            sessionWrapper.session.getCrlFromCertificate(certificate)?.let { crlUrl ->
+                crlUrls.add(crlUrl)
             }
         }
 
         val validationCrls = fetchCrlDataFromUrls(crlUrls.toList())
+        val validationOCSPs = mutableListOf<String>()
 
-        sessionWrapper.session.finalizeSigningWithSignedHash(
-            signedHash,
-            tsResponse.base64Tsr,
-            validationCertificates,
-            validationCrls,
-            mutableListOf() // validationOCSPs
-        )
-
-        // LTA part
         try {
-            val ltaRawHash = sessionWrapper.session.beginSigningLTA()
-            if (ltaRawHash != null) {
-                val tsLtaRequest = TimestampRequestTO(
-                    signedHash = ltaRawHash,
-                    tsaUrl = tsaUrl
-                )
-                val tsLtaResponse = service.requestTimestamp(tsLtaRequest)
-                sessionWrapper.session.finishSigningLTA(tsLtaResponse.base64Tsr)
-            } else {
-                println("Failed to begin LTA signing, hash was null.")
-            }
+            val ocspResponse = fetchOcspResponse(
+                sessionWrapper,
+                tsResponse.base64Tsr
+            )
+            validationOCSPs.add(ocspResponse)
         } catch (e: Exception) {
-            println("Error during LTA signing process: ${e.message}")
+            // Graceful fallback: continue without OCSP evidence
         }
+
+        val result = TimestampAndRevocationData(tsResponse, validationCertificates, validationCrls, validationOCSPs)
+        return result
+    }
+
+    private suspend fun fetchOcspResponse(sessionWrapper: PodofoSession, tsr: String): String {
+        var ocspUrl: String
+        var base64OcspRequest: String
+
+        try {
+            val tsaSignerCert = sessionWrapper.session.extractSignerCertFromTSR(tsr)
+            val tsaIssuerCert = sessionWrapper.session.extractIssuerCertFromTSR(tsr)
+            ocspUrl = sessionWrapper.session.getOCSPFromCertificate(tsaSignerCert, tsaIssuerCert)
+            base64OcspRequest = sessionWrapper.session.buildOCSPRequestFromCertificates(tsaSignerCert, tsaIssuerCert)
+        } catch (e: Exception) {
+            try {
+                val tsaSignerCert = sessionWrapper.session.extractSignerCertFromTSR(tsr)
+                val issuerUrl = sessionWrapper.session.getCertificateIssuerUrlFromCertificate(tsaSignerCert)
+                val tsaIssuerCert = fetchCertificateFromUrl(issuerUrl)
+                ocspUrl = sessionWrapper.session.getOCSPFromCertificate(tsaSignerCert, tsaIssuerCert)
+                base64OcspRequest = sessionWrapper.session.buildOCSPRequestFromCertificates(tsaSignerCert, tsaIssuerCert)
+            } catch (fallbackError: Exception) {
+                throw Exception("Failed to fetch OCSP response: Primary error: ${e.message}, Fallback error: ${fallbackError.message}")
+            }
+        }
+
+        return makeOcspHttpPostRequest(ocspUrl, base64OcspRequest)
+    }
+
+    private suspend fun requestTimestamp(hash: String, tsaUrl: String): TimestampResponseTO {
+        val tsService = TimestampServiceImpl()
+        val tsRequest = TimestampRequestTO(
+            signedHash = hash,
+            tsaUrl = tsaUrl
+        )
+        return tsService.requestTimestamp(tsRequest)
+    }
+
+    private suspend fun requestDocTimestamp(hash: String, tsaUrl: String): TimestampResponseTO {
+        val tsService = TimestampServiceImpl()
+        val tsRequest = TimestampRequestTO(
+            signedHash = hash,
+            tsaUrl = tsaUrl
+        )
+        return tsService.requestDocTimestamp(tsRequest)
+    }
+
+    private fun prepareValidationCertificates(sessionWrapper: PodofoSession, timestampResponse: String): List<String> {
+        return listOf(sessionWrapper.endCertificate) + sessionWrapper.chainCertificates + timestampResponse
     }
 
     private suspend fun fetchCrlDataFromUrls(crlUrls: List<String>): List<String> {
@@ -270,15 +339,24 @@ class PodofoManager {
 
         for (crlUrl in crlUrls) {
             val crlRequest = CrlRequest(crlUrl = crlUrl)
-            try {
-                val crlInfo = revocationService.getCrlData(request = crlRequest)
-                println("CRL Info Base64: ${crlInfo.crlInfoBase64}")
-                validationCrlResponses.add(crlInfo.crlInfoBase64)
-            } catch (e: Exception) {
-                println("Failed to fetch CRL data for url $crlUrl: ${e.message}")
-            }
+            val crlInfo = revocationService.getCrlData(request = crlRequest)
+            validationCrlResponses.add(crlInfo.crlInfoBase64)
         }
         return validationCrlResponses
+    }
+
+    private suspend fun fetchCertificateFromUrl(url: String): String {
+        val revocationService = RevocationServiceImpl()
+        val request = eu.europa.ec.eudi.rqes.CertificateRequest(certificateUrl = url)
+        val response = revocationService.getCertificateData(request)
+        return response.certificateBase64
+    }
+
+    private suspend fun makeOcspHttpPostRequest(url: String, request: String): String {
+        val revocationService = RevocationServiceImpl()
+        val ocspRequest = OcspRequest(ocspUrl = url, ocspRequest = request)
+        val response = revocationService.getOcspData(ocspRequest)
+        return response.ocspInfoBase64
     }
 
     private fun validateTsaUrlRequirement(docs: List<DocumentToSign>, tsaUrl: String) {
