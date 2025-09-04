@@ -15,7 +15,7 @@
  */
 package eu.europa.ec.eudi.rqes
 
-interface CreateSignedDocuments {
+fun interface CreateSignedDocuments {
 
     /**
      * Embeds the signatures into the documents.

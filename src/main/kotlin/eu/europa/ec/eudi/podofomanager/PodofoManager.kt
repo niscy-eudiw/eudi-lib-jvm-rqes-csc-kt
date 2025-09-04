@@ -15,7 +15,6 @@
  */
 package eu.europa.ec.eudi.podofomanager
 
-import android.R.string
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -110,8 +109,8 @@ class PodofoManager {
 
     public suspend fun createSignedDocuments(signatures: List<String>, tsaUrl: String?) = withContext(Dispatchers.IO) {
         try {
-            if (signatures.size != podofoSessions.size) {
-                throw IllegalArgumentException("Signatures count (${signatures.size}) does not match session count (${podofoSessions.size})")
+            check (signatures.size == podofoSessions.size) {
+               "Signatures count (${signatures.size}) does not match session count (${podofoSessions.size})"
             }
 
             podofoSessions.forEachIndexed { index, sessionWrapper ->

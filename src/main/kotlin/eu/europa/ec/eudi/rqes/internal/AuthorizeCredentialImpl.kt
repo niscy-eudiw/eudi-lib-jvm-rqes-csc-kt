@@ -66,8 +66,7 @@ internal class AuthorizeCredentialImpl(
             is CredentialInfoTO.Success -> {
                 credentialInfoTO.toDomain(credentialID)
             }
-
-            else -> throw IllegalStateException("Unexpected response: $credentialInfoTO")
+            else ->  error("Unexpected response: $credentialInfoTO")
         }
     }
 

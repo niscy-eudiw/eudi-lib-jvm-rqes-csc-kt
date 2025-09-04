@@ -15,7 +15,7 @@
  */
 package eu.europa.ec.eudi.rqes
 
-interface CalculateDocumentHashes {
+fun interface CalculateDocumentHashes {
 
     /**
      * Calculate the hashes of the documents to be signed

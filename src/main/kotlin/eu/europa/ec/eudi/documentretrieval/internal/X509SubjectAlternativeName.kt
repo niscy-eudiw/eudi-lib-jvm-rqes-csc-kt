@@ -19,9 +19,6 @@ import java.security.cert.X509Certificate
 import kotlin.collections.filter
 import kotlin.collections.forEach
 import kotlin.collections.isNullOrEmpty
-import kotlin.let
-import kotlin.runCatching
-import kotlin.takeIf
 
 fun X509Certificate.sanOfUniformResourceIdentifier(): Result<List<String>> =
     san(X509SubjectAlternativeNameType.UniformResourceIdentifier)
@@ -34,7 +31,7 @@ private fun X509Certificate.san(type: X509SubjectAlternativeNameType): Result<Li
             ?.filter { subjectAltNames -> !subjectAltNames.isNullOrEmpty() && subjectAltNames.size == 2 }
             ?.forEach { entry ->
                 val altNameType = entry[0] as Int
-                entry[1]?.takeIf { altNameType == type.asInt() }?.let { add(it as String) }
+                entry[1].takeIf { altNameType == type.asInt() }?.let { add(it as String) }
             }
     }
 }

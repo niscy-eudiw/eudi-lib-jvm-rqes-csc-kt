@@ -44,9 +44,7 @@ class TimestampServiceImpl {
     }
 
     private fun buildTSQ(signedHashBase64: String): ByteArray {
-        if (signedHashBase64.isBlank()) {
-            throw IllegalArgumentException("Empty signed hash")
-        }
+        require (signedHashBase64.isNotBlank()) {"Empty signed hash"}
 
         val rawHash = try {
             Base64.getDecoder().decode(signedHashBase64)
@@ -60,8 +58,8 @@ class TimestampServiceImpl {
     }
 
     private fun buildTSQForDocTimestamp(rawHashBase64: String): ByteArray {
-        if (rawHashBase64.isBlank()) {
-            throw IllegalArgumentException("Empty hash")
+        require (rawHashBase64.isNotBlank()) {
+            "Empty hash"
         }
 
         val digestData = try {

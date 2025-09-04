@@ -16,7 +16,6 @@
 package eu.europa.ec.eudi.rqes
 
 import com.nimbusds.oauth2.sdk.`as`.ReadOnlyAuthorizationServerMetadata
-import kotlinx.serialization.Serializable
 import java.io.File
 import java.net.URI
 import java.net.URL

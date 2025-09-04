@@ -18,7 +18,6 @@ package eu.europa.ec.eudi.documentretrieval.internal.request
 import eu.europa.ec.eudi.rqes.internal.mapError
 import java.net.URI
 import java.net.URL
-import kotlin.runCatching
 
 /**
  * Convenient method for parsing a string into a [URL]
