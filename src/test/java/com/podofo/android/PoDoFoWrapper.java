@@ -5,8 +5,10 @@
 package com.podofo.android;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 public class PoDoFoWrapper {
+    private Logger logger = Logger.getLogger(PoDoFoWrapper.class.getName());
     private final String conformanceLevel;
     private final String hashAlgorithmOID;
     private final String documentInputPath;
@@ -28,23 +30,23 @@ public class PoDoFoWrapper {
         this.endEntityCertificate = endEntityCertificate;
         this.certificateChain = certificateChain;
 
-        System.out.println("PoDoFoWrapper: Test version initialized (no native libraries)");
+        logger.info("PoDoFoWrapper: Test version initialized (no native libraries)");
     }
 
     public String calculateHash() {
         // Return mock hash for unit testing
-        System.out.println("PoDoFoWrapper: Returning mock hash for testing");
+        logger.info("PoDoFoWrapper: Returning mock hash for testing");
         return "MYIBAzAYBgkqhkiG9w0BCQMxCwYJKoZIhvc";
     }
 
     public void printState() {
-        System.out.println("PoDoFoWrapper: Mock state - document: " + documentInputPath);
+        logger.info("PoDoFoWrapper: Mock state - document: " + documentInputPath);
     }
 
     public void finalizeSigningWithSignedHash(String signedHash, String base64Tsr, List<String> certs,
             List<String> crls, List<String> ocsps) {
-        System.out.println("PoDoFoWrapper: Mock finalization with hash: " + signedHash);
-        System.out.println("PoDoFoWrapper: Mock timestamp response: " + base64Tsr);
-        System.out.println("PoDoFoWrapper: Would create signed document at: " + documentOutputPath);
+        logger.info("PoDoFoWrapper: Mock finalization with hash: " + signedHash);
+        logger.info("PoDoFoWrapper: Mock timestamp response: " + base64Tsr);
+        logger.info("PoDoFoWrapper: Would create signed document at: " + documentOutputPath);
     }
 }
