@@ -37,6 +37,7 @@ internal fun mockPublicClient(
     parUsage: ParUsage = ParUsage.Never,
     rarUsage: RarUsage = RarUsage.IfSupported,
     tsaurl: String? = URI("http://ts.cartaodecidadao.pt/tsa/server").toString(),
+    includeRevocationInfo: Boolean = false,
 ) =
     mockClient(
         OAuth2Client.Public("client-id"),
@@ -44,17 +45,22 @@ internal fun mockPublicClient(
         parUsage,
         rarUsage,
         tsaurl,
+        includeRevocationInfo,
     )
 
 internal fun mockConfidentialClient(
     ktorHttpClientFactory: KtorHttpClientFactory,
     parUsage: ParUsage = ParUsage.Never,
     rarUsage: RarUsage = RarUsage.IfSupported,
+    tsaurl: String? = URI("http://ts.cartaodecidadao.pt/tsa/server").toString(),
+    includeRevocationInfo: Boolean = false,
 ) = mockClient(
     OAuth2Client.Confidential.ClientSecretPost("client-id", "secret"),
     ktorHttpClientFactory,
     parUsage,
     rarUsage,
+    tsaurl,
+    includeRevocationInfo,
 )
 
 private fun mockClient(
@@ -63,6 +69,7 @@ private fun mockClient(
     parUsage: ParUsage = ParUsage.Never,
     rarUsage: RarUsage = RarUsage.IfSupported,
     tsaurl: String? = URI("http://ts.cartaodecidadao.pt/tsa/server").toString(),
+    includeRevocationInfo: Boolean = false,
 ) = CSCClient.oauth2(
     rsspMetadata = rsspMetadata(),
     cscClientConfig = CSCClientConfig(
@@ -71,6 +78,7 @@ private fun mockClient(
         parUsage,
         rarUsage,
         tsaurl = tsaurl,
+        includeRevocationInfo = includeRevocationInfo,
     ),
     ktorHttpClientFactory = ktorHttpClientFactory,
 ).getOrThrow()

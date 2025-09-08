@@ -57,6 +57,7 @@ class DocumentSigningFlowIT {
             URI("https://oauthdebugger.com/debug"),
             ParUsage.IfSupported,
             RarUsage.IfSupported,
+            includeRevocationInfo = false,
         )
 
         val cscClient: CSCClient = CSCClient.oauth2(
@@ -136,7 +137,7 @@ class DocumentSigningFlowIT {
 
                 // createSignedDocuments creates the signed files on disk (returns Unit)
                 createSignedDocuments(signatures.signatures)
-                
+
                 signatures // Return signatures to use for verification
             }
 

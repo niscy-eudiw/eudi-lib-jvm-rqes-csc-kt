@@ -23,10 +23,12 @@ internal class CreateSignedDocumentsImpl() : CreateSignedDocuments {
     companion object {
         private var podofoManager: PodofoManager? = null
         private var tsaUrl: String? = null
+        private var includeRevocationInfo: Boolean = false
 
-        internal fun initialize(podofoManager: PodofoManager, tsaUrl: String?) {
+        internal fun initialize(podofoManager: PodofoManager, cscClientConfig: CSCClientConfig) {
             this.podofoManager = podofoManager
-            this.tsaUrl = tsaUrl
+            this.tsaUrl = cscClientConfig.tsaurl
+            this.includeRevocationInfo = cscClientConfig.includeRevocationInfo
         }
     }
 
@@ -35,6 +37,6 @@ internal class CreateSignedDocumentsImpl() : CreateSignedDocuments {
     ) = runBlocking {
         val pdfManager = podofoManager ?: throw IllegalStateException("PodofoManager is not initialized")
         val tsaUrl = tsaUrl ?: ""
-        pdfManager.createSignedDocuments(signatures.map { it.value }, tsaUrl)
+        pdfManager.createSignedDocuments(signatures.map { it.value }, tsaUrl, includeRevocationInfo)
     }
 }

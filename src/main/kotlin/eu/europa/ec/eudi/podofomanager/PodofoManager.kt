@@ -108,7 +108,7 @@ class PodofoManager {
         }
     }
 
-    public suspend fun createSignedDocuments(signatures: List<String>, tsaUrl: String?) = withContext(Dispatchers.IO) {
+    public suspend fun createSignedDocuments(signatures: List<String>, tsaUrl: String?, includeRevocationInfo: Boolean) = withContext(Dispatchers.IO) {
         try {
             if (signatures.size != podofoSessions.size) {
                 throw IllegalArgumentException("Signatures count (${signatures.size}) does not match session count (${podofoSessions.size})")
@@ -128,11 +128,11 @@ class PodofoManager {
                     }
                     ConformanceLevel.ADES_B_LT -> {
                         require(!tsaUrl.isNullOrEmpty()) { "Missing TSA URL for conformance level: ${sessionWrapper.conformanceLevel.name}" }
-                        handleAdesB_LT(sessionWrapper, signedHash, tsaUrl)
+                        handleAdesB_LT(sessionWrapper, signedHash, tsaUrl, includeRevocationInfo)
                     }
                     ConformanceLevel.ADES_B_LTA -> {
                         require(!tsaUrl.isNullOrEmpty()) { "Missing TSA URL for conformance level: ${sessionWrapper.conformanceLevel.name}" }
-                        handleAdesB_LTA(sessionWrapper, signedHash, tsaUrl)
+                        handleAdesB_LTA(sessionWrapper, signedHash, tsaUrl, includeRevocationInfo)
                     }
                     else -> throw IllegalArgumentException("Unknown or unsupported conformance level")
                 }
@@ -167,11 +167,12 @@ class PodofoManager {
         )
     }
 
-    private suspend fun handleAdesB_LT(sessionWrapper: PodofoSession, signedHash: String, tsaUrl: String) {
+    private suspend fun handleAdesB_LT(sessionWrapper: PodofoSession, signedHash: String, tsaUrl: String, includeRevocationInfo: Boolean) {
         val timestampAndRevocationData = addTimestampAndRevocationInfo(
             sessionWrapper,
             signedHash,
-            tsaUrl
+            tsaUrl,
+            includeRevocationInfo
         )
 
         sessionWrapper.session.finalizeSigningWithSignedHash(
@@ -183,11 +184,12 @@ class PodofoManager {
         )
     }
 
-    private suspend fun handleAdesB_LTA(sessionWrapper: PodofoSession, signedHash: String, tsaUrl: String) {
+    private suspend fun handleAdesB_LTA(sessionWrapper: PodofoSession, signedHash: String, tsaUrl: String, includeRevocationInfo: Boolean) {
         val timestampAndRevocationData = addTimestampAndRevocationInfo(
             sessionWrapper,
             signedHash,
-            tsaUrl
+            tsaUrl,
+            includeRevocationInfo
         )
 
         sessionWrapper.session.finalizeSigningWithSignedHash(
@@ -207,12 +209,6 @@ class PodofoManager {
             val validationLTAOCSPs: MutableList<String> = mutableListOf()
 
             try {
-                val base64LTAOcspResponse = fetchOcspResponse(
-                    sessionWrapper,
-                    tsLtaResponse.base64Tsr
-                )
-                validationLTAOCSPs.add(base64LTAOcspResponse)
-
                 val tsaLTASignerCert =
                     sessionWrapper.session.extractSignerCertFromTSR(tsLtaResponse.base64Tsr)
                 validationLTACertificates.add(tsaLTASignerCert)
@@ -221,13 +217,21 @@ class PodofoManager {
                     sessionWrapper.session.extractIssuerCertFromTSR(tsLtaResponse.base64Tsr)
                 validationLTACertificates.add(tsaLTAIssuerCert)
 
-                val crlLTAUrls = mutableSetOf<String>()
-                sessionWrapper.session.getCrlFromCertificate(tsaLTASignerCert)
-                    ?.let { crlSignerLTAUrl ->
-                        crlLTAUrls.add(crlSignerLTAUrl)
-                    }
-                val crls = fetchCrlDataFromUrls(crlLTAUrls.toList())
-                validationLTACrls.addAll(crls)
+                if (includeRevocationInfo) {
+                    val base64LTAOcspResponse = fetchOcspResponse(
+                        sessionWrapper,
+                        tsLtaResponse.base64Tsr
+                    )
+                    validationLTAOCSPs.add(base64LTAOcspResponse)
+
+                    val crlLTAUrls = mutableSetOf<String>()
+                    sessionWrapper.session.getCrlFromCertificate(tsaLTASignerCert)
+                        ?.let { crlSignerLTAUrl ->
+                            crlLTAUrls.add(crlSignerLTAUrl)
+                        }
+                    val crls = fetchCrlDataFromUrls(crlLTAUrls.toList())
+                    validationLTACrls.addAll(crls)
+                }
             } catch (e: Exception) {
                 // Graceful fallback: continue with TSR only (OCSP/CRL/cert enrichment may be incomplete)
             }
@@ -252,7 +256,8 @@ class PodofoManager {
     private suspend fun addTimestampAndRevocationInfo(
         sessionWrapper: PodofoSession,
         signedHash: String,
-        tsaUrl: String
+        tsaUrl: String,
+        includeRevocationInfo: Boolean
     ): TimestampAndRevocationData {
         val tsResponse = requestTimestamp(signedHash, tsaUrl)
 
@@ -270,18 +275,21 @@ class PodofoManager {
             }
         }
 
-        val validationCrls = fetchCrlDataFromUrls(crlUrls.toList())
+        val validationCrls = if (includeRevocationInfo) fetchCrlDataFromUrls(crlUrls.toList()) else emptyList()
         val validationOCSPs = mutableListOf<String>()
 
-        try {
-            val ocspResponse = fetchOcspResponse(
-                sessionWrapper,
-                tsResponse.base64Tsr
-            )
-            validationOCSPs.add(ocspResponse)
-        } catch (e: Exception) {
-            // Graceful fallback: continue without OCSP evidence
+        if (includeRevocationInfo) {
+            try {
+                val ocspResponse = fetchOcspResponse(
+                    sessionWrapper,
+                    tsResponse.base64Tsr
+                )
+                validationOCSPs.add(ocspResponse)
+            } catch (e: Exception) {
+                // Graceful fallback: continue without OCSP evidence
+            }
         }
+
 
         val result = TimestampAndRevocationData(tsResponse, validationCertificates, validationCrls, validationOCSPs)
         return result

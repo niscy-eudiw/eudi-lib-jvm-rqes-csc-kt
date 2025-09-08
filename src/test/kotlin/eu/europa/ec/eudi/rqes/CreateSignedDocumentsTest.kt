@@ -34,7 +34,8 @@ class CreateSignedDocumentsTest {
 
         with(mockPublicClient(
             mockedKtorHttpClientFactory,
-            tsaurl = URI("http://ts.cartaodecidadao.pt/tsa/server").toString()
+            tsaurl = URI("http://ts.cartaodecidadao.pt/tsa/server").toString(),
+            includeRevocationInfo = false,
         )) {
             val documentsToSign = listOf(
                 DocumentToSign(

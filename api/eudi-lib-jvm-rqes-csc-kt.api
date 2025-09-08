@@ -795,7 +795,7 @@ public final class eu/europa/ec/eudi/podofomanager/PodofoManager {
 	public static final field $stable I
 	public fun <init> ()V
 	public final fun calculateDocumentHashes-hi2GuDc (Ljava/util/List;Leu/europa/ec/eudi/rqes/CredentialCertificate;Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun createSignedDocuments (Ljava/util/List;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun createSignedDocuments (Ljava/util/List;Ljava/lang/String;ZLkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class eu/europa/ec/eudi/podofomanager/PodofoSession {
@@ -1118,8 +1118,8 @@ public final class eu/europa/ec/eudi/rqes/CSCClient$Companion {
 
 public final class eu/europa/ec/eudi/rqes/CSCClientConfig {
 	public static final field $stable I
-	public fun <init> (Leu/europa/ec/eudi/rqes/OAuth2Client;Ljava/net/URI;Leu/europa/ec/eudi/rqes/ParUsage;Leu/europa/ec/eudi/rqes/RarUsage;Ljava/time/Clock;Ljava/util/Locale;Ljava/lang/String;)V
-	public synthetic fun <init> (Leu/europa/ec/eudi/rqes/OAuth2Client;Ljava/net/URI;Leu/europa/ec/eudi/rqes/ParUsage;Leu/europa/ec/eudi/rqes/RarUsage;Ljava/time/Clock;Ljava/util/Locale;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Leu/europa/ec/eudi/rqes/OAuth2Client;Ljava/net/URI;Leu/europa/ec/eudi/rqes/ParUsage;Leu/europa/ec/eudi/rqes/RarUsage;Ljava/time/Clock;Ljava/util/Locale;Ljava/lang/String;Z)V
+	public synthetic fun <init> (Leu/europa/ec/eudi/rqes/OAuth2Client;Ljava/net/URI;Leu/europa/ec/eudi/rqes/ParUsage;Leu/europa/ec/eudi/rqes/RarUsage;Ljava/time/Clock;Ljava/util/Locale;Ljava/lang/String;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Leu/europa/ec/eudi/rqes/OAuth2Client;
 	public final fun component2 ()Ljava/net/URI;
 	public final fun component3 ()Leu/europa/ec/eudi/rqes/ParUsage;
@@ -1127,12 +1127,14 @@ public final class eu/europa/ec/eudi/rqes/CSCClientConfig {
 	public final fun component5 ()Ljava/time/Clock;
 	public final fun component6 ()Ljava/util/Locale;
 	public final fun component7 ()Ljava/lang/String;
-	public final fun copy (Leu/europa/ec/eudi/rqes/OAuth2Client;Ljava/net/URI;Leu/europa/ec/eudi/rqes/ParUsage;Leu/europa/ec/eudi/rqes/RarUsage;Ljava/time/Clock;Ljava/util/Locale;Ljava/lang/String;)Leu/europa/ec/eudi/rqes/CSCClientConfig;
-	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/CSCClientConfig;Leu/europa/ec/eudi/rqes/OAuth2Client;Ljava/net/URI;Leu/europa/ec/eudi/rqes/ParUsage;Leu/europa/ec/eudi/rqes/RarUsage;Ljava/time/Clock;Ljava/util/Locale;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CSCClientConfig;
+	public final fun component8 ()Z
+	public final fun copy (Leu/europa/ec/eudi/rqes/OAuth2Client;Ljava/net/URI;Leu/europa/ec/eudi/rqes/ParUsage;Leu/europa/ec/eudi/rqes/RarUsage;Ljava/time/Clock;Ljava/util/Locale;Ljava/lang/String;Z)Leu/europa/ec/eudi/rqes/CSCClientConfig;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/CSCClientConfig;Leu/europa/ec/eudi/rqes/OAuth2Client;Ljava/net/URI;Leu/europa/ec/eudi/rqes/ParUsage;Leu/europa/ec/eudi/rqes/RarUsage;Ljava/time/Clock;Ljava/util/Locale;Ljava/lang/String;ZILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CSCClientConfig;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getAuthFlowRedirectionURI ()Ljava/net/URI;
 	public final fun getClient ()Leu/europa/ec/eudi/rqes/OAuth2Client;
 	public final fun getClock ()Ljava/time/Clock;
+	public final fun getIncludeRevocationInfo ()Z
 	public final fun getLocale ()Ljava/util/Locale;
 	public final fun getParUsage ()Leu/europa/ec/eudi/rqes/ParUsage;
 	public final fun getRarUsage ()Leu/europa/ec/eudi/rqes/RarUsage;

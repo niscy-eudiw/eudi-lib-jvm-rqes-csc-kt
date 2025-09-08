@@ -119,7 +119,7 @@ interface CSCClient :
             )
 
             val embedSignatureImpl = CreateSignedDocumentsImpl().also {
-                CreateSignedDocumentsImpl.initialize(podofoManager, cscClientConfig.tsaurl)
+                CreateSignedDocumentsImpl.initialize(podofoManager, cscClientConfig)
             }
 
             object :

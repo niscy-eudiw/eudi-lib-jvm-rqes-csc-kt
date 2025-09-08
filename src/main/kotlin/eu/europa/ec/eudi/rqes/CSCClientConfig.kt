@@ -57,4 +57,5 @@ data class CSCClientConfig(
     val clock: Clock = Clock.systemDefaultZone(),
     val locale: Locale? = null,
     val tsaurl: String? = "",
+    val includeRevocationInfo: Boolean = false,
 )
