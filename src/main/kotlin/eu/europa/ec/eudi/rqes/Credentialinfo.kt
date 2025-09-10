@@ -45,7 +45,7 @@ fun interface GetCredentialInfo {
 
                     when (credentialsInfo) {
                         is CredentialInfoTO.Success -> credentialsInfo.toDomain(request.credentialID)
-                        else -> throw IllegalStateException("Unexpected response: $credentialsInfo")
+                        else -> error("Unexpected response: $credentialsInfo")
                     }
                 }
             }

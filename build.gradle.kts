@@ -55,6 +55,7 @@ dependencies {
     api(libs.ktor.serialization.kotlinx.json)
     implementation(libs.uri.kmp)
     implementation(libs.eudi.podofo)
+    implementation(libs.ktor.client.okhttp)
 
     // Jetpack Compose Dependencies
     implementation(platform(libs.compose.bom))
@@ -63,7 +64,6 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.jsoup)
     testImplementation(kotlin("test"))
-    implementation(libs.ktor.client.okhttp)
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.ktor.server.content.negotiation)
     testImplementation(libs.ktor.client.mock)
@@ -73,10 +73,15 @@ dependencies {
 spotless {
     kotlin {
         ktlint(libs.versions.ktlint.get())
+        target("**/*.kt")
         licenseHeaderFile("FileHeader.txt")
     }
     kotlinGradle {
         ktlint(libs.versions.ktlint.get())
+    }
+    java {
+        target("**/*.java")
+        licenseHeaderFile("FileHeader.txt")
     }
 }
 

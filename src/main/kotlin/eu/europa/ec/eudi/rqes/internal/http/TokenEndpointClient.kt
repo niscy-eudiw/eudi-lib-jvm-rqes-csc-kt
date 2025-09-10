@@ -199,8 +199,12 @@ internal class TokenEndpointClient(
                             basicAuth(username = oauth2Client.clientId, password = oauth2Client.clientSecret)
                         }
 
-                    is OAuth2Client.Public -> {}
-                    is OAuth2Client.Confidential.ClientSecretPost -> {}
+                    is OAuth2Client.Public -> {
+                        // Do nothing
+                    }
+                    is OAuth2Client.Confidential.ClientSecretPost -> {
+                        // Do nothing
+                    }
                 }
             }
             if (response.status.isSuccess()) response.body<TokenResponseTO.Success>()

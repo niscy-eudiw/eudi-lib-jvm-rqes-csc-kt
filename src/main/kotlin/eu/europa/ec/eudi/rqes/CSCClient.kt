@@ -15,7 +15,6 @@
  */
 package eu.europa.ec.eudi.rqes
 
-
 import eu.europa.ec.eudi.podofomanager.PodofoManager
 import eu.europa.ec.eudi.rqes.internal.*
 import eu.europa.ec.eudi.rqes.internal.http.*
@@ -52,7 +51,6 @@ interface CSCClient :
             rsspMetadata: RSSPMetadata,
             ktorHttpClientFactory: KtorHttpClientFactory = DefaultHttpClientFactory,
         ): Result<CSCClient> = runCatching {
-
             val podofoManager = PodofoManager()
             val oauth2AuthType =
                 requireNotNull(rsspMetadata.oauth2AuthType()) { "RSSP doesn't support OAUTH2" }

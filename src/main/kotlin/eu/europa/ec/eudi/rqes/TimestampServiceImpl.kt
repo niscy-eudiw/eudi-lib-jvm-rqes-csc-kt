@@ -15,11 +15,11 @@
  */
 package eu.europa.ec.eudi.rqes
 
-import java.security.MessageDigest
-import java.util.Base64
-import java.net.URL
 import java.io.IOException
 import java.net.HttpURLConnection
+import java.net.URL
+import java.security.MessageDigest
+import java.util.Base64
 
 class TimestampServiceImpl {
 
@@ -44,9 +44,7 @@ class TimestampServiceImpl {
     }
 
     private fun buildTSQ(signedHashBase64: String): ByteArray {
-        if (signedHashBase64.isBlank()) {
-            throw IllegalArgumentException("Empty signed hash")
-        }
+        require(signedHashBase64.isNotBlank()) { "Empty signed hash" }
 
         val rawHash = try {
             Base64.getDecoder().decode(signedHashBase64)
@@ -60,8 +58,8 @@ class TimestampServiceImpl {
     }
 
     private fun buildTSQForDocTimestamp(rawHashBase64: String): ByteArray {
-        if (rawHashBase64.isBlank()) {
-            throw IllegalArgumentException("Empty hash")
+        require(rawHashBase64.isNotBlank()) {
+            "Empty hash"
         }
 
         val digestData = try {
@@ -76,7 +74,7 @@ class TimestampServiceImpl {
     private fun createTSQ(digestData: ByteArray): ByteArray {
         val oidSHA256 = byteArrayOf(
             0x06, 0x09, 0x60.toByte(), 0x86.toByte(), 0x48, 0x01, 0x65,
-            0x03, 0x04, 0x02, 0x01
+            0x03, 0x04, 0x02, 0x01,
         )
         val nullBytes = byteArrayOf(0x05, 0x00)
         val algIDSeq = tlv(0x30, oidSHA256 + nullBytes)
@@ -143,4 +141,3 @@ class TimestampServiceImpl {
         return Base64.getEncoder().encodeToString(tsrData)
     }
 }
-

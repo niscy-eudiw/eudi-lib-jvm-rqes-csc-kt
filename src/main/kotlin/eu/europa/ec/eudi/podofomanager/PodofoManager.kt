@@ -15,37 +15,35 @@
  */
 package eu.europa.ec.eudi.podofomanager
 
-import android.R.string
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.podofo.android.PoDoFoWrapper
 import eu.europa.ec.eudi.rqes.ConformanceLevel
 import eu.europa.ec.eudi.rqes.CredentialCertificate
+import eu.europa.ec.eudi.rqes.CrlRequest
 import eu.europa.ec.eudi.rqes.Digest
 import eu.europa.ec.eudi.rqes.DocumentDigest
 import eu.europa.ec.eudi.rqes.DocumentDigestList
 import eu.europa.ec.eudi.rqes.DocumentToSign
 import eu.europa.ec.eudi.rqes.HashAlgorithmOID
 import eu.europa.ec.eudi.rqes.OcspRequest
+import eu.europa.ec.eudi.rqes.RevocationServiceImpl
 import eu.europa.ec.eudi.rqes.TimestampRequestTO
 import eu.europa.ec.eudi.rqes.TimestampResponseTO
 import eu.europa.ec.eudi.rqes.TimestampServiceImpl
-import eu.europa.ec.eudi.rqes.CrlRequest
-import eu.europa.ec.eudi.rqes.RevocationServiceImpl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.Instant
 
-
 class PodofoManager {
     private var podofoSessions by mutableStateOf<List<PodofoSession>>(emptyList())
 
-    public suspend fun calculateDocumentHashes(
+    suspend fun calculateDocumentHashes(
         documents: List<DocumentToSign>,
         credentialCertificate: CredentialCertificate,
-        hashAlgorithmOID : HashAlgorithmOID,
-        tsaUrl: String
+        hashAlgorithmOID: HashAlgorithmOID,
+        tsaUrl: String,
     ): DocumentDigestList {
         try {
             podofoSessions = emptyList()
@@ -65,7 +63,7 @@ class PodofoManager {
                         doc.documentInputPath,
                         doc.documentOutputPath,
                         endEntityCertificate,
-                        certificateChain.toTypedArray()
+                        certificateChain.toTypedArray(),
                     )
 
                     val session = PodofoSession(
@@ -73,7 +71,7 @@ class PodofoManager {
                         session = podofoWrapper,
                         conformanceLevel = doc.conformanceLevel,
                         endCertificate = endEntityCertificate,
-                        chainCertificates = certificateChain
+                        chainCertificates = certificateChain,
                     )
                     c++
 
@@ -81,8 +79,7 @@ class PodofoManager {
                         hashes += hash
                         podofoSessions = podofoSessions + session
                     } ?: throw IllegalStateException("Failed to calculate hash for document: ${doc.documentInputPath}")
-
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     error("Failed to calculate hash for ${doc.documentOutputPath}")
                 }
             }
@@ -93,25 +90,27 @@ class PodofoManager {
 
             val digestEntries = hashes.mapIndexed { idx, rawHash ->
                 DocumentDigest(
-                    hash  = Digest(rawHash),
-                    label = documents[idx].label
+                    hash = Digest(rawHash),
+                    label = documents[idx].label,
                 )
             }
 
             return DocumentDigestList(
-                documentDigests     = digestEntries,
-                hashAlgorithmOID    = HashAlgorithmOID(hashAlgorithmOID.value),
-                hashCalculationTime = Instant.now()
+                documentDigests = digestEntries,
+                hashAlgorithmOID = HashAlgorithmOID(hashAlgorithmOID.value),
+                hashCalculationTime = Instant.now(),
             )
         } catch (e: Exception) {
             throw e
         }
     }
 
-    public suspend fun createSignedDocuments(signatures: List<String>, tsaUrl: String?, includeRevocationInfo: Boolean) = withContext(Dispatchers.IO) {
+    suspend fun createSignedDocuments(signatures: List<String>, tsaUrl: String?, includeRevocationInfo: Boolean) = withContext(
+        Dispatchers.IO,
+    ) {
         try {
-            if (signatures.size != podofoSessions.size) {
-                throw IllegalArgumentException("Signatures count (${signatures.size}) does not match session count (${podofoSessions.size})")
+            check(signatures.size == podofoSessions.size) {
+                "Signatures count (${signatures.size}) does not match session count (${podofoSessions.size})"
             }
 
             podofoSessions.forEachIndexed { index, sessionWrapper ->
@@ -123,24 +122,27 @@ class PodofoManager {
                         handleAdesB_B(sessionWrapper, signedHash)
                     }
                     ConformanceLevel.ADES_B_T -> {
-                        require(!tsaUrl.isNullOrEmpty()) { "Missing TSA URL for conformance level: ${sessionWrapper.conformanceLevel.name}" }
+                        require(
+                            !tsaUrl.isNullOrEmpty(),
+                        ) { "Missing TSA URL for conformance level: ${sessionWrapper.conformanceLevel.name}" }
                         handleAdesB_T(sessionWrapper, signedHash, tsaUrl)
                     }
                     ConformanceLevel.ADES_B_LT -> {
-                        require(!tsaUrl.isNullOrEmpty()) { "Missing TSA URL for conformance level: ${sessionWrapper.conformanceLevel.name}" }
+                        require(
+                            !tsaUrl.isNullOrEmpty(),
+                        ) { "Missing TSA URL for conformance level: ${sessionWrapper.conformanceLevel.name}" }
                         handleAdesB_LT(sessionWrapper, signedHash, tsaUrl, includeRevocationInfo)
                     }
                     ConformanceLevel.ADES_B_LTA -> {
-                        require(!tsaUrl.isNullOrEmpty()) { "Missing TSA URL for conformance level: ${sessionWrapper.conformanceLevel.name}" }
+                        require(
+                            !tsaUrl.isNullOrEmpty(),
+                        ) { "Missing TSA URL for conformance level: ${sessionWrapper.conformanceLevel.name}" }
                         handleAdesB_LTA(sessionWrapper, signedHash, tsaUrl, includeRevocationInfo)
                     }
                     else -> throw IllegalArgumentException("Unknown or unsupported conformance level")
                 }
             }
-
-
-        }
-        finally {
+        } finally {
             podofoSessions = emptyList()
         }
     }
@@ -151,7 +153,7 @@ class PodofoManager {
             "",
             mutableListOf(),
             mutableListOf(),
-            mutableListOf()
+            mutableListOf(),
         )
     }
 
@@ -163,7 +165,7 @@ class PodofoManager {
             response.base64Tsr,
             mutableListOf(),
             mutableListOf(),
-            mutableListOf()
+            mutableListOf(),
         )
     }
 
@@ -172,7 +174,7 @@ class PodofoManager {
             sessionWrapper,
             signedHash,
             tsaUrl,
-            includeRevocationInfo
+            includeRevocationInfo,
         )
 
         sessionWrapper.session.finalizeSigningWithSignedHash(
@@ -180,7 +182,7 @@ class PodofoManager {
             timestampAndRevocationData.tsResponse.base64Tsr,
             timestampAndRevocationData.validationCertificates,
             timestampAndRevocationData.validationCrls,
-            timestampAndRevocationData.validationOCSPs
+            timestampAndRevocationData.validationOCSPs,
         )
     }
 
@@ -189,7 +191,7 @@ class PodofoManager {
             sessionWrapper,
             signedHash,
             tsaUrl,
-            includeRevocationInfo
+            includeRevocationInfo,
         )
 
         sessionWrapper.session.finalizeSigningWithSignedHash(
@@ -197,7 +199,7 @@ class PodofoManager {
             timestampAndRevocationData.tsResponse.base64Tsr,
             timestampAndRevocationData.validationCertificates,
             timestampAndRevocationData.validationCrls,
-            timestampAndRevocationData.validationOCSPs
+            timestampAndRevocationData.validationOCSPs,
         )
 
         val ltaRawHash = sessionWrapper.session.beginSigningLTA()
@@ -220,7 +222,7 @@ class PodofoManager {
                 if (includeRevocationInfo) {
                     val base64LTAOcspResponse = fetchOcspResponse(
                         sessionWrapper,
-                        tsLtaResponse.base64Tsr
+                        tsLtaResponse.base64Tsr,
                     )
                     validationLTAOCSPs.add(base64LTAOcspResponse)
 
@@ -232,14 +234,14 @@ class PodofoManager {
                     val crls = fetchCrlDataFromUrls(crlLTAUrls.toList())
                     validationLTACrls.addAll(crls)
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // Graceful fallback: continue with TSR only (OCSP/CRL/cert enrichment may be incomplete)
             }
             sessionWrapper.session.finishSigningLTA(
                 tsLtaResponse.base64Tsr,
                 validationLTACertificates,
                 validationLTACrls,
-                validationLTAOCSPs
+                validationLTAOCSPs,
             )
         } else {
             error("Failed to begin LTA signing, hash was null.")
@@ -250,20 +252,20 @@ class PodofoManager {
         val tsResponse: TimestampResponseTO,
         val validationCertificates: List<String>,
         val validationCrls: List<String>,
-        val validationOCSPs: List<String>
+        val validationOCSPs: List<String>,
     )
 
     private suspend fun addTimestampAndRevocationInfo(
         sessionWrapper: PodofoSession,
         signedHash: String,
         tsaUrl: String,
-        includeRevocationInfo: Boolean
+        includeRevocationInfo: Boolean,
     ): TimestampAndRevocationData {
         val tsResponse = requestTimestamp(signedHash, tsaUrl)
 
         val validationCertificates = prepareValidationCertificates(
             sessionWrapper,
-            tsResponse.base64Tsr
+            tsResponse.base64Tsr,
         )
 
         val certificatesForCrlExtraction = listOf(sessionWrapper.endCertificate) + sessionWrapper.chainCertificates
@@ -282,14 +284,13 @@ class PodofoManager {
             try {
                 val ocspResponse = fetchOcspResponse(
                     sessionWrapper,
-                    tsResponse.base64Tsr
+                    tsResponse.base64Tsr,
                 )
                 validationOCSPs.add(ocspResponse)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // Graceful fallback: continue without OCSP evidence
             }
         }
-
 
         val result = TimestampAndRevocationData(tsResponse, validationCertificates, validationCrls, validationOCSPs)
         return result
@@ -323,7 +324,7 @@ class PodofoManager {
         val tsService = TimestampServiceImpl()
         val tsRequest = TimestampRequestTO(
             signedHash = hash,
-            tsaUrl = tsaUrl
+            tsaUrl = tsaUrl,
         )
         return tsService.requestTimestamp(tsRequest)
     }
@@ -332,7 +333,7 @@ class PodofoManager {
         val tsService = TimestampServiceImpl()
         val tsRequest = TimestampRequestTO(
             signedHash = hash,
-            tsaUrl = tsaUrl
+            tsaUrl = tsaUrl,
         )
         return tsService.requestDocTimestamp(tsRequest)
     }
@@ -374,6 +375,4 @@ class PodofoManager {
             }
         }
     }
-
-
 }

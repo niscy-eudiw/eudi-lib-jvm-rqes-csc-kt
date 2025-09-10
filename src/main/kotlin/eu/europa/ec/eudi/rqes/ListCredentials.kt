@@ -48,7 +48,7 @@ fun interface ListCredentials {
                         is CredentialsListTO.Success -> credentialsList.credentialInfos?.map { it.toDomain() }
                             ?: emptyList()
 
-                        else -> throw IllegalStateException("Unexpected response: $credentialsList")
+                        else -> error("Unexpected response: $credentialsList")
                     }
                 }
             }

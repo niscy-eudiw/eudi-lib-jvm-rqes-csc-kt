@@ -22,7 +22,7 @@ import java.net.URI
  * This interface assembles an appropriate authorization response given a [request][ResolvedRequestObject]
  * and holder's [consensus][Consensus] and then dispatches it to the verifier
  */
-interface Dispatcher {
+fun interface Dispatcher {
 
     /**
      * Assembles an appropriate authorization response given a [request][request]

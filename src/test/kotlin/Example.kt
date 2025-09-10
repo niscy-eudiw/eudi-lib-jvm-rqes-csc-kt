@@ -21,7 +21,6 @@ import io.ktor.client.plugins.logging.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
-import java.io.File
 import java.net.URI
 import java.security.cert.X509Certificate
 import java.util.*
@@ -124,14 +123,14 @@ fun main() {
 //            )
 
             // new (R5)
-            val documentToSign =  DocumentToSign(
-                "/storage/emulated/0/Android/data/com.example.demorqesmobile/files/Documents/sample.pdf",            //input path
-                "/storage/emulated/0/Android/data/com.example.demorqesmobile/files/Documents/signed-sample.pdf",	 //output path
+            val documentToSign = DocumentToSign(
+                "/storage/emulated/0/Android/data/com.example.demorqesmobile/files/Documents/sample.pdf", // input path
+                "/storage/emulated/0/Android/data/com.example.demorqesmobile/files/Documents/signed-sample.pdf", // output path
                 "A sample pdf",
                 SignatureFormat.P,
                 ConformanceLevel.ADES_B_B,
                 SignedEnvelopeProperty.ENVELOPED,
-                ASICContainer.NONE
+                ASICContainer.NONE,
             )
 
             walletState = UUID.randomUUID().toString()
@@ -171,10 +170,8 @@ fun main() {
                 // sign the hashes of the documents
                 val signatures = signHash(SigningAlgorithmOID.RSA).getOrThrow()
 
-
                 // createSignedDocuments creates the signed files on disk (new R5)
                 createSignedDocuments(signatures.signatures)
-
             }
 
             // The signed document should now be available at the output path specified in documentToSign

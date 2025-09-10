@@ -16,7 +16,6 @@
 package eu.europa.ec.eudi.rqes
 
 import java.net.URI
-import java.net.URL
 import java.time.Clock
 import java.util.Locale
 

@@ -124,7 +124,9 @@ private fun authTypesSupported(metadata: RSSPMetadataTO): Set<AuthType<Authoriza
                 "tls" -> add(AuthType.TLS)
                 "basic" -> add(AuthType.Basic)
                 "digest" -> add(AuthType.Digest)
-                else -> {}
+                else -> {
+                    // Do nothing
+                }
             }
         }
 

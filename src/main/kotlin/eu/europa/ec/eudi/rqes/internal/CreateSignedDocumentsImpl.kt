@@ -33,7 +33,7 @@ internal class CreateSignedDocumentsImpl() : CreateSignedDocuments {
     }
 
     override suspend fun createSignedDocuments(
-        signatures: List<Signature>
+        signatures: List<Signature>,
     ) = runBlocking {
         val pdfManager = podofoManager ?: throw IllegalStateException("PodofoManager is not initialized")
         val tsaUrl = tsaUrl ?: ""

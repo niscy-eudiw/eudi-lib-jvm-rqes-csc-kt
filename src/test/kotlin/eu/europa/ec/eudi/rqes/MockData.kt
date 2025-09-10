@@ -18,7 +18,6 @@ package eu.europa.ec.eudi.rqes
 import eu.europa.ec.eudi.rqes.internal.asMetadata
 import io.ktor.http.*
 import java.io.ByteArrayInputStream
-import java.io.File
 import java.net.URI
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate

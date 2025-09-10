@@ -27,5 +27,5 @@ data class PodofoSession(
     var tsrLT: String? = null,
     var tsrLTA: String? = null,
     var crlUrls: Set<String> = emptySet(),
-    var ocspUrls: Set<String> = emptySet()
+    var ocspUrls: Set<String> = emptySet(),
 )

@@ -66,8 +66,7 @@ internal class AuthorizeCredentialImpl(
             is CredentialInfoTO.Success -> {
                 credentialInfoTO.toDomain(credentialID)
             }
-
-            else -> throw IllegalStateException("Unexpected response: $credentialInfoTO")
+            else -> error("Unexpected response: $credentialInfoTO")
         }
     }
 
@@ -88,25 +87,25 @@ internal class AuthorizeCredentialImpl(
         val (accessToken, refreshToken, timestamp, credentialID, credentialAuthorizationSubject) = tokenResponse.getOrThrow()
 
         // TODO compare requested authorization with what was actually authorized
-
-        val authorizedCredentialID =
-            if (credentialAuthorizationSubject != null) {
+        val authorizedCredentialID = when {
+            credentialAuthorizationSubject != null -> {
                 require(credentialAuthorizationSubject.credentialRef is CredentialRef.ByCredentialID) {
                     "CredentialID was provided by the signing service"
                 }
                 credentialAuthorizationSubject.credentialRef.credentialID
-            } else if (credentialID != null) {
+            }
+            credentialID != null -> {
                 credentialID
-            } else if (credentialAuthorizationRequestType.credentialAuthorizationSubject.credentialRef
-                is CredentialRef.ByCredentialID
-            ) {
+            }
+            credentialAuthorizationRequestType.credentialAuthorizationSubject.credentialRef
+            is CredentialRef.ByCredentialID -> {
                 (
                     credentialAuthorizationRequestType.credentialAuthorizationSubject.credentialRef
                         as CredentialRef.ByCredentialID
                     ).credentialID
-            } else {
-                error("Credential ID is required")
             }
+            else -> error("Credential ID is required")
+        }
 
         val credential = getCredentialInfo(authorizedCredentialID, accessToken)
 

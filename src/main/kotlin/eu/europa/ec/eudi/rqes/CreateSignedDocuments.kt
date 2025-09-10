@@ -15,13 +15,13 @@
  */
 package eu.europa.ec.eudi.rqes
 
-interface CreateSignedDocuments {
+fun interface CreateSignedDocuments {
 
     /**
      * Embeds the signatures into the documents.
      * @param signatures the signatures
      */
     suspend fun createSignedDocuments(
-        signatures: List<Signature>
+        signatures: List<Signature>,
     )
 }

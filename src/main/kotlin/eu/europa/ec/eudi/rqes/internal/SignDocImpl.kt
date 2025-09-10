@@ -47,6 +47,7 @@ internal class SignDocImpl(
         credentialCertificate,
     )
 
+    @Suppress("kotlin:S1172")
     private suspend fun signDocument(
         credentialID: CredentialID,
         documents: List<DocumentToSign>,

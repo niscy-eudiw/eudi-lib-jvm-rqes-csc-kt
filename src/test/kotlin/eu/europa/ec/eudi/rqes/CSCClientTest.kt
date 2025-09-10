@@ -38,7 +38,7 @@ class CSCClientTest {
                     ParUsage.Never,
                     RarUsage.Never,
                     tsaurl = URI("http://ts.cartaodecidadao.pt/tsa/server").toString(),
-                    includeRevocationInfo = false
+                    includeRevocationInfo = false,
                 ),
                 ktorHttpClientFactory = mockedKtorHttpClientFactory,
             ).getOrThrow()
@@ -55,7 +55,7 @@ class CSCClientTest {
                     URI("https://example.com/redirect"),
                     ParUsage.Never,
                     RarUsage.Never,
-                    includeRevocationInfo = false
+                    includeRevocationInfo = false,
                 ),
                 ktorHttpClientFactory = DefaultHttpClientFactory,
             ).getOrThrow()

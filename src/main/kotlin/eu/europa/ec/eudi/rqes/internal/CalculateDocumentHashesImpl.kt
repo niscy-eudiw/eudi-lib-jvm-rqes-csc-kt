@@ -18,7 +18,6 @@ package eu.europa.ec.eudi.rqes.internal
 import eu.europa.ec.eudi.podofomanager.PodofoManager
 import eu.europa.ec.eudi.rqes.*
 
-
 internal class CalculateDocumentHashesImpl() : CalculateDocumentHashes {
     companion object {
         private var podofoManager: PodofoManager? = null
@@ -37,6 +36,6 @@ internal class CalculateDocumentHashesImpl() : CalculateDocumentHashes {
     ): DocumentDigestList {
         val pdfManager = podofoManager ?: throw IllegalStateException("PodofoManager is not initialized")
         val tsaUrl = tsaUrl ?: ""
-        return pdfManager.calculateDocumentHashes(documents,credentialCertificate,hashAlgorithmOID, tsaUrl)
+        return pdfManager.calculateDocumentHashes(documents, credentialCertificate, hashAlgorithmOID, tsaUrl)
     }
 }
