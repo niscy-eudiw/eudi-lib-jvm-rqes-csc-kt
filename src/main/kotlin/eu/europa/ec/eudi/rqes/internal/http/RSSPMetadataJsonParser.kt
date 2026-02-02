@@ -52,7 +52,7 @@ private data class RSSPMetadataTO(
 @Serializable
 private data class SignAlgorithms(
     @SerialName("algos") @Required val algos: List<String>,
-    @SerialName("algoParams") val algoParams: List<String>? = null,
+    @SerialName("algoParams") val algoParams: List<String?>? = null,
 )
 
 @Serializable

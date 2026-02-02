@@ -2081,8 +2081,13 @@ public final class eu/europa/ec/eudi/rqes/ServiceAuthorizationRequestPrepared$Co
 }
 
 public abstract interface class eu/europa/ec/eudi/rqes/SignDoc {
-	public abstract fun signDoc-5KfB3zM (Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL2;Ljava/util/List;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public abstract fun signDoc-YTnCqUo (Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL1;Ljava/util/List;Leu/europa/ec/eudi/rqes/DocumentDigestList;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun signDoc-2IQxUvg (Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL2;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun signDoc-yw8GWXw (Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL1;Ljava/util/List;Leu/europa/ec/eudi/rqes/DocumentDigestList;Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class eu/europa/ec/eudi/rqes/SignDoc$DefaultImpls {
+	public static synthetic fun signDoc-2IQxUvg$default (Leu/europa/ec/eudi/rqes/SignDoc;Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL2;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static synthetic fun signDoc-yw8GWXw$default (Leu/europa/ec/eudi/rqes/SignDoc;Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL1;Ljava/util/List;Leu/europa/ec/eudi/rqes/DocumentDigestList;Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 }
 
 public final class eu/europa/ec/eudi/rqes/SignDocResponse {
@@ -2102,8 +2107,13 @@ public final class eu/europa/ec/eudi/rqes/SignDocResponse {
 }
 
 public abstract interface class eu/europa/ec/eudi/rqes/SignHash {
-	public abstract fun signHash-5KfB3zM (Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL1;Leu/europa/ec/eudi/rqes/DocumentDigestList;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public abstract fun signHash-PAqFIkU (Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL2;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun signHash-2IQxUvg (Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL1;Leu/europa/ec/eudi/rqes/DocumentDigestList;Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun signHash-cqdPT90 (Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL2;Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class eu/europa/ec/eudi/rqes/SignHash$DefaultImpls {
+	public static synthetic fun signHash-2IQxUvg$default (Leu/europa/ec/eudi/rqes/SignHash;Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL1;Leu/europa/ec/eudi/rqes/DocumentDigestList;Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static synthetic fun signHash-cqdPT90$default (Leu/europa/ec/eudi/rqes/SignHash;Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL2;Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 }
 
 public final class eu/europa/ec/eudi/rqes/Signature {

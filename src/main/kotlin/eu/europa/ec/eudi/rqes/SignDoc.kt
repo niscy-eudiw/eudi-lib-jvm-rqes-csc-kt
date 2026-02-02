@@ -33,10 +33,12 @@ interface SignDoc {
         documents: List<DocumentToSign>,
         documentDigestList: DocumentDigestList,
         signingAlgorithmOID: SigningAlgorithmOID,
+        signingAlgorithmParams: String? = null,
     ): Result<SignDocResponse>
 
     suspend fun CredentialAuthorized.SCAL2.signDoc(
         documents: List<DocumentToSign>,
         signingAlgorithmOID: SigningAlgorithmOID,
+        signingAlgorithmParams: String? = null,
     ): Result<SignDocResponse>
 }

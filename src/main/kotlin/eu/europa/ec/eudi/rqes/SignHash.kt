@@ -21,17 +21,23 @@ interface SignHash {
      * Signs the hash of the given document digest list using the given signing algorithm OID.
      * @param documentDigestList the document digests to sign
      * @param signingAlgorithmOID the signing algorithm OID to use
+     * @param signingAlgorithmParams the Base64-encoded DER-encoded ASN.1 signature parameters, if required by the signing algorithm
      * @return the list of signatures
      */
     suspend fun CredentialAuthorized.SCAL1.signHash(
         documentDigestList: DocumentDigestList,
         signingAlgorithmOID: SigningAlgorithmOID,
+        signingAlgorithmParams: String? = null,
     ): Result<SignaturesList>
 
     /**
      * Signs the hash of the given document digest list using the given signing algorithm OID.
      * @param signingAlgorithmOID the signing algorithm OID to use
+     * @param signingAlgorithmParams the Base64-encoded DER-encoded ASN.1 signature parameters, if required by the signing algorithm
      * @return the list of signatures
      */
-    suspend fun CredentialAuthorized.SCAL2.signHash(signingAlgorithmOID: SigningAlgorithmOID): Result<SignaturesList>
+    suspend fun CredentialAuthorized.SCAL2.signHash(
+        signingAlgorithmOID: SigningAlgorithmOID,
+        signingAlgorithmParams: String? = null,
+    ): Result<SignaturesList>
 }

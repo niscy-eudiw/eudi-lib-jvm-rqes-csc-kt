@@ -33,6 +33,11 @@
       "1.2.840.10045.4.3.2",
       "1.2.840.113549.1.1.1",
       "1.2.840.113549.1.1.10"
+    ],
+    "algoParams": [
+      null,
+      null,
+      "MDGgCzAJBgUrDgMCGgUAoRgwFgYJKoZIhvcNAQEIMAkGBSsOAwIaBQCiAwIBFKMDAgEB"
     ]
   },
   "signature_formats": {

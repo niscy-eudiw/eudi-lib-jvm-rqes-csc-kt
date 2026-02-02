@@ -29,6 +29,7 @@ internal data class SignHashRequestTO(
     @SerialName("hashes") val hashes: List<String>,
     @SerialName("hashAlgorithmOID") val hashAlgorithmOID: String,
     @SerialName("signAlgo") val signAlgorithmOID: String,
+    @SerialName("signAlgoParams") val signAlgorithmParams: String?,
     @SerialName("operationMode") val operationMode: String = "S",
 )
 
@@ -63,6 +64,7 @@ internal class SignHashEndpointClient(
         hashes: List<String>,
         hashAlgorithmOID: HashAlgorithmOID,
         signAlgorithmOID: SigningAlgorithmOID,
+        signingAlgorithmParams: String?,
         token: AccessToken,
     ): SignaturesList =
         ktorHttpClientFactory().use { client ->
@@ -75,6 +77,7 @@ internal class SignHashEndpointClient(
                         hashes,
                         hashAlgorithmOID.value,
                         signAlgorithmOID.value,
+                        signingAlgorithmParams,
                     ),
                 )
             }
