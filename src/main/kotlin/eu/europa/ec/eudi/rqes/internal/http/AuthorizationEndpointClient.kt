@@ -165,7 +165,7 @@ internal class AuthorizationEndpointClient(
                     customParameter(
                         "hashes",
                         subject.documentDigestList?.documentDigests?.joinToString(",") {
-                            it.hash.value
+                            it.hash.asBase64URLEncoded()
                         } ?: "",
                     )
                     customParameter(
@@ -283,7 +283,7 @@ internal class AuthorizationEndpointClient(
                 customParameter(
                     "hashes",
                     subject.documentDigestList?.documentDigests?.joinToString(",") {
-                        it.hash.value
+                        it.hash.asBase64URLEncoded()
                     } ?: "",
                 )
                 customParameter(

@@ -51,7 +51,7 @@ public class PoDoFoWrapper {
     public String calculateHash() {
         // Return mock hash for unit testing
         logger.info("PoDoFoWrapper: Returning mock hash for testing");
-        return "MYIBAzAYBgkqhkiG9w0BCQMxCwYJKoZIhvc";
+        return "sTOgwOm%2B474gFj0q0x1iSNspKqbcse4IeiqlDg%2FHWuI%3D";
     }
 
     public void printState() {

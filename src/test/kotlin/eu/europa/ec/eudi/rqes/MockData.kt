@@ -256,7 +256,7 @@ internal val mockDocumentDigestList = DocumentDigestList(
     hashCalculationTime = Instant.now(),
     documentDigests = listOf(
         DocumentDigest(
-            hash = Digest("MYIBAzAYBgkqhkiG9w0BCQMxCwYJKoZIhvc"),
+            hash = Digest.Base64Digest("sTOgwOm+474gFj0q0x1iSNspKqbcse4IeiqlDg/HWuI="),
             label = "Test document",
         ),
     ),

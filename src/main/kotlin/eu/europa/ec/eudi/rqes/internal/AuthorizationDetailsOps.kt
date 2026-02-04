@@ -29,7 +29,7 @@ internal fun CredentialAuthorizationSubject.toNimbusAuthDetail(): AuthorizationD
         it.documentDigests.forEach() { documentDigest ->
             docDigests.add(
                 JSONObject().apply {
-                    put("hash", documentDigest.hash.value)
+                    put("hash", documentDigest.hash.asBase64())
                     put("label", documentDigest.label)
                 },
             )

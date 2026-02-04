@@ -27,7 +27,7 @@ internal class SignHashImpl(private val signHashEndpointClient: SignHashEndpoint
     ): Result<SignaturesList> = runCatching {
         signHashEndpointClient.signHashes(
             credentialID,
-            documentDigestList.documentDigests.map { it.hash.value },
+            documentDigestList.documentDigests.map { it.hash.asBase64() },
             documentDigestList.hashAlgorithmOID,
             signingAlgorithmOID,
             signingAlgorithmParams,
@@ -41,7 +41,7 @@ internal class SignHashImpl(private val signHashEndpointClient: SignHashEndpoint
     ): Result<SignaturesList> = runCatching {
         signHashEndpointClient.signHashes(
             credentialID,
-            documentDigestList.documentDigests.map(DocumentDigest::hash).map { it.value },
+            documentDigestList.documentDigests.map(DocumentDigest::hash).map { it.asBase64() },
             documentDigestList.hashAlgorithmOID,
             signingAlgorithmOID,
             signingAlgorithmParams,

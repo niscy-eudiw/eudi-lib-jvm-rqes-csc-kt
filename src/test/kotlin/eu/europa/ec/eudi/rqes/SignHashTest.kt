@@ -72,7 +72,7 @@ class SignHashTest {
                     )
 
                     assertEquals(
-                        mockDocumentDigestList.documentDigests[0].hash.value,
+                        mockDocumentDigestList.documentDigests[0].hash.asBase64(),
                         signHashRequest.hashes[0],
                         "Hash value is not the expected one",
                     )
@@ -134,7 +134,7 @@ class SignHashTest {
                     )
 
                     assertEquals(
-                        mockDocumentDigestList.documentDigests[0].hash.value,
+                        mockDocumentDigestList.documentDigests[0].hash.asBase64(),
                         signHashRequest.hashes[0],
                         "Hash value is not the expected one",
                     )

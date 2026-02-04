@@ -84,7 +84,7 @@ internal sealed interface TokenResponseTO {
                             DocumentDigestList(
                                 documentDigests = authorizationDetails.first().documentDigests.map {
                                     DocumentDigest(
-                                        hash = Digest(it.hash),
+                                        hash = Digest.Base64Digest(it.hash),
                                         label = it.label,
                                     )
                                 },
