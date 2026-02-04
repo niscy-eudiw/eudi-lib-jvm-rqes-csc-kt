@@ -21,7 +21,6 @@ import eu.europa.ec.eudi.rqes.SignaturesList
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.coroutines.runBlocking
-import java.io.ByteArrayInputStream
 import java.security.MessageDigest
 import java.time.Clock
 import java.time.Duration
@@ -74,24 +73,24 @@ fun main() {
                         }
                     }.map { it }
 
-                // document signing flow starts here, as shown in the Example.kt file
+                // the document signing flow starts here, as shown in the Example.kt file
 
-                // the output of the  signing flow is a list of signed documents and a list of signatures
+                // the output of the signing flow is a list of signed documents and a list of signatures
 
                 val signedDocuments =
                     listOf(
-                        ByteArrayInputStream("signed document".toByteArray()),
+                        "signed document content".toByteArray(),
                     )
                 val signatureList = SignaturesList(
                     listOf(
-                        Signature("signature"),
+                        Signature("signature content"),
                     ),
                 )
 
                 dispatch(
                     resolution.requestObject,
                     Consensus.Positive(
-                        documentWithSignature = signedDocuments.map { it.readAllBytes().decodeToString() },
+                        documentWithSignature = signedDocuments,
                         signatureObject = signatureList.signatures.map { it.value },
                     ),
                 )

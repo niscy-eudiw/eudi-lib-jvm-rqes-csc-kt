@@ -30,6 +30,7 @@ import io.ktor.utils.io.*
 import kotlinx.serialization.json.*
 import java.net.URI
 import java.net.URL
+import java.util.Base64
 
 /**
  * Default implementation of [Dispatcher]
@@ -113,8 +114,8 @@ internal object DirectPostForm {
         }
 
     fun of(p: AuthorizationResponsePayload): Map<String, String> {
-        fun MutableMap<String, String>.putDocumentWithSignature(documentWithSignature: List<String>) {
-            put(DOCUMENT_WITH_SIGNATURE, documentWithSignature.asParam())
+        fun MutableMap<String, String>.putDocumentWithSignature(documentWithSignature: List<ByteArray>) {
+            put(DOCUMENT_WITH_SIGNATURE, documentWithSignature.map { Base64.getEncoder().encode(it).decodeToString() }.asParam())
         }
 
         fun MutableMap<String, String>.putSignatureObject(signatureObject: List<String>) {

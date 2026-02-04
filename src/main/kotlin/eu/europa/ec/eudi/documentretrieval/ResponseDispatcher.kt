@@ -45,7 +45,7 @@ sealed interface Consensus : Serializable {
      *  respond to the request
      */
     data class Positive(
-        val documentWithSignature: List<String>?,
+        val documentWithSignature: List<ByteArray>?,
         val signatureObject: List<String>?,
     ) : Consensus {
         init {

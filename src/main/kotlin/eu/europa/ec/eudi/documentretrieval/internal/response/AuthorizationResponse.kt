@@ -36,7 +36,7 @@ internal sealed interface AuthorizationResponsePayload : Serializable {
         override val nonce: String?,
         override val state: String?,
         override val clientId: String,
-        val documentWithSignature: List<String>?,
+        val documentWithSignature: List<ByteArray>?,
         val signatureObject: List<String>?,
     ) : AuthorizationResponsePayload
 

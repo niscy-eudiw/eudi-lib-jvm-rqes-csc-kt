@@ -30,7 +30,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.testing.*
 import kotlinx.coroutines.test.runTest
+import java.io.File
 import java.net.URI
+import java.util.Base64
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -70,9 +72,14 @@ class AuthorizationResponseDispatcherTest {
                     clientData = "client data",
                 )
 
+            val signedDocument = File(ClassLoader.getSystemResource("sample.pdf").path).readBytes()
+
+            val expectedDocument = Base64.getEncoder().encodeToString(signedDocument)
+            val expectedSignature = "MIAGCSqAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiGSs4rEsQV4AAAAAAAAA=="
+
             val consensus = Consensus.Positive(
-                documentWithSignature = listOf("document with signature"),
-                signatureObject = listOf("signature object"),
+                documentWithSignature = listOf(signedDocument),
+                signatureObject = listOf(expectedSignature),
             )
 
             testApplication {
@@ -93,8 +100,8 @@ class AuthorizationResponseDispatcherTest {
                                     call.request.headers["Content-Type"],
                                 )
                                 assertEquals(state, stateParam)
-                                assertEquals("[\"document with signature\"]", documentWithSignature)
-                                assertEquals("[\"signature object\"]", signatureObject)
+                                assertEquals("[\"$expectedDocument\"]", documentWithSignature)
+                                assertEquals("[\"$expectedSignature\"]", signatureObject)
                                 assertNotNull(signatureObject)
 
                                 call.respond(HttpStatusCode.OK)
@@ -116,7 +123,7 @@ class AuthorizationResponseDispatcherTest {
                     consensus,
                 )
 
-                assertIs<DispatchOutcome>(outcome)
+                assertIs<DispatchOutcome.Accepted>(outcome)
             }
         }
 
