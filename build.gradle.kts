@@ -1,19 +1,17 @@
-import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.gradle.DokkaTask
+import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 import org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension
-import java.net.URL
+import java.net.URI
 
 object Meta {
     const val BASE_URL = "https://github.com/eu-digital-identity-wallet/eudi-lib-jvm-rqes-csc-kt"
 }
 
 plugins {
-    base
     alias(libs.plugins.android.library)
-    alias(libs.plugins.dokka)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.dokka)
     alias(libs.plugins.spotless)
     alias(libs.plugins.kover)
     alias(libs.plugins.dependency.check)
@@ -85,25 +83,25 @@ spotless {
     }
 }
 
-tasks.withType<DokkaTask>().configureEach {
-    dokkaSourceSets {
-        named("main") {
-            moduleName.set("EUDI rQES CSC library")
+dokka {
+    // used as project name in the header
+    moduleName = "EUDI rQES CSC library"
 
-            includes.from("Module.md")
+    dokkaSourceSets.configureEach {
+        // contains descriptions for the module and the packages
+        includes.from("Module.md")
 
-            documentedVisibilities.set(setOf(DokkaConfiguration.Visibility.PUBLIC, DokkaConfiguration.Visibility.PROTECTED))
+        documentedVisibilities = setOf(VisibilityModifier.Public, VisibilityModifier.Protected)
 
-            val remoteSourceUrl = System.getenv()["GIT_REF_NAME"]?.let { URL("${Meta.BASE_URL}/tree/$it/src") }
-            remoteSourceUrl
-                ?.let {
-                    sourceLink {
-                        localDirectory.set(projectDir.resolve("src"))
-                        remoteUrl.set(it)
-                        remoteLineSuffix.set("#L")
-                    }
+        val remoteSourceUrl = System.getenv()["GIT_REF_NAME"]?.let { URI.create("${Meta.BASE_URL}/tree/$it/src") }
+        remoteSourceUrl
+            ?.let {
+                sourceLink {
+                    localDirectory = projectDir.resolve("src")
+                    remoteUrl = it
+                    remoteLineSuffix = "#L"
                 }
-        }
+            }
     }
 }
 
