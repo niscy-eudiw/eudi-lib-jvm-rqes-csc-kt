@@ -82,17 +82,6 @@ internal class AuthorizationEndpointClient(
         authorizationSubject: CredentialAuthorizationSubject? = null,
         state: String,
     ): Result<Triple<PKCEVerifier, HttpsUrl, CredentialAuthorizationRequestType?>> {
-        val usePar = when (cscClientConfig.parUsage) {
-            ParUsage.IfSupported -> supportsPar
-            ParUsage.Never -> false
-            ParUsage.Required -> {
-                require(supportsPar) {
-                    "PAR usage is required, yet authorization server doesn't advertise PAR endpoint"
-                }
-                true
-            }
-        }
-
         val useRichAuthorizationRequests = when (cscClientConfig.rarUsage) {
             RarUsage.IfSupported -> supportsRar
             RarUsage.Never -> false
@@ -111,10 +100,21 @@ internal class AuthorizationEndpointClient(
             }
         }
 
-        return if (usePar) {
-            submitPushedAuthorizationRequest(scopes, credentialAuthorizationRequestType, state)
-        } else {
-            authorizationRequestUrl(scopes, credentialAuthorizationRequestType, state)
+        return when (cscClientConfig.parUsage) {
+            ParUsage.Required -> {
+                require(supportsPar) {
+                    "PAR usage is required, yet authorization server doesn't advertise PAR endpoint"
+                }
+                // Do not fall back when PAR is required; propagate the failure
+                submitPushedAuthorizationRequest(scopes, credentialAuthorizationRequestType, state)
+            }
+            ParUsage.IfSupported ->
+                // Fallback to standard authorization request URL if PAR fails
+                submitPushedAuthorizationRequest(scopes, credentialAuthorizationRequestType, state)
+                    .recoverCatching {
+                        authorizationRequestUrl(scopes, credentialAuthorizationRequestType, state).getOrThrow()
+                    }
+            ParUsage.Never -> authorizationRequestUrl(scopes, credentialAuthorizationRequestType, state)
         }
     }
 

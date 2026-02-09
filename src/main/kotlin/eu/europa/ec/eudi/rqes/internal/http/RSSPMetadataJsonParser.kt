@@ -108,10 +108,6 @@ internal fun RSSPMethod.Companion.from(s: String): RSSPMethod? = when (s) {
     "signatures/signDoc" -> RSSPMethod.SignaturesSignDoc
     "signatures/signPolling" -> RSSPMethod.SignaturesSignPolling
     "signatures/timestamp" -> RSSPMethod.SignaturesTimestamp
-    "oauth2/authorize" -> RSSPMethod.Oauth2Authorize
-    "oauth2/token" -> RSSPMethod.Oauth2Token
-    "oauth2/pushed_authorize" -> RSSPMethod.Oauth2PushedAuthorize
-    "oauth2/revoke" -> RSSPMethod.Oauth2Revoke
     else -> null
 }
 

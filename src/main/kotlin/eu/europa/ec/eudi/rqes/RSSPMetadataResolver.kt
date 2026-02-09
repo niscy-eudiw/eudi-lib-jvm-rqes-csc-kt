@@ -41,8 +41,8 @@ data class RSSPMetadataContent<T>(
     }
 }
 
-internal inline fun <reified T> RSSPMetadataContent<T>.oauth2AuthType(): AuthType.OAuth2<T>? =
-    authTypes.filterIsInstance<AuthType.OAuth2<T>>().firstOrNull()
+internal inline fun <reified T> RSSPMetadataContent<T>.oauth2AuthType(): OAuth2<T>? =
+    authTypes.filterIsInstance<OAuth2<T>>().firstOrNull()
 
 /**
  * The metadata of a RSSP.
@@ -64,10 +64,6 @@ enum class RSSPMethod {
     SignaturesSignDoc,
     SignaturesSignPolling,
     SignaturesTimestamp,
-    Oauth2Authorize,
-    Oauth2Token,
-    Oauth2PushedAuthorize,
-    Oauth2Revoke,
     ;
 
     companion object

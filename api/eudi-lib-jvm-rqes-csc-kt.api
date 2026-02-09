@@ -1994,10 +1994,6 @@ public final class eu/europa/ec/eudi/rqes/RSSPMethod : java/lang/Enum {
 	public static final field CredentialsList Leu/europa/ec/eudi/rqes/RSSPMethod;
 	public static final field CredentialsSendOTP Leu/europa/ec/eudi/rqes/RSSPMethod;
 	public static final field Info Leu/europa/ec/eudi/rqes/RSSPMethod;
-	public static final field Oauth2Authorize Leu/europa/ec/eudi/rqes/RSSPMethod;
-	public static final field Oauth2PushedAuthorize Leu/europa/ec/eudi/rqes/RSSPMethod;
-	public static final field Oauth2Revoke Leu/europa/ec/eudi/rqes/RSSPMethod;
-	public static final field Oauth2Token Leu/europa/ec/eudi/rqes/RSSPMethod;
 	public static final field SignaturesSignDoc Leu/europa/ec/eudi/rqes/RSSPMethod;
 	public static final field SignaturesSignHash Leu/europa/ec/eudi/rqes/RSSPMethod;
 	public static final field SignaturesSignPolling Leu/europa/ec/eudi/rqes/RSSPMethod;

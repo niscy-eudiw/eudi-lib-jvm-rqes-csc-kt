@@ -16,6 +16,8 @@
 package eu.europa.ec.eudi.rqes.internal.http
 
 import eu.europa.ec.eudi.rqes.*
+import io.ktor.client.engine.mock.*
+import io.ktor.http.*
 import kotlinx.coroutines.test.runTest
 import java.net.URI
 import java.net.URLEncoder
@@ -77,6 +79,45 @@ class AuthorizationEndpointClientTest {
         assertTrue(authUrl.contains(URLEncoder.encode(credentialID.value, Charsets.UTF_8)))
     }
 
+    @Test
+    fun `should fail when PAR is required but it fails`() = runTest {
+        // Given
+        val parEndpoint = URI("https://localhost:8084/oauth2/par")
+        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
+            RequestMocker(
+                requestMatcher = match(parEndpoint, HttpMethod.Post),
+                responseBuilder = {
+                    respond(
+                        content = """
+                            {
+                                "error": "invalid_request",
+                                "error_description": "Something went wrong"
+                            }
+                        """.trimIndent(),
+                        status = HttpStatusCode.BadRequest,
+                        headers = headersOf(HttpHeaders.ContentType to listOf("application/json")),
+                    )
+                },
+            ),
+        )
+
+        val hash1 = Digest.Base64Digest("sTOgwOm+474gFj0q0x1iSNspKqbcse4IeiqlDg/HWuI=")
+        val credentialID = CredentialID("83c7c559-db74-48da-aacc-d439d415cb81")
+        val credentialAuthorizationSubject = credentialAuthorizationSubject(credentialID, listOf(hash1))
+        val endpoint = authEndpointClientWithPar(mockedKtorHttpClientFactory, ParUsage.Required, RarUsage.Never)
+
+        // When
+        val result = endpoint.submitParOrCreateAuthorizationRequestUrl(
+            listOf(Scope.Credential),
+            credentialAuthorizationSubject,
+            "state",
+        )
+
+        // Assert
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull() is RQESError.PushedAuthorizationRequestFailed)
+    }
+
     private fun authEndpointClient(
         clientFactory: KtorHttpClientFactory,
         parUsage: ParUsage,
@@ -84,6 +125,22 @@ class AuthorizationEndpointClientTest {
     ) = AuthorizationEndpointClient(
         URI("https://localhost:8084/oauth2/authorize").toURL(),
         null,
+        CSCClientConfig(
+            client = OAuth2Client.Public("wallet-client-tester"),
+            authFlowRedirectionURI = URI("https://oauthdebugger.com/debug").toURL().toURI(),
+            parUsage = parUsage,
+            rarUsage = rarUsage,
+        ),
+        clientFactory,
+    )
+
+    private fun authEndpointClientWithPar(
+        clientFactory: KtorHttpClientFactory,
+        parUsage: ParUsage,
+        rarUsage: RarUsage,
+    ) = AuthorizationEndpointClient(
+        URI("https://localhost:8084/oauth2/authorize").toURL(),
+        URI("https://localhost:8084/oauth2/par").toURL(),
         CSCClientConfig(
             client = OAuth2Client.Public("wallet-client-tester"),
             authFlowRedirectionURI = URI("https://oauthdebugger.com/debug").toURL().toURI(),

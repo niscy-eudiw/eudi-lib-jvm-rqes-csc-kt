@@ -113,13 +113,10 @@ private val methods = listOf(
     RSSPMethod.CredentialsAuthorize,
     RSSPMethod.CredentialsSendOTP,
     RSSPMethod.SignaturesSignHash,
-    RSSPMethod.Oauth2Authorize,
-    RSSPMethod.Oauth2Token,
-    RSSPMethod.Oauth2PushedAuthorize,
 )
 
 private val authorizationServerMetadata =
-    asMetadata(HttpsUrl("https://auth.domain.org").getOrThrow(), methods)
+    asMetadata(HttpsUrl("https://auth.domain.org").getOrThrow())
 
 internal val mockServiceAccessAuthorized = ServiceAccessAuthorized(
     OAuth2Tokens(

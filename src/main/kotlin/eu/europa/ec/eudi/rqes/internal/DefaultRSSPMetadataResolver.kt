@@ -47,7 +47,7 @@ internal class DefaultRSSPMetadataResolver(
             val contents = RSSPMetadataJsonParser.parseMetaData(rsspId, metadataInJson)
             val resolved = contents.map {
                     serverRef ->
-                fetchAuthorizationServerMetadata(serverRef, contents.methods)
+                fetchAuthorizationServerMetadata(serverRef)
             }
             resolved
         }
@@ -68,32 +68,24 @@ internal class DefaultRSSPMetadataResolver(
 
     private suspend fun fetchAuthorizationServerMetadata(
         serverRef: AuthorizationServerRef,
-        methods: List<RSSPMethod>,
     ): CSCAuthorizationServerMetadata = when (serverRef) {
         is AuthorizationServerRef.IssuerClaim ->
             DefaultAuthorizationServerMetadataResolver(httpClient).resolve(serverRef.value).getOrThrow()
 
         is AuthorizationServerRef.CSCAuth2Claim ->
-            asMetadata(serverRef.value, methods)
+            asMetadata(serverRef.value)
     }
 }
 
 internal fun asMetadata(
     oauth2Url: HttpsUrl,
-    methods: List<RSSPMethod>,
 ): CSCAuthorizationServerMetadata {
     val issuer = Issuer(oauth2Url.toString())
     val meta = AuthorizationServerMetadata(issuer).apply {
         tokenEndpointURI = URI("$oauth2Url/oauth2/token")
-        if (RSSPMethod.Oauth2Authorize in methods) {
-            authorizationEndpointURI = URI("$oauth2Url/oauth2/authorize")
-            if (RSSPMethod.Oauth2PushedAuthorize in methods) {
-                pushedAuthorizationRequestEndpointURI = URI("$oauth2Url/oauth2/pushed_authorize")
-            }
-        }
-        if (RSSPMethod.Oauth2Revoke in methods) {
-            revocationEndpointURI = URI("$oauth2Url/revoke")
-        }
+        authorizationEndpointURI = URI("$oauth2Url/oauth2/authorize")
+        pushedAuthorizationRequestEndpointURI = URI("$oauth2Url/oauth2/pushed_authorize")
+        revocationEndpointURI = URI("$oauth2Url/revoke")
     }
     return object : ReadOnlyAuthorizationServerMetadata by meta {}
 }

@@ -22,11 +22,7 @@
     "credentials/info",
     "credentials/authorize",
     "credentials/sendOTP",
-    "signatures/signHash",
-    "oauth2/authorize",
-    "oauth2/token",
-    "oauth2/pushed_authorize",
-    "oauth2/revoke"
+    "signatures/signHash"
   ],
   "signAlgorithms": {
     "algos": [
