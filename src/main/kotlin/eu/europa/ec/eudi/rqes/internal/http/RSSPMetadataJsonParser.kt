@@ -39,14 +39,27 @@ private data class RSSPMetadataTO(
     @SerialName("lang") val lang: String? = null,
     @SerialName("description") val description: String? = null,
     @SerialName("authType") @Required val authTypes: List<String>,
+    @SerialName("oauth2Servers") val oauth2Servers: List<OAuth2Server>? = null,
     @SerialName("oauth2") val oauth2: String? = null,
     @SerialName("oauth2Issuer") val oauth2Issuer: String? = null,
+    @SerialName("supportsRar") val supportsRar: Boolean? = false,
+    @SerialName("supportedHashTypes") val supportedHashTypes: List<String>? = null,
     @SerialName("asynchronousOperationMode") val asynchronousOperationMode: Boolean? = false,
     @SerialName("methods") @Required val methods: List<String>,
     @SerialName("validationInfo") val validationInfo: Boolean? = false,
     @SerialName("signAlgorithms") @Required val signAlgorithms: SignAlgorithms,
+    @SerialName("documentTypes") val documentTypes: List<String>? = null,
     @SerialName("signature_formats") @Required val signatureFormats: SignatureFormats,
     @SerialName("conformance_levels") val conformanceLevels: List<String>? = null,
+)
+
+@Serializable
+private data class OAuth2Server(
+    @SerialName("label") val label: String? = null,
+    @SerialName("baseUri") val baseUri: String? = null,
+    @SerialName("issuerIdentifier") val issuerIdentifier: String? = null,
+    @SerialName("authType") @Required val authType: List<String>,
+    @SerialName("supportsRar") val supportsRar: Boolean? = false,
 )
 
 @Serializable
@@ -59,6 +72,7 @@ private data class SignAlgorithms(
 private data class SignatureFormats(
     @SerialName("formats") @Required val formats: List<String>,
     @SerialName("envelope_properties") val envelopeProperties: List<List<String>>? = null,
+    @SerialName("allowMix") val allowMix: Boolean? = false,
 )
 
 private fun parseJson(json: String): RSSPMetadataTO =
@@ -104,6 +118,8 @@ internal fun RSSPMethod.Companion.from(s: String): RSSPMethod? = when (s) {
     "credentials/getChallenge" -> RSSPMethod.CredentialsGetChallenge
     "credentials/sendOTP" -> RSSPMethod.CredentialsSendOTP
     "credentials/extendTransaction" -> RSSPMethod.CredentialsExtendTransaction
+    "credentials/create" -> RSSPMethod.CredentialsCreate
+    "credentials/delete" -> RSSPMethod.CredentialsDelete
     "signatures/signHash" -> RSSPMethod.SignaturesSignHash
     "signatures/signDoc" -> RSSPMethod.SignaturesSignDoc
     "signatures/signPolling" -> RSSPMethod.SignaturesSignPolling
@@ -112,7 +128,6 @@ internal fun RSSPMethod.Companion.from(s: String): RSSPMethod? = when (s) {
 }
 
 private fun authTypesSupported(metadata: RSSPMetadataTO): Set<AuthType<AuthorizationServerRef>> {
-    val grants = grantTypesOf(metadata)
     val authTypes = buildSet {
         metadata.authTypes.forEach { authType ->
             when (authType) {
@@ -126,12 +141,20 @@ private fun authTypesSupported(metadata: RSSPMetadataTO): Set<AuthType<Authoriza
             }
         }
 
-        if (grants.isNotEmpty()) {
-            val authServerRef = authServerRef(metadata)
-            requireNotNull(authServerRef) {
-                "When authTypes $OAUTH2_CLIENT and/or $OAUTH2_CODE are provided one of oauth2Issuer or oauth2 is expected"
+        metadata.oauth2Servers?.let { servers ->
+            val authServerRefs = servers.mapNotNull { server ->
+                authServerRefFromOAuth2Server(server)
+            }.toSet()
+            add(AuthType.OAuth2(authServerRefs))
+        } ?: run {
+            val grants = grantTypesOf(metadata)
+            if (grants.isNotEmpty()) {
+                val authServerRef = authServerRef(metadata)
+                requireNotNull(authServerRef) {
+                    "When authTypes $OAUTH2_CLIENT and/or $OAUTH2_CODE are provided one of oauth2Issuer or oauth2 is expected"
+                }
+                add(AuthType.OAuth2(setOf(authServerRef)))
             }
-            add(AuthType.OAuth2(authServerRef, grants))
         }
     }
 
@@ -141,12 +164,38 @@ private fun authTypesSupported(metadata: RSSPMetadataTO): Set<AuthType<Authoriza
 private fun authServerRef(metadata: RSSPMetadataTO): AuthorizationServerRef? {
     val issuerClaim = metadata.oauth2Issuer
     val oauth2Claim = metadata.oauth2
-    fun urlOrNull(s: String, f: (HttpsUrl) -> AuthorizationServerRef) =
-        HttpsUrl(s).getOrNull()?.let(f)
+
+    require(issuerClaim != null || oauth2Claim != null) { "issuerClaim or oauth2Claim must be set" }
+    require(!(issuerClaim != null && oauth2Claim != null)) { "issuerClaim and oauth2Claim cannot both be set" }
+
+    val grants = metadata.authTypes.filter { it in listOf(OAUTH2_CLIENT, OAUTH2_CODE) }
+
+    fun urlOrNull(s: String, grants: List<String>, supportsRar: Boolean, f: (HttpsUrl, List<String>, Boolean) -> AuthorizationServerRef) =
+        HttpsUrl(s).getOrNull()?.let { f(it, grants, supportsRar) }
+
     return when {
-        issuerClaim != null -> urlOrNull(issuerClaim, AuthorizationServerRef::IssuerClaim)
-        oauth2Claim != null -> urlOrNull(oauth2Claim, AuthorizationServerRef::CSCAuth2Claim)
+        issuerClaim != null -> urlOrNull(issuerClaim, grants, metadata.supportsRar ?: false, AuthorizationServerRef::IssuerClaim)
+        oauth2Claim != null -> urlOrNull(oauth2Claim, grants, metadata.supportsRar ?: false, AuthorizationServerRef::CSCAuth2Claim)
         else -> null
+    }
+}
+
+private fun authServerRefFromOAuth2Server(server: OAuth2Server): AuthorizationServerRef? {
+    // require issuerIdentifier or baseUri to be set, but not both
+    require(server.issuerIdentifier != null || server.baseUri != null) { "issuerIdentifier or baseUri must be set" }
+    require(!(server.issuerIdentifier != null && server.baseUri != null)) { "issuerIdentifier and baseUri cannot both be set" }
+
+    fun urlOrNull(s: String, grants: List<String>, supportsRar: Boolean, f: (HttpsUrl, List<String>, Boolean) -> AuthorizationServerRef) =
+        HttpsUrl(s).getOrNull()?.let { f(it, grants, supportsRar) }
+
+    return when {
+        server.issuerIdentifier != null -> urlOrNull(
+            server.issuerIdentifier,
+            server.authType,
+            server.supportsRar ?: false,
+            AuthorizationServerRef::IssuerClaim,
+        )
+        else -> urlOrNull(server.baseUri!!, server.authType, server.supportsRar ?: false, AuthorizationServerRef::CSCAuth2Claim)
     }
 }
 
@@ -159,6 +208,16 @@ private fun grantTypesOf(metadata: RSSPMetadataTO): Set<Oauth2Grant> =
             add(Oauth2Grant.AuthorizationCode)
         }
         if (OAUTH2_CLIENT in metadata.authTypes) {
+            add(Oauth2Grant.ClientCredentials)
+        }
+    }
+
+private fun grantTypesOfAuthTypes(authTypes: List<String>): Set<Oauth2Grant> =
+    buildSet {
+        if (OAUTH2_CODE in authTypes) {
+            add(Oauth2Grant.AuthorizationCode)
+        }
+        if (OAUTH2_CLIENT in authTypes) {
             add(Oauth2Grant.ClientCredentials)
         }
     }

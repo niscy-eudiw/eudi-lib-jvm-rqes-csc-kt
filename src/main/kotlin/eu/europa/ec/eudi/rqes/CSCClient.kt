@@ -15,6 +15,7 @@
  */
 package eu.europa.ec.eudi.rqes
 
+import com.nimbusds.oauth2.sdk.GrantType
 import eu.europa.ec.eudi.podofomanager.PodofoManager
 import eu.europa.ec.eudi.rqes.internal.*
 import eu.europa.ec.eudi.rqes.internal.http.*
@@ -54,7 +55,7 @@ interface CSCClient :
             val podofoManager = PodofoManager()
             val oauth2AuthType =
                 requireNotNull(rsspMetadata.oauth2AuthType()) { "RSSP doesn't support OAUTH2" }
-            val (authServerMetadata, grants) = oauth2AuthType
+            val authServerMetadata = oauth2AuthType.authorizationServers.first()
 
             val tokenEndpointClient = TokenEndpointClient(
                 checkNotNull(authServerMetadata.tokenEndpointURI).toURL(),
@@ -63,7 +64,7 @@ interface CSCClient :
             )
 
             val authorizationEndpointClient =
-                if (Oauth2Grant.AuthorizationCode in grants) {
+                if (GrantType.AUTHORIZATION_CODE in authServerMetadata.grantTypes) {
                     AuthorizationEndpointClient(
                         checkNotNull(authServerMetadata.authorizationEndpointURI).toURL(),
                         authServerMetadata.pushedAuthorizationRequestEndpointURI?.toURL(),

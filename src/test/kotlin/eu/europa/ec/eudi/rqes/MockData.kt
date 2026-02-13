@@ -99,7 +99,7 @@ internal fun rsspMetadata() = RSSPMetadata(
     description = "An efficient remote signature service",
     authTypes = setOf(
         AuthType.Basic,
-        AuthType.OAuth2(authorizationServerMetadata, setOf(Oauth2Grant.AuthorizationCode)),
+        AuthType.OAuth2(setOf(authorizationServerMetadata)),
     ),
 
     methods = methods,

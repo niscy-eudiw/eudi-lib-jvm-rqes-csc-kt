@@ -15,12 +15,15 @@
  */
 package eu.europa.ec.eudi.rqes.internal
 
+import com.nimbusds.oauth2.sdk.GrantType
 import eu.europa.ec.eudi.rqes.*
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.assertDoesNotThrow
 import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 internal class DefaultRSSPMetadataResolverTest {
 
@@ -60,5 +63,31 @@ internal class DefaultRSSPMetadataResolverTest {
             assertDoesNotThrow { resolver.resolve(SampleRSSP.Id, Locale.forLanguageTag("en-US")).getOrThrow() }
 
         assertEquals(SampleRSSP.Id, metaData.rsspId)
+    }
+
+    @Test
+    fun `resolution success with oauth2 servers`() = runTest {
+        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
+            authServerWellKnownMocker(),
+            credentialIssuerMetaDataHandler(
+                SampleRSSP.Id,
+                "eu/europa/ec/eudi/rqes/internal/rssp_metadata_valid_with_oauth2servers.json",
+            ),
+        )
+
+        val resolver = RSSPMetadataResolver(
+            mockedKtorHttpClientFactory,
+        )
+        val metaData =
+            assertDoesNotThrow { resolver.resolve(SampleRSSP.Id, Locale.forLanguageTag("en-US")).getOrThrow() }
+
+        assertEquals(SampleRSSP.Id, metaData.rsspId)
+
+        // Verify OAuth2 auth type with multiple servers
+        val oauth2AuthType = metaData.oauth2AuthType()
+        assertNotNull(oauth2AuthType, "OAuth2 auth type should be present")
+
+        assertEquals(2, oauth2AuthType.authorizationServers.size, "Should have 2 authorization servers")
+        assertTrue(oauth2AuthType.authorizationServers.first().grantTypes.contains(GrantType.AUTHORIZATION_CODE))
     }
 }

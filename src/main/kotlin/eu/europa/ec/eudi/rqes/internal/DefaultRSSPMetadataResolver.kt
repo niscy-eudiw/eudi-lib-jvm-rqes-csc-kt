@@ -15,6 +15,7 @@
  */
 package eu.europa.ec.eudi.rqes.internal
 
+import com.nimbusds.oauth2.sdk.GrantType
 import com.nimbusds.oauth2.sdk.`as`.AuthorizationServerMetadata
 import com.nimbusds.oauth2.sdk.`as`.ReadOnlyAuthorizationServerMetadata
 import com.nimbusds.oauth2.sdk.id.Issuer
@@ -30,11 +31,9 @@ import java.net.URI
 import java.util.*
 
 internal sealed interface AuthorizationServerRef {
-    @JvmInline
-    value class IssuerClaim(val value: HttpsUrl) : AuthorizationServerRef
+    data class IssuerClaim(val value: HttpsUrl, val grants: List<String>, val supportsRar: Boolean) : AuthorizationServerRef
 
-    @JvmInline
-    value class CSCAuth2Claim(val value: HttpsUrl) : AuthorizationServerRef
+    data class CSCAuth2Claim(val value: HttpsUrl, val grants: List<String>, val supportsRar: Boolean) : AuthorizationServerRef
 }
 
 internal class DefaultRSSPMetadataResolver(
@@ -86,6 +85,7 @@ internal fun asMetadata(
         authorizationEndpointURI = URI("$oauth2Url/oauth2/authorize")
         pushedAuthorizationRequestEndpointURI = URI("$oauth2Url/oauth2/pushed_authorize")
         revocationEndpointURI = URI("$oauth2Url/revoke")
+        grantTypes = listOf(GrantType.AUTHORIZATION_CODE)
     }
     return object : ReadOnlyAuthorizationServerMetadata by meta {}
 }

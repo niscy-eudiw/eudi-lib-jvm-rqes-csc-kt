@@ -60,6 +60,8 @@ enum class RSSPMethod {
     CredentialsGetChallenge,
     CredentialsSendOTP,
     CredentialsExtendTransaction,
+    CredentialsCreate,
+    CredentialsDelete,
     SignaturesSignHash,
     SignaturesSignDoc,
     SignaturesSignPolling,
@@ -75,9 +77,9 @@ enum class Oauth2Grant {
 }
 
 sealed interface AuthType<out T> {
-    data class OAuth2<T>(val authorizationServer: T, val grantsTypes: Set<Oauth2Grant>) : AuthType<T> {
+    data class OAuth2<T>(val authorizationServers: Set<T>) : AuthType<T> {
         init {
-            require(grantsTypes.isNotEmpty()) { "At least one GrantType must be provided" }
+            require(authorizationServers.isNotEmpty()) { "At least one authorization server must be provided" }
         }
     }
 
@@ -90,7 +92,7 @@ internal inline fun <T, Y> AuthType<T>.map(f: (T) -> Y): AuthType<Y> = when (thi
     Basic -> Basic
     Digest -> Digest
     External -> External
-    is OAuth2 -> OAuth2(f(authorizationServer), grantsTypes)
+    is OAuth2 -> OAuth2(authorizationServers.map(f).toSet())
     TLS -> TLS
 }
 

@@ -900,14 +900,12 @@ public final class eu/europa/ec/eudi/rqes/AuthType$External : eu/europa/ec/eudi/
 
 public final class eu/europa/ec/eudi/rqes/AuthType$OAuth2 : eu/europa/ec/eudi/rqes/AuthType {
 	public static final field $stable I
-	public fun <init> (Ljava/lang/Object;Ljava/util/Set;)V
-	public final fun component1 ()Ljava/lang/Object;
-	public final fun component2 ()Ljava/util/Set;
-	public final fun copy (Ljava/lang/Object;Ljava/util/Set;)Leu/europa/ec/eudi/rqes/AuthType$OAuth2;
-	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/AuthType$OAuth2;Ljava/lang/Object;Ljava/util/Set;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/AuthType$OAuth2;
+	public fun <init> (Ljava/util/Set;)V
+	public final fun component1 ()Ljava/util/Set;
+	public final fun copy (Ljava/util/Set;)Leu/europa/ec/eudi/rqes/AuthType$OAuth2;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/AuthType$OAuth2;Ljava/util/Set;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/AuthType$OAuth2;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getAuthorizationServer ()Ljava/lang/Object;
-	public final fun getGrantsTypes ()Ljava/util/Set;
+	public final fun getAuthorizationServers ()Ljava/util/Set;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -1988,6 +1986,8 @@ public final class eu/europa/ec/eudi/rqes/RSSPMethod : java/lang/Enum {
 	public static final field Companion Leu/europa/ec/eudi/rqes/RSSPMethod$Companion;
 	public static final field CredentialsAuthorize Leu/europa/ec/eudi/rqes/RSSPMethod;
 	public static final field CredentialsAuthorizeCheck Leu/europa/ec/eudi/rqes/RSSPMethod;
+	public static final field CredentialsCreate Leu/europa/ec/eudi/rqes/RSSPMethod;
+	public static final field CredentialsDelete Leu/europa/ec/eudi/rqes/RSSPMethod;
 	public static final field CredentialsExtendTransaction Leu/europa/ec/eudi/rqes/RSSPMethod;
 	public static final field CredentialsGetChallenge Leu/europa/ec/eudi/rqes/RSSPMethod;
 	public static final field CredentialsInfo Leu/europa/ec/eudi/rqes/RSSPMethod;
