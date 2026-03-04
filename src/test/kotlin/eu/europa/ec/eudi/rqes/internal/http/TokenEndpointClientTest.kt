@@ -85,6 +85,7 @@ class TokenEndpointClientTest {
                                 "authorization_details": [{
                                     "type": "credential",
                                     "credentialID": "83c7c559-db74-48da-aacc-d439d415cb81",
+                                    "numSignatures": 1,
                                     "documentDigests": [{
                                         "hash": "${credentialAuthorizationSubject.documentDigestList?.documentDigests[0]?.hash?.asBase64()}",
                                         "label": "${credentialAuthorizationSubject.documentDigestList?.documentDigests[0]?.label}"

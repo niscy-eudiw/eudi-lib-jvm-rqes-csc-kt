@@ -59,6 +59,8 @@ data class CredentialCertificate(
     val subjectDN: X500Principal?,
     val validFrom: LocalDateTime?,
     val validTo: LocalDateTime?,
+    val qcStatements: List<String>,
+    val policy: List<String>? = emptyList(),
 )
 
 sealed interface CredentialAuthorization {

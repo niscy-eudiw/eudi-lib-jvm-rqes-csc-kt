@@ -34,6 +34,26 @@ class CredentialInfoTest {
             }
 
             assertEquals(CredentialID("83c7c559-db74-48da-aacc-d439d415cb81"), credentialInfo.credentialID)
+            assertEquals(listOf("0.4.0.1862.1.1", "0.4.0.1862.1.2"), credentialInfo.certificate.qcStatements)
+            assertEquals(listOf("2.23.140.1.3"), credentialInfo.certificate.policy)
+        }
+    }
+
+    @Test
+    fun `successful credential info retrieval with oauth2code auth mode and missing qcStatements`() = runTest {
+        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
+            authServerWellKnownMocker(),
+            credentialsInfoPostMocker("eu/europa/ec/eudi/rqes/internal/credentials_info_scal1_oauth_valid.json"),
+        )
+
+        with(mockPublicClient(mockedKtorHttpClientFactory)) {
+            val credentialInfo = with(mockServiceAccessAuthorized) {
+                credentialInfo(CredentialsInfoRequest(CredentialID("83c7c559-db74-48da-aacc-d439d415cb81"))).getOrThrow()
+            }
+
+            assertEquals(CredentialID("83c7c559-db74-48da-aacc-d439d415cb81"), credentialInfo.credentialID)
+            assertEquals(emptyList<String>(), credentialInfo.certificate.qcStatements)
+            assertEquals(null, credentialInfo.certificate.policy)
         }
     }
 

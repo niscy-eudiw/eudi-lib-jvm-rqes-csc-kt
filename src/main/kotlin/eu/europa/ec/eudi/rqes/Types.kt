@@ -54,7 +54,11 @@ sealed interface CredentialRef {
     data class BySignatureQualifier(val signatureQualifier: SignatureQualifier) : CredentialRef
 }
 
-data class DocumentDigest(val hash: Digest, val label: String?)
+data class DocumentDigest(
+    val hash: Digest,
+    val label: String? = null,
+    val hashType: HashType? = HashType.DTBSR,
+)
 
 @JvmInline
 value class HashAlgorithmOID(val value: String) {
@@ -200,6 +204,12 @@ enum class SignedEnvelopeProperty {
     INTERNALLY_DETACHED,
 }
 
+enum class HashType {
+    SDR, // Signer's Document Representation
+    DTBSR, // Data To Be Signed Representation
+    SODR, // Signer's Original Document Representation
+}
+
 @JvmInline
 value class Description(val value: String) {
     init {
@@ -329,6 +339,8 @@ value class Scope(val value: String) {
     companion object {
         val Service = Scope("service")
         val Credential = Scope("credential")
+        val CredentialCreation = Scope("credential-creation")
+        val CredentialDeletion = Scope("credential-deletion")
     }
 }
 
@@ -357,7 +369,7 @@ data class PKCEVerifier(
 data class CredentialAuthorizationSubject(
     val credentialRef: CredentialRef,
     val documentDigestList: DocumentDigestList?,
-    val numSignatures: Int? = 1,
+    val numSignatures: Int,
 )
 
 sealed interface CredentialAuthorizationRequestType {

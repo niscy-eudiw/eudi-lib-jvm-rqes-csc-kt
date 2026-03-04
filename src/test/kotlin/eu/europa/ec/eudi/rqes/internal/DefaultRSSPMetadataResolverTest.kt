@@ -51,7 +51,7 @@ internal class DefaultRSSPMetadataResolverTest {
         assertEquals(
             "https://auth.domain.org/oauth2/authorize",
             oauth2AuthType.authorizationServers.elementAt(0).authorizationEndpointURI.toString(),
-            "First server should have correct authorization endpoint"
+            "First server should have correct authorization endpoint",
         )
     }
 
@@ -80,7 +80,7 @@ internal class DefaultRSSPMetadataResolverTest {
         assertEquals(
             "https://auth.domain.org/protocol/openid-connect/auth",
             oauth2AuthType.authorizationServers.elementAt(0).authorizationEndpointURI.toString(),
-            "First server should have correct authorization endpoint"
+            "First server should have correct authorization endpoint",
         )
     }
 
@@ -108,29 +108,29 @@ internal class DefaultRSSPMetadataResolverTest {
 
         assertEquals(2, oauth2AuthType.authorizationServers.size, "Should have 2 authorization servers")
         assertTrue(oauth2AuthType.authorizationServers.first().grantTypes.contains(GrantType.AUTHORIZATION_CODE))
-        
+
         // Verify authorization endpoint URIs
         assertEquals(
             "https://auth.domain.org/oauth2/authorize",
             oauth2AuthType.authorizationServers.elementAt(0).authorizationEndpointURI.toString(),
-            "First server should have correct authorization endpoint"
+            "First server should have correct authorization endpoint",
         )
         assertEquals(
             "https://auth.domain.org/protocol/openid-connect/auth",
             oauth2AuthType.authorizationServers.elementAt(1).authorizationEndpointURI.toString(),
-            "Second server should have correct authorization endpoint"
+            "Second server should have correct authorization endpoint",
         )
 
         // Verify token endpoint URIs
         assertEquals(
             "https://auth.domain.org/oauth2/token",
             oauth2AuthType.authorizationServers.elementAt(0).tokenEndpointURI.toString(),
-            "First server should have correct authorization endpoint"
+            "First server should have correct authorization endpoint",
         )
         assertEquals(
             "https://auth.domain.org/protocol/openid-connect/token",
             oauth2AuthType.authorizationServers.elementAt(1).tokenEndpointURI.toString(),
-            "Second server should have correct authorization endpoint"
+            "Second server should have correct authorization endpoint",
         )
     }
 }

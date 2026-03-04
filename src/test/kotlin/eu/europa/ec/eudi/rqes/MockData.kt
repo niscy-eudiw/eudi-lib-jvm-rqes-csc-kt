@@ -241,6 +241,7 @@ internal val mockCredential = CredentialInfo(
         subjectDN = X500Principal("C=FC, GIVENNAME=FirstName, SURNAME=TesterUser, CN=FirstName TesterUser"),
         validFrom = LocalDateTime.now().minusDays(1),
         validTo = LocalDateTime.now().plusYears(1),
+        qcStatements = listOf("0.4.0.1862.1.1", "0.4.0.1862.1.2"),
     ),
     CredentialAuthorization.OAuth2Code(AuthorizationMode.OAuth2Code),
     SCAL.Two,

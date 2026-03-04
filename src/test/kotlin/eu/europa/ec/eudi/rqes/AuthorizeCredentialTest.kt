@@ -159,7 +159,7 @@ class AuthorizeCredentialTest {
                     AuthorizationDetailTO(
                         type = "credential",
                         credentialID = "83c7c559-db74-48da-aacc-d439d415cb81",
-                        numSignatures = "1",
+                        numSignatures = 1,
                         documentDigests = listOf(
                             DocumentDigestTO(
                                 hash = "digest",
@@ -324,9 +324,9 @@ class AuthorizeCredentialTest {
             tokenPostMocker(
                 listOf(
                     AuthorizationDetailTO(
-                        type = "credential",
+                        type = "https://cloudsignatureconsortium.org/2025/credential",
                         credentialID = "83c7c559-db74-48da-aacc-d439d415cb81",
-                        numSignatures = "1",
+                        numSignatures = 1,
                         documentDigests = listOf(
                             DocumentDigestTO(
                                 hash = "digest",

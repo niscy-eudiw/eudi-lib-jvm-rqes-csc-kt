@@ -1285,17 +1285,16 @@ public final class eu/europa/ec/eudi/rqes/CredentialAuthorizationRequestType$Pas
 
 public final class eu/europa/ec/eudi/rqes/CredentialAuthorizationSubject {
 	public static final field $stable I
-	public fun <init> (Leu/europa/ec/eudi/rqes/CredentialRef;Leu/europa/ec/eudi/rqes/DocumentDigestList;Ljava/lang/Integer;)V
-	public synthetic fun <init> (Leu/europa/ec/eudi/rqes/CredentialRef;Leu/europa/ec/eudi/rqes/DocumentDigestList;Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Leu/europa/ec/eudi/rqes/CredentialRef;Leu/europa/ec/eudi/rqes/DocumentDigestList;I)V
 	public final fun component1 ()Leu/europa/ec/eudi/rqes/CredentialRef;
 	public final fun component2 ()Leu/europa/ec/eudi/rqes/DocumentDigestList;
-	public final fun component3 ()Ljava/lang/Integer;
-	public final fun copy (Leu/europa/ec/eudi/rqes/CredentialRef;Leu/europa/ec/eudi/rqes/DocumentDigestList;Ljava/lang/Integer;)Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;
-	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;Leu/europa/ec/eudi/rqes/CredentialRef;Leu/europa/ec/eudi/rqes/DocumentDigestList;Ljava/lang/Integer;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;
+	public final fun component3 ()I
+	public final fun copy (Leu/europa/ec/eudi/rqes/CredentialRef;Leu/europa/ec/eudi/rqes/DocumentDigestList;I)Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;Leu/europa/ec/eudi/rqes/CredentialRef;Leu/europa/ec/eudi/rqes/DocumentDigestList;IILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CredentialAuthorizationSubject;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getCredentialRef ()Leu/europa/ec/eudi/rqes/CredentialRef;
 	public final fun getDocumentDigestList ()Leu/europa/ec/eudi/rqes/DocumentDigestList;
-	public final fun getNumSignatures ()Ljava/lang/Integer;
+	public final fun getNumSignatures ()I
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -1342,8 +1341,10 @@ public final class eu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL2 : eu/europa
 
 public final class eu/europa/ec/eudi/rqes/CredentialCertificate {
 	public static final field $stable I
-	public fun <init> (Leu/europa/ec/eudi/rqes/CredentialCertificateStatus;Ljava/util/List;Ljava/util/List;Ljavax/security/auth/x500/X500Principal;Ljava/lang/String;Ljavax/security/auth/x500/X500Principal;Ljava/time/LocalDateTime;Ljava/time/LocalDateTime;)V
+	public fun <init> (Leu/europa/ec/eudi/rqes/CredentialCertificateStatus;Ljava/util/List;Ljava/util/List;Ljavax/security/auth/x500/X500Principal;Ljava/lang/String;Ljavax/security/auth/x500/X500Principal;Ljava/time/LocalDateTime;Ljava/time/LocalDateTime;Ljava/util/List;Ljava/util/List;)V
+	public synthetic fun <init> (Leu/europa/ec/eudi/rqes/CredentialCertificateStatus;Ljava/util/List;Ljava/util/List;Ljavax/security/auth/x500/X500Principal;Ljava/lang/String;Ljavax/security/auth/x500/X500Principal;Ljava/time/LocalDateTime;Ljava/time/LocalDateTime;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Leu/europa/ec/eudi/rqes/CredentialCertificateStatus;
+	public final fun component10 ()Ljava/util/List;
 	public final fun component2 ()Ljava/util/List;
 	public final fun component3 ()Ljava/util/List;
 	public final fun component4 ()Ljavax/security/auth/x500/X500Principal;
@@ -1351,11 +1352,14 @@ public final class eu/europa/ec/eudi/rqes/CredentialCertificate {
 	public final fun component6 ()Ljavax/security/auth/x500/X500Principal;
 	public final fun component7 ()Ljava/time/LocalDateTime;
 	public final fun component8 ()Ljava/time/LocalDateTime;
-	public final fun copy (Leu/europa/ec/eudi/rqes/CredentialCertificateStatus;Ljava/util/List;Ljava/util/List;Ljavax/security/auth/x500/X500Principal;Ljava/lang/String;Ljavax/security/auth/x500/X500Principal;Ljava/time/LocalDateTime;Ljava/time/LocalDateTime;)Leu/europa/ec/eudi/rqes/CredentialCertificate;
-	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/CredentialCertificate;Leu/europa/ec/eudi/rqes/CredentialCertificateStatus;Ljava/util/List;Ljava/util/List;Ljavax/security/auth/x500/X500Principal;Ljava/lang/String;Ljavax/security/auth/x500/X500Principal;Ljava/time/LocalDateTime;Ljava/time/LocalDateTime;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CredentialCertificate;
+	public final fun component9 ()Ljava/util/List;
+	public final fun copy (Leu/europa/ec/eudi/rqes/CredentialCertificateStatus;Ljava/util/List;Ljava/util/List;Ljavax/security/auth/x500/X500Principal;Ljava/lang/String;Ljavax/security/auth/x500/X500Principal;Ljava/time/LocalDateTime;Ljava/time/LocalDateTime;Ljava/util/List;Ljava/util/List;)Leu/europa/ec/eudi/rqes/CredentialCertificate;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/CredentialCertificate;Leu/europa/ec/eudi/rqes/CredentialCertificateStatus;Ljava/util/List;Ljava/util/List;Ljavax/security/auth/x500/X500Principal;Ljava/lang/String;Ljavax/security/auth/x500/X500Principal;Ljava/time/LocalDateTime;Ljava/time/LocalDateTime;Ljava/util/List;Ljava/util/List;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CredentialCertificate;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getCertificates ()Ljava/util/List;
 	public final fun getIssuerDN ()Ljavax/security/auth/x500/X500Principal;
+	public final fun getPolicy ()Ljava/util/List;
+	public final fun getQcStatements ()Ljava/util/List;
 	public final fun getRawCertificates ()Ljava/util/List;
 	public final fun getSerialNumber ()Ljava/lang/String;
 	public final fun getStatus ()Leu/europa/ec/eudi/rqes/CredentialCertificateStatus;
@@ -1632,13 +1636,16 @@ public final class eu/europa/ec/eudi/rqes/Document {
 
 public final class eu/europa/ec/eudi/rqes/DocumentDigest {
 	public static final field $stable I
-	public fun <init> (Leu/europa/ec/eudi/rqes/Digest;Ljava/lang/String;)V
+	public fun <init> (Leu/europa/ec/eudi/rqes/Digest;Ljava/lang/String;Leu/europa/ec/eudi/rqes/HashType;)V
+	public synthetic fun <init> (Leu/europa/ec/eudi/rqes/Digest;Ljava/lang/String;Leu/europa/ec/eudi/rqes/HashType;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Leu/europa/ec/eudi/rqes/Digest;
 	public final fun component2 ()Ljava/lang/String;
-	public final fun copy (Leu/europa/ec/eudi/rqes/Digest;Ljava/lang/String;)Leu/europa/ec/eudi/rqes/DocumentDigest;
-	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/DocumentDigest;Leu/europa/ec/eudi/rqes/Digest;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/DocumentDigest;
+	public final fun component3 ()Leu/europa/ec/eudi/rqes/HashType;
+	public final fun copy (Leu/europa/ec/eudi/rqes/Digest;Ljava/lang/String;Leu/europa/ec/eudi/rqes/HashType;)Leu/europa/ec/eudi/rqes/DocumentDigest;
+	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/DocumentDigest;Leu/europa/ec/eudi/rqes/Digest;Ljava/lang/String;Leu/europa/ec/eudi/rqes/HashType;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/DocumentDigest;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getHash ()Leu/europa/ec/eudi/rqes/Digest;
+	public final fun getHashType ()Leu/europa/ec/eudi/rqes/HashType;
 	public final fun getLabel ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
@@ -1719,6 +1726,15 @@ public final class eu/europa/ec/eudi/rqes/HashAlgorithmOID$Companion {
 	public final fun getSHA_256-MWIvy3w ()Ljava/lang/String;
 	public final fun getSHA_385-MWIvy3w ()Ljava/lang/String;
 	public final fun getSHA_512-MWIvy3w ()Ljava/lang/String;
+}
+
+public final class eu/europa/ec/eudi/rqes/HashType : java/lang/Enum {
+	public static final field DTBSR Leu/europa/ec/eudi/rqes/HashType;
+	public static final field SDR Leu/europa/ec/eudi/rqes/HashType;
+	public static final field SODR Leu/europa/ec/eudi/rqes/HashType;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/HashType;
+	public static fun values ()[Leu/europa/ec/eudi/rqes/HashType;
 }
 
 public final class eu/europa/ec/eudi/rqes/HttpsUrl {
@@ -2070,6 +2086,8 @@ public final class eu/europa/ec/eudi/rqes/Scope {
 
 public final class eu/europa/ec/eudi/rqes/Scope$Companion {
 	public final fun getCredential-RFE6ECM ()Ljava/lang/String;
+	public final fun getCredentialCreation-RFE6ECM ()Ljava/lang/String;
+	public final fun getCredentialDeletion-RFE6ECM ()Ljava/lang/String;
 	public final fun getService-RFE6ECM ()Ljava/lang/String;
 }
 

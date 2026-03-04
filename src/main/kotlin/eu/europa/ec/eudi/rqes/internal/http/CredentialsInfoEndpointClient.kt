@@ -17,7 +17,7 @@ package eu.europa.ec.eudi.rqes.internal.http
 
 import eu.europa.ec.eudi.rqes.*
 import eu.europa.ec.eudi.rqes.internal.http.CredentialAuthTO.Companion.toDomain
-import eu.europa.ec.eudi.rqes.internal.http.CredentialKeyCertificateTO.Companion.toDomain
+import eu.europa.ec.eudi.rqes.internal.http.CredentialInfoCertificateTO.Companion.toDomain
 import eu.europa.ec.eudi.rqes.internal.http.CredentialKeyTO.Companion.toDomain
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -55,7 +55,7 @@ internal sealed interface CredentialInfoTO {
         @SerialName("description") val description: String? = null,
         @SerialName("signatureQualifier") val signatureQualifier: String? = null,
         @SerialName("key") val key: CredentialKeyTO,
-        @SerialName("cert") val certificate: CredentialKeyCertificateTO,
+        @SerialName("cert") val certificate: CredentialInfoCertificateTO,
         @SerialName("auth") @Required val auth: CredentialAuthTO,
         @SerialName("SCAL") val scal: String? = "1",
         @SerialName("multisign") @Required val multisign: Int,
