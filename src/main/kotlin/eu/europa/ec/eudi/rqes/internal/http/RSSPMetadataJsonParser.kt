@@ -82,7 +82,10 @@ private fun parseJson(json: String): RSSPMetadataTO =
         throw RSSPMetadataError.NonParseableRSSPMetadata(t)
     }
 
-private fun contents(rsspId: RSSPId, metadata: RSSPMetadataTO): RSSPMetadataContent<AuthorizationServerRef> {
+private fun contents(
+    rsspId: RSSPId,
+    metadata: RSSPMetadataTO,
+): RSSPMetadataContent<AuthorizationServerRef> {
     val authTypesSupported = authTypesSupported(metadata)
     val logo = metadata.logo?.let { runCatching { URI.create(it) }.getOrNull() }
     val lang = localeOf(metadata)
@@ -127,12 +130,10 @@ internal fun RSSPMethod.Companion.from(s: String): RSSPMethod? = when (s) {
     else -> null
 }
 
-private fun authTypesSupported(metadata: RSSPMetadataTO): Set<AuthType<AuthorizationServerRef>> {
+private fun authTypesSupported(
+    metadata: RSSPMetadataTO,
+): Set<AuthType<AuthorizationServerRef>> {
     val authTypes = buildSet {
-        require(!(metadata.oauth2Servers != null && metadata.supportsRar != null)) {
-            "supportsRar shall not be present when oauth2Servers is provided"
-        }
-
         metadata.authTypes.forEach { authType ->
             when (authType) {
                 "external" -> add(AuthType.External)

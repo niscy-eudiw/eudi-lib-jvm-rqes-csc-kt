@@ -96,7 +96,7 @@ class AuthorizationEndpointClientTest {
             endpoint.submitParOrCreateAuthorizationRequestUrl(
                 listOf(Scope.Credential),
                 state = "state",
-            )
+            ).getOrThrow()
         }
     }
 
