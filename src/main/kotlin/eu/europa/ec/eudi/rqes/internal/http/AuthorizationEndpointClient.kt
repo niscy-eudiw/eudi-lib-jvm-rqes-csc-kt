@@ -66,16 +66,13 @@ internal sealed interface PushedAuthorizationRequestResponseTO {
 internal class AuthorizationEndpointClient(
     private val authorizationEndpoint: URL,
     private val pushedAuthorizationRequestEndpoint: URL?,
+    private val supportsRar: Boolean,
     private val cscClientConfig: CSCClientConfig,
     private val ktorHttpClientFactory: KtorHttpClientFactory,
 ) {
 
     private val supportsPar: Boolean
         get() = pushedAuthorizationRequestEndpoint != null
-
-    // TODO determine if the auth server supports RAR (not possible if the server doesn't advertise it)
-    private val supportsRar: Boolean
-        get() = true
 
     suspend fun submitParOrCreateAuthorizationRequestUrl(
         scopes: List<Scope>,

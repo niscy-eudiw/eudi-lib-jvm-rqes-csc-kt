@@ -35,6 +35,7 @@ internal fun mockPublicClient(
     ktorHttpClientFactory: KtorHttpClientFactory,
     parUsage: ParUsage = ParUsage.Never,
     rarUsage: RarUsage = RarUsage.IfSupported,
+    supportsRar: Boolean = false,
     tsaurl: String? = URI("http://ts.cartaodecidadao.pt/tsa/server").toString(),
     includeRevocationInfo: Boolean = false,
 ) =
@@ -43,6 +44,7 @@ internal fun mockPublicClient(
         ktorHttpClientFactory,
         parUsage,
         rarUsage,
+        supportsRar,
         tsaurl,
         includeRevocationInfo,
     )
@@ -51,6 +53,7 @@ internal fun mockConfidentialClient(
     ktorHttpClientFactory: KtorHttpClientFactory,
     parUsage: ParUsage = ParUsage.Never,
     rarUsage: RarUsage = RarUsage.IfSupported,
+    supportsRar: Boolean = false,
     tsaurl: String? = URI("http://ts.cartaodecidadao.pt/tsa/server").toString(),
     includeRevocationInfo: Boolean = false,
 ) = mockClient(
@@ -58,6 +61,7 @@ internal fun mockConfidentialClient(
     ktorHttpClientFactory,
     parUsage,
     rarUsage,
+    supportsRar,
     tsaurl,
     includeRevocationInfo,
 )
@@ -67,10 +71,11 @@ private fun mockClient(
     ktorHttpClientFactory: KtorHttpClientFactory,
     parUsage: ParUsage = ParUsage.Never,
     rarUsage: RarUsage = RarUsage.IfSupported,
+    supportsRar: Boolean = false,
     tsaurl: String? = URI("http://ts.cartaodecidadao.pt/tsa/server").toString(),
     includeRevocationInfo: Boolean = false,
 ) = CSCClient.oauth2(
-    rsspMetadata = rsspMetadata(),
+    rsspMetadata = rsspMetadata(supportsRar),
     cscClientConfig = CSCClientConfig(
         oauth2Client,
         URI("https://example.com/redirect"),
@@ -99,7 +104,23 @@ internal fun rsspMetadata() = RSSPMetadata(
     description = "An efficient remote signature service",
     authTypes = setOf(
         AuthType.Basic,
-        AuthType.OAuth2(setOf(authorizationServerMetadata)),
+        AuthType.OAuth2(setOf(authorizationServerMetadata(false))),
+    ),
+
+    methods = methods,
+)
+
+internal fun rsspMetadata(supportsRar: Boolean) = RSSPMetadata(
+    rsspId = SampleRSSP.Id,
+    specs = "2.0.0.0",
+    name = "ACME Trust Services",
+    logo = URI("https://service.domain.org/images/logo.png"),
+    region = "IT",
+    lang = Locale.forLanguageTag("en-US"),
+    description = "An efficient remote signature service",
+    authTypes = setOf(
+        AuthType.Basic,
+        AuthType.OAuth2(setOf(authorizationServerMetadata(supportsRar))),
     ),
 
     methods = methods,
@@ -115,8 +136,8 @@ private val methods = listOf(
     RSSPMethod.SignaturesSignHash,
 )
 
-private val authorizationServerMetadata =
-    asMetadata(HttpsUrl("https://auth.domain.org").getOrThrow())
+private fun authorizationServerMetadata(supportsRar: Boolean) =
+    asMetadata(HttpsUrl("https://auth.domain.org").getOrThrow(), supportsRar = supportsRar)
 
 internal val mockServiceAccessAuthorized = ServiceAccessAuthorized(
     OAuth2Tokens(

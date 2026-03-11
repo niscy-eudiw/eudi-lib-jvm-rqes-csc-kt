@@ -68,6 +68,7 @@ interface CSCClient :
                     AuthorizationEndpointClient(
                         checkNotNull(authServerMetadata.authorizationEndpointURI).toURL(),
                         authServerMetadata.pushedAuthorizationRequestEndpointURI?.toURL(),
+                        authServerMetadata.advertisesRarSupport(),
                         cscClientConfig,
                         ktorHttpClientFactory,
                     )

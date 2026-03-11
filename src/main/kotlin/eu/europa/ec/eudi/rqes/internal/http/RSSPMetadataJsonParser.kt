@@ -129,6 +129,10 @@ internal fun RSSPMethod.Companion.from(s: String): RSSPMethod? = when (s) {
 
 private fun authTypesSupported(metadata: RSSPMetadataTO): Set<AuthType<AuthorizationServerRef>> {
     val authTypes = buildSet {
+        require(!(metadata.oauth2Servers != null && metadata.supportsRar != null)) {
+            "supportsRar shall not be present when oauth2Servers is provided"
+        }
+
         metadata.authTypes.forEach { authType ->
             when (authType) {
                 "external" -> add(AuthType.External)

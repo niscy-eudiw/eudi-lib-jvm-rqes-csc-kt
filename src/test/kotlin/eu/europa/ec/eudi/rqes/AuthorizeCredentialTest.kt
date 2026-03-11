@@ -211,7 +211,13 @@ class AuthorizeCredentialTest {
             },
         )
 
-        with(mockPublicClient(mockedKtorHttpClientFactory, rarUsage = RarUsage.Required)) {
+        with(
+            mockPublicClient(
+                mockedKtorHttpClientFactory,
+                rarUsage = RarUsage.Required,
+                supportsRar = true,
+            ),
+        ) {
             val authRequestPrepared =
                 prepareCredentialAuthorizationRequest(scal2CredentialAuthorizationSubject).getOrThrow()
 
@@ -383,6 +389,7 @@ class AuthorizeCredentialTest {
                 mockedKtorHttpClientFactory,
                 parUsage = ParUsage.Required,
                 rarUsage = RarUsage.Required,
+                supportsRar = true,
             ),
         ) {
             val authRequestPrepared =

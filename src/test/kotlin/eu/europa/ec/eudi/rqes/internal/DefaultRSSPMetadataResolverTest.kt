@@ -22,6 +22,7 @@ import org.junit.jupiter.api.assertDoesNotThrow
 import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -53,6 +54,7 @@ internal class DefaultRSSPMetadataResolverTest {
             oauth2AuthType.authorizationServers.elementAt(0).authorizationEndpointURI.toString(),
             "First server should have correct authorization endpoint",
         )
+        assertEquals(false, oauth2AuthType.authorizationServers.elementAt(0).advertisesRarSupport())
     }
 
     @Test
@@ -82,6 +84,7 @@ internal class DefaultRSSPMetadataResolverTest {
             oauth2AuthType.authorizationServers.elementAt(0).authorizationEndpointURI.toString(),
             "First server should have correct authorization endpoint",
         )
+        assertEquals(false, oauth2AuthType.authorizationServers.elementAt(0).advertisesRarSupport())
     }
 
     @Test
@@ -108,6 +111,8 @@ internal class DefaultRSSPMetadataResolverTest {
 
         assertEquals(2, oauth2AuthType.authorizationServers.size, "Should have 2 authorization servers")
         assertTrue(oauth2AuthType.authorizationServers.first().grantTypes.contains(GrantType.AUTHORIZATION_CODE))
+        assertEquals(false, oauth2AuthType.authorizationServers.elementAt(0).advertisesRarSupport())
+        assertEquals(true, oauth2AuthType.authorizationServers.elementAt(1).advertisesRarSupport())
 
         // Verify authorization endpoint URIs
         assertEquals(
@@ -132,5 +137,24 @@ internal class DefaultRSSPMetadataResolverTest {
             oauth2AuthType.authorizationServers.elementAt(1).tokenEndpointURI.toString(),
             "Second server should have correct authorization endpoint",
         )
+    }
+
+    @Test
+    fun `resolution fails when oauth2 servers and top level supportsRar are both present`() = runTest {
+        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
+            authServerWellKnownMocker(),
+            credentialIssuerMetaDataHandler(
+                SampleRSSP.Id,
+                "eu/europa/ec/eudi/rqes/internal/rssp_metadata_invalid_with_oauth2servers_and_top_level_supports_rar.json",
+            ),
+        )
+
+        val resolver = RSSPMetadataResolver(
+            mockedKtorHttpClientFactory,
+        )
+
+        assertFailsWith<IllegalArgumentException> {
+            resolver.resolve(SampleRSSP.Id, Locale.forLanguageTag("en-US")).getOrThrow()
+        }
     }
 }
