@@ -98,7 +98,7 @@ internal interface RarSupportAwareAuthorizationServerMetadata {
     val supportsRar: Boolean
 }
 
-internal fun CSCAuthorizationServerMetadata.advertisesRarSupport(): Boolean =
+internal fun CSCAuthorizationServerMetadata.supportsRar(): Boolean =
     (this as? RarSupportAwareAuthorizationServerMetadata)?.supportsRar ?: false
 
 private fun CSCAuthorizationServerMetadata.withAdvertisedRarSupport(

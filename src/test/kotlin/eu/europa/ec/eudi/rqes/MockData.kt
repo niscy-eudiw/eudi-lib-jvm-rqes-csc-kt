@@ -96,7 +96,7 @@ internal fun RSSPId.info() = HttpsUrl(
  */
 internal fun rsspMetadata() = RSSPMetadata(
     rsspId = SampleRSSP.Id,
-    specs = "2.0.0.0",
+    specs = "2.2.0.0",
     name = "ACME Trust Services",
     logo = URI("https://service.domain.org/images/logo.png"),
     region = "IT",
@@ -112,7 +112,7 @@ internal fun rsspMetadata() = RSSPMetadata(
 
 internal fun rsspMetadata(supportsRar: Boolean) = RSSPMetadata(
     rsspId = SampleRSSP.Id,
-    specs = "2.0.0.0",
+    specs = "2.2.0.0",
     name = "ACME Trust Services",
     logo = URI("https://service.domain.org/images/logo.png"),
     region = "IT",

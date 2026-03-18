@@ -1,5 +1,5 @@
 {
-  "specs": "2.0.0.0",
+  "specs": "2.2.0.0",
   "name": "ACME Trust Services",
   "logo": "https://service.domain.org/images/logo.png",
   "region": "IT",
@@ -73,8 +73,9 @@
       ]
     ]
   },
-  "conformance_levels": [
+    "conformance_levels": [
     "Ades-B-B",
     "Ades-B-T"
-  ]
+  ],
+  "supportedHashTypes": ["SHA-256"]
 }

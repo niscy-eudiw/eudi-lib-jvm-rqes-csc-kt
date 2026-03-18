@@ -20,7 +20,6 @@ import com.nimbusds.oauth2.sdk.rar.AuthorizationType
 import eu.europa.ec.eudi.rqes.CredentialAuthorizationSubject
 import eu.europa.ec.eudi.rqes.CredentialRef
 import eu.europa.ec.eudi.rqes.HashType
-import eu.europa.ec.eudi.rqes.Scope
 import net.minidev.json.JSONArray
 import net.minidev.json.JSONObject
 
@@ -39,8 +38,7 @@ internal fun CredentialAuthorizationSubject.toNimbusAuthDetail(): AuthorizationD
         docDigests
     }
 
-    return AuthorizationDetail.Builder(AuthorizationType(Scope.Credential.value)).apply {
-        field("type", "https://cloudsignatureconsortium.org/2025/credential")
+    return AuthorizationDetail.Builder(AuthorizationType("https://cloudsignatureconsortium.org/2025/credential")).apply {
         field("numSignatures", numSignatures)
         when (credentialRef) {
             is CredentialRef.ByCredentialID -> field("credentialID", credentialRef.credentialID.value)

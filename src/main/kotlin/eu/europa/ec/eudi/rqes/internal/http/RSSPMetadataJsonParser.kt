@@ -32,25 +32,25 @@ internal object RSSPMetadataJsonParser {
 
 @Serializable
 private data class RSSPMetadataTO(
-    @SerialName("specs") val specs: String? = null,
-    @SerialName("name") val name: String? = null,
-    @SerialName("logo") val logo: String? = null,
-    @SerialName("region") val region: String? = null,
-    @SerialName("lang") val lang: String? = null,
-    @SerialName("description") val description: String? = null,
+    @SerialName("specs") @Required val specs: String,
+    @SerialName("name") @Required val name: String,
+    @SerialName("logo") @Required val logo: String,
+    @SerialName("region") @Required val region: String,
+    @SerialName("lang") @Required val lang: String,
+    @SerialName("description") @Required val description: String,
     @SerialName("authType") @Required val authTypes: List<String>,
     @SerialName("oauth2Servers") val oauth2Servers: List<OAuth2Server>? = null,
     @SerialName("oauth2") val oauth2: String? = null,
     @SerialName("oauth2Issuer") val oauth2Issuer: String? = null,
-    @SerialName("supportsRar") val supportsRar: Boolean? = false,
-    @SerialName("supportedHashTypes") val supportedHashTypes: List<String>? = null,
+    @SerialName("supportsRar") val supportsRar: Boolean? = null,
+    @SerialName("supportedHashTypes") @Required val supportedHashTypes: List<String>,
     @SerialName("asynchronousOperationMode") val asynchronousOperationMode: Boolean? = false,
     @SerialName("methods") @Required val methods: List<String>,
     @SerialName("validationInfo") val validationInfo: Boolean? = false,
     @SerialName("signAlgorithms") @Required val signAlgorithms: SignAlgorithms,
-    @SerialName("documentTypes") val documentTypes: List<String>? = null,
+    @SerialName("documentTypes") val documentTypes: List<String>? = emptyList(),
     @SerialName("signature_formats") @Required val signatureFormats: SignatureFormats,
-    @SerialName("conformance_levels") val conformanceLevels: List<String>? = null,
+    @SerialName("conformance_levels") @Required val conformanceLevels: List<String>,
 )
 
 @Serializable
@@ -60,7 +60,13 @@ private data class OAuth2Server(
     @SerialName("issuerIdentifier") val issuerIdentifier: String? = null,
     @SerialName("authType") @Required val authType: List<String>,
     @SerialName("supportsRar") val supportsRar: Boolean? = false,
-)
+) {
+    init {
+        require(authType.all { it in listOf(OAUTH2_CODE, OAUTH2_CLIENT) }) {
+            "authType in oauth2Servers SHALL only contain $OAUTH2_CODE or $OAUTH2_CLIENT"
+        }
+    }
+}
 
 @Serializable
 private data class SignAlgorithms(
@@ -87,8 +93,8 @@ private fun contents(
     metadata: RSSPMetadataTO,
 ): RSSPMetadataContent<AuthorizationServerRef> {
     val authTypesSupported = authTypesSupported(metadata)
-    val logo = metadata.logo?.let { runCatching { URI.create(it) }.getOrNull() }
-    val lang = localeOf(metadata)
+    val logo = URI.create(metadata.logo)
+    val lang = Locale.forLanguageTag(metadata.lang)
     val methods = metadata.methods.mapNotNull { RSSPMethod.from(it) }
     return RSSPMetadataContent(
         rsspId = rsspId,
@@ -102,13 +108,12 @@ private fun contents(
         asynchronousOperationMode = metadata.asynchronousOperationMode ?: false,
         methods = methods,
         validationInfo = metadata.validationInfo ?: false,
+        documentTypes = metadata.documentTypes ?: emptyList(),
     )
 }
 
-private fun localeOf(metadata: RSSPMetadataTO): Locale? =
-    metadata.lang?.let { tag ->
-        runCatching { Locale.forLanguageTag(tag) }.getOrNull()
-    }
+private fun localeOf(metadata: RSSPMetadataTO): Locale =
+    run { Locale.forLanguageTag(metadata.lang) }
 
 internal fun RSSPMethod.Companion.from(s: String): RSSPMethod? = when (s) {
     "info" -> RSSPMethod.Info
@@ -147,6 +152,14 @@ private fun authTypesSupported(
         }
 
         metadata.oauth2Servers?.let { servers ->
+            require(metadata.supportsRar == null) { "supportsRar SHALL NOT be present if oauth2Servers is present" }
+            require(metadata.oauth2 == null && metadata.oauth2Issuer == null) {
+                "Exactly one of oauth2, oauth2Issuer, or oauth2Servers SHALL be present"
+            }
+            val grants = grantTypesOf(metadata)
+            require(grants.isNotEmpty()) {
+                "oauth2Servers SHALL only be present if authType contains $OAUTH2_CODE or $OAUTH2_CLIENT"
+            }
             val authServerRefs = servers.mapNotNull { server ->
                 authServerRefFromOAuth2Server(server)
             }.toSet()
@@ -159,6 +172,10 @@ private fun authTypesSupported(
                     "When authTypes $OAUTH2_CLIENT and/or $OAUTH2_CODE are provided one of oauth2Issuer or oauth2 is expected"
                 }
                 add(AuthType.OAuth2(setOf(authServerRef)))
+            } else {
+                require(metadata.oauth2 == null && metadata.oauth2Issuer == null) {
+                    "oauth2 or oauth2Issuer SHALL NOT be present if authType does not contain $OAUTH2_CODE or $OAUTH2_CLIENT"
+                }
             }
         }
     }

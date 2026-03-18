@@ -53,7 +53,7 @@ internal class DefaultRSSPMetadataResolverTest {
             oauth2AuthType.authorizationServers.elementAt(0).authorizationEndpointURI.toString(),
             "First server should have correct authorization endpoint",
         )
-        assertEquals(false, oauth2AuthType.authorizationServers.elementAt(0).advertisesRarSupport())
+        assertEquals(false, oauth2AuthType.authorizationServers.elementAt(0).supportsRar())
     }
 
     @Test
@@ -83,7 +83,7 @@ internal class DefaultRSSPMetadataResolverTest {
             oauth2AuthType.authorizationServers.elementAt(0).authorizationEndpointURI.toString(),
             "First server should have correct authorization endpoint",
         )
-        assertEquals(false, oauth2AuthType.authorizationServers.elementAt(0).advertisesRarSupport())
+        assertEquals(false, oauth2AuthType.authorizationServers.elementAt(0).supportsRar())
     }
 
     @Test
@@ -110,8 +110,8 @@ internal class DefaultRSSPMetadataResolverTest {
 
         assertEquals(2, oauth2AuthType.authorizationServers.size, "Should have 2 authorization servers")
         assertTrue(oauth2AuthType.authorizationServers.first().grantTypes.contains(GrantType.AUTHORIZATION_CODE))
-        assertEquals(false, oauth2AuthType.authorizationServers.elementAt(0).advertisesRarSupport())
-        assertEquals(true, oauth2AuthType.authorizationServers.elementAt(1).advertisesRarSupport())
+        assertEquals(false, oauth2AuthType.authorizationServers.elementAt(0).supportsRar())
+        assertEquals(true, oauth2AuthType.authorizationServers.elementAt(1).supportsRar())
 
         // Verify authorization endpoint URIs
         assertEquals(
@@ -136,5 +136,107 @@ internal class DefaultRSSPMetadataResolverTest {
             oauth2AuthType.authorizationServers.elementAt(1).tokenEndpointURI.toString(),
             "Second server should have correct authorization endpoint",
         )
+    }
+
+    @Test
+    fun `resolution fails when oauth2Servers and top-level supportsRar are both present`() = runTest {
+        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
+            authServerWellKnownMocker(),
+            credentialIssuerMetaDataHandler(
+                SampleRSSP.Id,
+                "eu/europa/ec/eudi/rqes/internal/rssp_metadata_invalid_with_oauth2servers_and_top_level_supports_rar.json",
+            ),
+        )
+
+        val resolver = RSSPMetadataResolver(
+            mockedKtorHttpClientFactory,
+        )
+        val result = resolver.resolve(SampleRSSP.Id, Locale.forLanguageTag("en-US"))
+        assertTrue(result.isFailure, "Resolution should fail")
+    }
+
+    @Test
+    fun `resolution fails when specs is not 2_2_0_0`() = runTest {
+        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
+            authServerWellKnownMocker(),
+            credentialIssuerMetaDataHandler(
+                SampleRSSP.Id,
+                "eu/europa/ec/eudi/rqes/internal/rssp_metadata_invalid_specs.json",
+            ),
+        )
+
+        val resolver = RSSPMetadataResolver(
+            mockedKtorHttpClientFactory,
+        )
+        val result = resolver.resolve(SampleRSSP.Id, Locale.forLanguageTag("en-US"))
+        assertTrue(result.isFailure, "Resolution should fail")
+    }
+
+    @Test
+    fun `resolution fails when oauth2Servers and oauth2 or oauth2Issuer are both present`() = runTest {
+        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
+            authServerWellKnownMocker(),
+            credentialIssuerMetaDataHandler(
+                SampleRSSP.Id,
+                "eu/europa/ec/eudi/rqes/internal/rssp_metadata_invalid_with_oauth2servers_and_oauth2issuer.json",
+            ),
+        )
+
+        val resolver = RSSPMetadataResolver(
+            mockedKtorHttpClientFactory,
+        )
+        val result = resolver.resolve(SampleRSSP.Id, Locale.forLanguageTag("en-US"))
+        assertTrue(result.isFailure, "Resolution should fail")
+    }
+
+    @Test
+    fun `resolution fails when oauth2 parameter exists but authType is missing oauth2 value`() = runTest {
+        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
+            authServerWellKnownMocker(),
+            credentialIssuerMetaDataHandler(
+                SampleRSSP.Id,
+                "eu/europa/ec/eudi/rqes/internal/rssp_metadata_invalid_with_oauth2_but_missing_oauth2_authtype.json",
+            ),
+        )
+
+        val resolver = RSSPMetadataResolver(
+            mockedKtorHttpClientFactory,
+        )
+        val result = resolver.resolve(SampleRSSP.Id, Locale.forLanguageTag("en-US"))
+        assertTrue(result.isFailure, "Resolution should fail")
+    }
+
+    @Test
+    fun `resolution fails when oauth2 is required but none of the 3 params are present`() = runTest {
+        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
+            authServerWellKnownMocker(),
+            credentialIssuerMetaDataHandler(
+                SampleRSSP.Id,
+                "eu/europa/ec/eudi/rqes/internal/rssp_metadata_invalid_missing_oauth2_params_when_oauth2_required.json",
+            ),
+        )
+
+        val resolver = RSSPMetadataResolver(
+            mockedKtorHttpClientFactory,
+        )
+        val result = resolver.resolve(SampleRSSP.Id, Locale.forLanguageTag("en-US"))
+        assertTrue(result.isFailure, "Resolution should fail")
+    }
+
+    @Test
+    fun `resolution fails when oauth2Server authType contains invalid value`() = runTest {
+        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
+            authServerWellKnownMocker(),
+            credentialIssuerMetaDataHandler(
+                SampleRSSP.Id,
+                "eu/europa/ec/eudi/rqes/internal/rssp_metadata_invalid_oauth2server_authtype.json",
+            ),
+        )
+
+        val resolver = RSSPMetadataResolver(
+            mockedKtorHttpClientFactory,
+        )
+        val result = resolver.resolve(SampleRSSP.Id, Locale.forLanguageTag("en-US"))
+        assertTrue(result.isFailure, "Resolution should fail")
     }
 }

@@ -24,18 +24,22 @@ import java.util.*
 
 data class RSSPMetadataContent<T>(
     val rsspId: RSSPId,
-    val specs: String?,
-    val name: String?,
-    val logo: URI?,
-    val region: String?,
-    val lang: Locale?,
-    val description: String?,
+    val specs: String,
+    val name: String,
+    val logo: URI,
+    val region: String,
+    val lang: Locale,
+    val description: String,
     val authTypes: Set<AuthType<T>>,
     val asynchronousOperationMode: Boolean? = false,
     val methods: List<RSSPMethod>,
     val validationInfo: Boolean = false,
+    val documentTypes: List<String> = emptyList(),
 ) {
     init {
+        require(specs == "2.2.0.0") { "specs must be 2.2.0.0" }
+        require(name.length <= 255) { "name cannot be longer than 255 characters" }
+        require(description.length <= 255) { "description cannot be longer than 255 characters" }
         require(authTypes.isNotEmpty())
         require(methods.isNotEmpty())
     }

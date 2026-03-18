@@ -6,14 +6,8 @@
   "lang": "en-US",
   "description": "An efficient remote signature service",
   "authType": [
-    "basic",
-    "external",
-    "tls",
-    "digest",
-    "oauth2code",
-    "oauth2client"
+    "oauth2code"
   ],
-  "supportsRar": true,
   "oauth2Servers": [
     {
       "label": "oauth2 server1",
@@ -22,21 +16,9 @@
       "supportsRar": false
     }
   ],
+  "oauth2Issuer": "https://auth.domain.org",
   "methods": [
-    "info",
-    "auth/login",
-    "auth/revoke",
-    "credentials/list",
-    "credentials/info",
-    "credentials/authorize",
-    "credentials/authorizeCheck",
-    "credentials/getChallenge",
-    "credentials/extendTransaction",
-    "signatures/signPolling",
-    "signatures/timestamp",
-    "credentials/sendOTP",
-    "signatures/signHash",
-    "signatures/signDoc"
+    "info"
   ],
   "signAlgorithms": {
     "algos": [
@@ -45,11 +27,9 @@
   },
   "signature_formats": {
     "formats": [
-      "C"
+      "P"
     ]
   },
-    "conformance_levels": [
-    "Ades-B-B"
-  ],
+  "conformance_levels": ["Ades-B-B"],
   "supportedHashTypes": ["SHA-256"]
 }

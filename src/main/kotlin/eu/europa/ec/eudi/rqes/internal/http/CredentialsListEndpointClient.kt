@@ -156,25 +156,7 @@ internal class CredentialListCertificateTO(
     }
 }
 
-@Serializable
-internal class CredentialInfoCertificateTO(
-    @SerialName("status") val status: String? = null,
-    @SerialName("certificates") val certificates: List<String>? = null,
-    @SerialName("issuerDN") val issuerDN: String? = null,
-    @SerialName("serialNumber") val serialNumber: String? = null,
-    @SerialName("subjectDN") val subjectDN: String? = null,
-    @SerialName("validFrom") val validFrom: String? = null,
-    @SerialName("validTo") val validTo: String? = null,
-    @SerialName("qcStatements") val qcStatements: List<String> = emptyList(),
-    @SerialName("policy") val policy: List<String>? = null,
-) {
-    companion object {
-        fun CredentialInfoCertificateTO.toDomain(): CredentialCertificate =
-            toCertificate(status, certificates, issuerDN, serialNumber, subjectDN, validFrom, validTo, qcStatements, policy)
-    }
-}
-
-private fun toCertificate(
+internal fun toCertificate(
     status: String?,
     certificates: List<String>?,
     issuerDN: String?,

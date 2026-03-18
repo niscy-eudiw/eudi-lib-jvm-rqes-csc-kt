@@ -28,6 +28,24 @@ import kotlinx.serialization.Serializable
 import java.net.URL
 
 @Serializable
+internal class CredentialInfoCertificateTO(
+    @SerialName("status") val status: String? = null,
+    @SerialName("certificates") val certificates: List<String>? = null,
+    @SerialName("issuerDN") val issuerDN: String? = null,
+    @SerialName("serialNumber") val serialNumber: String? = null,
+    @SerialName("subjectDN") val subjectDN: String? = null,
+    @SerialName("validFrom") val validFrom: String? = null,
+    @SerialName("validTo") val validTo: String? = null,
+    @SerialName("qcStatements") val qcStatements: List<String> = emptyList(),
+    @SerialName("policy") val policy: List<String>? = null,
+) {
+    companion object {
+        fun CredentialInfoCertificateTO.toDomain(): CredentialCertificate =
+            toCertificate(status, certificates, issuerDN, serialNumber, subjectDN, validFrom, validTo, qcStatements, policy)
+    }
+}
+
+@Serializable
 private data class CredentialsInfoRequestTO(
     @SerialName("credentialID") val credentialID: String,
     @SerialName("certificates") val certificates: String? = Certificates.Single.toString(),
