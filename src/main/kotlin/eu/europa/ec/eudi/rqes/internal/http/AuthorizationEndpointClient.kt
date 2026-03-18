@@ -34,6 +34,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.net.URI
 import java.net.URL
+import kotlin.collections.map
+import kotlin.collections.toTypedArray
 import com.nimbusds.oauth2.sdk.Scope as NimbusScope
 
 internal sealed interface PushedAuthorizationRequestResponseTO {
@@ -129,50 +131,7 @@ internal class AuthorizationEndpointClient(
         val clientID = ClientID(cscClientConfig.client.clientId)
         val codeVerifier = CodeVerifier()
         val pushedAuthorizationRequest = run {
-            val request = AuthorizationRequest.Builder(ResponseType.CODE, clientID).apply {
-                redirectionURI(cscClientConfig.authFlowRedirectionURI)
-                codeChallenge(codeVerifier, CodeChallengeMethod.S256)
-                state(State(state))
-                if (scopes.isNotEmpty()) {
-                    scope(NimbusScope(*scopes.map { it.value }.toTypedArray()))
-                }
-                if (credentialAuthorizationRequestType != null && credentialAuthorizationRequestType
-                    is CredentialAuthorizationRequestType.PassByAuthorizationDetails
-                ) {
-                    authorizationDetails(
-                        listOf(
-                            credentialAuthorizationRequestType.credentialAuthorizationSubject.toNimbusAuthDetail(),
-                        ),
-                    )
-                } else if (credentialAuthorizationRequestType != null &&
-                    credentialAuthorizationRequestType is CredentialAuthorizationRequestType.PassByScope
-                ) {
-                    val subject = credentialAuthorizationRequestType.credentialAuthorizationSubject
-                    when (subject.credentialRef) {
-                        is CredentialRef.ByCredentialID -> customParameter(
-                            "credentialID",
-                            subject.credentialRef.credentialID.value,
-                        )
-
-                        is CredentialRef.BySignatureQualifier -> customParameter(
-                            "signatureQualifier",
-                            subject.credentialRef.signatureQualifier.value,
-                        )
-                    }
-                    customParameter(
-                        "hashes",
-                        subject.documentDigestList?.documentDigests?.joinToString(",") {
-                            it.hash.asBase64URLEncoded()
-                        } ?: "",
-                    )
-                    customParameter(
-                        "hashAlgorithmOID",
-                        subject.documentDigestList?.hashAlgorithmOID?.value ?: "",
-                    )
-                    customParameter("numSignatures", subject.numSignatures.toString())
-                }
-                prompt(Prompt.Type.LOGIN)
-            }.build()
+            val request = prepareAuthRequest(clientID, codeVerifier, state, scopes, credentialAuthorizationRequestType)
             PushedAuthorizationRequest(parEndpoint, request)
         }
         val response = pushAuthorizationRequest(parEndpoint, pushedAuthorizationRequest, cscClientConfig.client)
@@ -244,8 +203,24 @@ internal class AuthorizationEndpointClient(
 
         val clientID = ClientID(cscClientConfig.client.clientId)
         val codeVerifier = CodeVerifier()
-        val authorizationRequest = AuthorizationRequest.Builder(ResponseType.CODE, clientID).apply {
+        val authorizationRequest = prepareAuthRequest(clientID, codeVerifier, state, scopes, credentialAuthorizationRequestType) {
             endpointURI(authorizationEndpoint.toURI())
+        }
+
+        val pkceVerifier = PKCEVerifier(codeVerifier.value, CodeChallengeMethod.S256.toString())
+        val url = HttpsUrl(authorizationRequest.toURI().toString()).getOrThrow()
+        Triple(pkceVerifier, url, credentialAuthorizationRequestType)
+    }
+
+    private fun prepareAuthRequest(
+        clientID: ClientID,
+        codeVerifier: CodeVerifier,
+        state: String,
+        scopes: List<Scope>,
+        credentialAuthorizationRequestType: CredentialAuthorizationRequestType?,
+        customize: AuthorizationRequest.Builder.() -> Unit = {},
+    ) =
+        AuthorizationRequest.Builder(ResponseType.CODE, clientID).apply {
             redirectionURI(cscClientConfig.authFlowRedirectionURI)
             codeChallenge(codeVerifier, CodeChallengeMethod.S256)
             state(State(state))
@@ -271,7 +246,6 @@ internal class AuthorizationEndpointClient(
                         "credentialID",
                         subject.credentialRef.credentialID.value,
                     )
-
                     is CredentialRef.BySignatureQualifier -> customParameter(
                         "signatureQualifier",
                         subject.credentialRef.signatureQualifier.value,
@@ -290,13 +264,9 @@ internal class AuthorizationEndpointClient(
                 customParameter("numSignatures", subject.numSignatures.toString())
             }
 
+            customize()
             prompt(Prompt.Type.LOGIN)
         }.build()
-
-        val pkceVerifier = PKCEVerifier(codeVerifier.value, CodeChallengeMethod.S256.toString())
-        val url = HttpsUrl(authorizationRequest.toURI().toString()).getOrThrow()
-        Triple(pkceVerifier, url, credentialAuthorizationRequestType)
-    }
 }
 
 private object AuthorizationEndpointParams {
