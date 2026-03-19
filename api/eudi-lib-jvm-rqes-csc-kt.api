@@ -1720,11 +1720,11 @@ public final class eu/europa/ec/eudi/rqes/HashAlgorithmOID$Companion {
 	public final fun getMD5-MWIvy3w ()Ljava/lang/String;
 	public final fun getSHA3_224-MWIvy3w ()Ljava/lang/String;
 	public final fun getSHA3_256-MWIvy3w ()Ljava/lang/String;
-	public final fun getSHA3_385-MWIvy3w ()Ljava/lang/String;
+	public final fun getSHA3_384-MWIvy3w ()Ljava/lang/String;
 	public final fun getSHA3_512-MWIvy3w ()Ljava/lang/String;
 	public final fun getSHA_224-MWIvy3w ()Ljava/lang/String;
 	public final fun getSHA_256-MWIvy3w ()Ljava/lang/String;
-	public final fun getSHA_385-MWIvy3w ()Ljava/lang/String;
+	public final fun getSHA_384-MWIvy3w ()Ljava/lang/String;
 	public final fun getSHA_512-MWIvy3w ()Ljava/lang/String;
 }
 

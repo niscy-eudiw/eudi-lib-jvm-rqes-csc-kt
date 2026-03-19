@@ -69,11 +69,11 @@ value class HashAlgorithmOID(val value: String) {
     companion object {
         val SHA_224 = HashAlgorithmOID("2.16.840.1.101.3.4.2.4")
         val SHA_256 = HashAlgorithmOID("2.16.840.1.101.3.4.2.1")
-        val SHA_385 = HashAlgorithmOID("2.16.840.1.101.3.4.2.2")
+        val SHA_384 = HashAlgorithmOID("2.16.840.1.101.3.4.2.2")
         val SHA_512 = HashAlgorithmOID("2.16.840.1.101.3.4.2.3")
         val SHA3_224 = HashAlgorithmOID("2.16.840.1.101.3.4.2.7")
         val SHA3_256 = HashAlgorithmOID("2.16.840.1.101.3.4.2.8")
-        val SHA3_385 = HashAlgorithmOID("2.16.840.1.101.3.4.2.9")
+        val SHA3_384 = HashAlgorithmOID("2.16.840.1.101.3.4.2.9")
         val SHA3_512 = HashAlgorithmOID("2.16.840.1.101.3.4.2.10")
         val MD2 = HashAlgorithmOID("1.2.840.113549.2.2")
         val MD5 = HashAlgorithmOID("1.2.840.113549.2.5")
@@ -100,11 +100,6 @@ value class SigningAlgorithmOID(val value: String) {
         val X448 = SigningAlgorithmOID("1.3.101.111")
     }
 }
-
-data class Document(
-    val content: File,
-    val label: String?,
-)
 
 data class DocumentDigestList(
     val documentDigests: List<DocumentDigest>,
@@ -370,7 +365,11 @@ data class CredentialAuthorizationSubject(
     val credentialRef: CredentialRef,
     val documentDigestList: DocumentDigestList?,
     val numSignatures: Int,
-)
+) {
+    init {
+        require(numSignatures >= 1) { "numSignatures must be at least 1" }
+    }
+}
 
 sealed interface CredentialAuthorizationRequestType {
     val credentialAuthorizationSubject: CredentialAuthorizationSubject
