@@ -93,7 +93,7 @@ internal class ListCredentialInfoTO(
             key = key.toDomain(),
             certificate = certificate.toDomain(),
             authorization = auth.toDomain(),
-            scal = if (scal == "1") SCAL.One else SCAL.Two,
+            scal = SCAL.from(scal ?: "1"),
             multisign = multisign,
             lang = null,
         )

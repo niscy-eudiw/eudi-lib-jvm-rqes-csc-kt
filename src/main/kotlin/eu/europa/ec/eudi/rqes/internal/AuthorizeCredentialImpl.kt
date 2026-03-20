@@ -108,6 +108,9 @@ internal class AuthorizeCredentialImpl(
         }
 
         val credential = getCredentialInfo(authorizedCredentialID, accessToken)
+        require(credential.key.status == CredentialKeyStatus.Enabled) {
+            "Credential key is disabled and cannot be used"
+        }
 
         when (credential.scal) {
             SCAL.One ->
@@ -118,14 +121,15 @@ internal class AuthorizeCredentialImpl(
                 )
 
             SCAL.Two -> {
-                requireNotNull(credentialAuthorizationRequestType.credentialAuthorizationSubject.documentDigestList) {
-                    "Document list is required for SCAL 2"
-                }
+                val documentsDigests =
+                    requireNotNull(credentialAuthorizationRequestType.credentialAuthorizationSubject.documentDigestList) {
+                        "Document list is required for SCAL 2"
+                    }
                 CredentialAuthorized.SCAL2(
                     OAuth2Tokens(accessToken, refreshToken, timestamp),
                     credential.credentialID,
                     credential.certificate,
-                    credentialAuthorizationRequestType.credentialAuthorizationSubject.documentDigestList!!,
+                    documentsDigests,
                 )
             }
         }

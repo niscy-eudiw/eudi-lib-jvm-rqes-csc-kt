@@ -87,7 +87,7 @@ internal sealed interface CredentialInfoTO {
                 key = key.toDomain(),
                 certificate = certificate.toDomain(),
                 authorization = auth.toDomain(),
-                scal = if (scal == "2") SCAL.Two else SCAL.One,
+                scal = SCAL.from(scal ?: "1"),
                 multisign = multisign,
                 lang = null,
             )

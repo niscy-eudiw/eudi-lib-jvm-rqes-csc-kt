@@ -1620,20 +1620,6 @@ public final class eu/europa/ec/eudi/rqes/Digest$URLEncodedBase64Digest : eu/eur
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class eu/europa/ec/eudi/rqes/Document {
-	public static final field $stable I
-	public fun <init> (Ljava/io/File;Ljava/lang/String;)V
-	public final fun component1 ()Ljava/io/File;
-	public final fun component2 ()Ljava/lang/String;
-	public final fun copy (Ljava/io/File;Ljava/lang/String;)Leu/europa/ec/eudi/rqes/Document;
-	public static synthetic fun copy$default (Leu/europa/ec/eudi/rqes/Document;Ljava/io/File;Ljava/lang/String;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/Document;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getContent ()Ljava/io/File;
-	public final fun getLabel ()Ljava/lang/String;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
 public final class eu/europa/ec/eudi/rqes/DocumentDigest {
 	public static final field $stable I
 	public fun <init> (Leu/europa/ec/eudi/rqes/Digest;Ljava/lang/String;Leu/europa/ec/eudi/rqes/HashType;)V
@@ -2064,11 +2050,16 @@ public final class eu/europa/ec/eudi/rqes/RevocationServiceImpl : eu/europa/ec/e
 }
 
 public final class eu/europa/ec/eudi/rqes/SCAL : java/lang/Enum {
+	public static final field Companion Leu/europa/ec/eudi/rqes/SCAL$Companion;
 	public static final field One Leu/europa/ec/eudi/rqes/SCAL;
 	public static final field Two Leu/europa/ec/eudi/rqes/SCAL;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/SCAL;
 	public static fun values ()[Leu/europa/ec/eudi/rqes/SCAL;
+}
+
+public final class eu/europa/ec/eudi/rqes/SCAL$Companion {
+	public final fun from (Ljava/lang/String;)Leu/europa/ec/eudi/rqes/SCAL;
 }
 
 public final class eu/europa/ec/eudi/rqes/Scope {

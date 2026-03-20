@@ -40,7 +40,15 @@ data class CredentialInfo(
 )
 
 enum class SCAL {
-    One, Two
+    One, Two;
+
+    companion object {
+        fun from(value: String) = when (value) {
+            "1" -> One
+            "2" -> Two
+            else -> throw IllegalArgumentException("Unsupported SCAL value: $value")
+        }
+    }
 }
 
 data class CredentialKey(
