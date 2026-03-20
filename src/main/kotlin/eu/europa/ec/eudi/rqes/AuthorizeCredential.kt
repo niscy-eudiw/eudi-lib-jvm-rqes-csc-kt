@@ -25,17 +25,20 @@ sealed interface CredentialAuthorized : java.io.Serializable {
     val tokens: OAuth2Tokens
     val credentialID: CredentialID
     val credentialCertificate: CredentialCertificate
+    val numberOfSignatures: Int
 
     data class SCAL1(
         override val tokens: OAuth2Tokens,
         override val credentialID: CredentialID,
         override val credentialCertificate: CredentialCertificate,
+        override val numberOfSignatures: Int,
     ) : CredentialAuthorized
 
     data class SCAL2(
         override val tokens: OAuth2Tokens,
         override val credentialID: CredentialID,
         override val credentialCertificate: CredentialCertificate,
+        override val numberOfSignatures: Int,
         val documentDigestList: DocumentDigestList,
     ) : CredentialAuthorized
 }

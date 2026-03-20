@@ -118,6 +118,7 @@ internal class AuthorizeCredentialImpl(
                     OAuth2Tokens(accessToken, refreshToken, timestamp),
                     credential.credentialID,
                     credential.certificate,
+                    credential.multisign,
                 )
 
             SCAL.Two -> {
@@ -129,6 +130,7 @@ internal class AuthorizeCredentialImpl(
                     OAuth2Tokens(accessToken, refreshToken, timestamp),
                     credential.credentialID,
                     credential.certificate,
+                    credential.multisign,
                     documentsDigests,
                 )
             }

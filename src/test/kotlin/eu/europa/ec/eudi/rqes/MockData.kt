@@ -155,6 +155,7 @@ internal fun mockCredentialAuthorizedSCAL1() = CredentialAuthorized.SCAL1(
     ),
     mockCredential.credentialID,
     mockCredential.certificate,
+    1,
 )
 
 internal fun mockCredentialAuthorizedSCAL2() = CredentialAuthorized.SCAL2(
@@ -165,6 +166,7 @@ internal fun mockCredentialAuthorizedSCAL2() = CredentialAuthorized.SCAL2(
     ),
     mockCredential.credentialID,
     mockCredential.certificate,
+    1,
     mockDocumentDigestList,
 )
 

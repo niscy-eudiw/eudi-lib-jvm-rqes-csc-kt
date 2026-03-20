@@ -1302,20 +1302,23 @@ public final class eu/europa/ec/eudi/rqes/CredentialAuthorizationSubject {
 public abstract interface class eu/europa/ec/eudi/rqes/CredentialAuthorized : java/io/Serializable {
 	public abstract fun getCredentialCertificate ()Leu/europa/ec/eudi/rqes/CredentialCertificate;
 	public abstract fun getCredentialID-NlVgAl8 ()Ljava/lang/String;
+	public abstract fun getNumberOfSignatures ()I
 	public abstract fun getTokens ()Leu/europa/ec/eudi/rqes/OAuth2Tokens;
 }
 
 public final class eu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL1 : eu/europa/ec/eudi/rqes/CredentialAuthorized {
 	public static final field $stable I
-	public synthetic fun <init> (Leu/europa/ec/eudi/rqes/OAuth2Tokens;Ljava/lang/String;Leu/europa/ec/eudi/rqes/CredentialCertificate;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Leu/europa/ec/eudi/rqes/OAuth2Tokens;Ljava/lang/String;Leu/europa/ec/eudi/rqes/CredentialCertificate;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Leu/europa/ec/eudi/rqes/OAuth2Tokens;
 	public final fun component2-NlVgAl8 ()Ljava/lang/String;
 	public final fun component3 ()Leu/europa/ec/eudi/rqes/CredentialCertificate;
-	public final fun copy-miwLHSo (Leu/europa/ec/eudi/rqes/OAuth2Tokens;Ljava/lang/String;Leu/europa/ec/eudi/rqes/CredentialCertificate;)Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL1;
-	public static synthetic fun copy-miwLHSo$default (Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL1;Leu/europa/ec/eudi/rqes/OAuth2Tokens;Ljava/lang/String;Leu/europa/ec/eudi/rqes/CredentialCertificate;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL1;
+	public final fun component4 ()I
+	public final fun copy-HbLdyAo (Leu/europa/ec/eudi/rqes/OAuth2Tokens;Ljava/lang/String;Leu/europa/ec/eudi/rqes/CredentialCertificate;I)Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL1;
+	public static synthetic fun copy-HbLdyAo$default (Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL1;Leu/europa/ec/eudi/rqes/OAuth2Tokens;Ljava/lang/String;Leu/europa/ec/eudi/rqes/CredentialCertificate;IILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL1;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getCredentialCertificate ()Leu/europa/ec/eudi/rqes/CredentialCertificate;
 	public fun getCredentialID-NlVgAl8 ()Ljava/lang/String;
+	public fun getNumberOfSignatures ()I
 	public fun getTokens ()Leu/europa/ec/eudi/rqes/OAuth2Tokens;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
@@ -1323,17 +1326,19 @@ public final class eu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL1 : eu/europa
 
 public final class eu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL2 : eu/europa/ec/eudi/rqes/CredentialAuthorized {
 	public static final field $stable I
-	public synthetic fun <init> (Leu/europa/ec/eudi/rqes/OAuth2Tokens;Ljava/lang/String;Leu/europa/ec/eudi/rqes/CredentialCertificate;Leu/europa/ec/eudi/rqes/DocumentDigestList;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Leu/europa/ec/eudi/rqes/OAuth2Tokens;Ljava/lang/String;Leu/europa/ec/eudi/rqes/CredentialCertificate;ILeu/europa/ec/eudi/rqes/DocumentDigestList;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Leu/europa/ec/eudi/rqes/OAuth2Tokens;
 	public final fun component2-NlVgAl8 ()Ljava/lang/String;
 	public final fun component3 ()Leu/europa/ec/eudi/rqes/CredentialCertificate;
-	public final fun component4 ()Leu/europa/ec/eudi/rqes/DocumentDigestList;
-	public final fun copy-HbLdyAo (Leu/europa/ec/eudi/rqes/OAuth2Tokens;Ljava/lang/String;Leu/europa/ec/eudi/rqes/CredentialCertificate;Leu/europa/ec/eudi/rqes/DocumentDigestList;)Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL2;
-	public static synthetic fun copy-HbLdyAo$default (Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL2;Leu/europa/ec/eudi/rqes/OAuth2Tokens;Ljava/lang/String;Leu/europa/ec/eudi/rqes/CredentialCertificate;Leu/europa/ec/eudi/rqes/DocumentDigestList;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL2;
+	public final fun component4 ()I
+	public final fun component5 ()Leu/europa/ec/eudi/rqes/DocumentDigestList;
+	public final fun copy-eWvDEwI (Leu/europa/ec/eudi/rqes/OAuth2Tokens;Ljava/lang/String;Leu/europa/ec/eudi/rqes/CredentialCertificate;ILeu/europa/ec/eudi/rqes/DocumentDigestList;)Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL2;
+	public static synthetic fun copy-eWvDEwI$default (Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL2;Leu/europa/ec/eudi/rqes/OAuth2Tokens;Ljava/lang/String;Leu/europa/ec/eudi/rqes/CredentialCertificate;ILeu/europa/ec/eudi/rqes/DocumentDigestList;ILjava/lang/Object;)Leu/europa/ec/eudi/rqes/CredentialAuthorized$SCAL2;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getCredentialCertificate ()Leu/europa/ec/eudi/rqes/CredentialCertificate;
 	public fun getCredentialID-NlVgAl8 ()Ljava/lang/String;
 	public final fun getDocumentDigestList ()Leu/europa/ec/eudi/rqes/DocumentDigestList;
+	public fun getNumberOfSignatures ()I
 	public fun getTokens ()Leu/europa/ec/eudi/rqes/OAuth2Tokens;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
