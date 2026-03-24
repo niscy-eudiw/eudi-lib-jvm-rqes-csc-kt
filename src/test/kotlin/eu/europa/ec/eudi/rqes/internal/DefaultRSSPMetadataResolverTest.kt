@@ -224,6 +224,23 @@ internal class DefaultRSSPMetadataResolverTest {
     }
 
     @Test
+    fun `resolution fails when oauth2Servers do not collectively cover all oauth2 authTypes`() = runTest {
+        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
+            authServerWellKnownMocker(),
+            credentialIssuerMetaDataHandler(
+                SampleRSSP.Id,
+                "eu/europa/ec/eudi/rqes/internal/rssp_metadata_invalid_with_oauth2servers_not_covering_all_authtypes.json",
+            ),
+        )
+
+        val resolver = RSSPMetadataResolver(
+            mockedKtorHttpClientFactory,
+        )
+        val result = resolver.resolve(SampleRSSP.Id, Locale.forLanguageTag("en-US"))
+        assertTrue(result.isFailure, "Resolution should fail")
+    }
+
+    @Test
     fun `resolution fails when oauth2Server authType contains invalid value`() = runTest {
         val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
             authServerWellKnownMocker(),

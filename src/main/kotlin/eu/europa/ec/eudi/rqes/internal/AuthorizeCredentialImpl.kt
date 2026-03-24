@@ -112,6 +112,11 @@ internal class AuthorizeCredentialImpl(
             "Credential key is disabled and cannot be used"
         }
 
+        val authorizedNumOfSignatures = when {
+            credentialAuthorizationSubject == null -> credential.multisign
+            else -> credentialAuthorizationSubject.numSignatures
+        }
+
         when (credential.scal) {
             SCAL.One ->
                 CredentialAuthorized.SCAL1(
@@ -130,7 +135,7 @@ internal class AuthorizeCredentialImpl(
                     OAuth2Tokens(accessToken, refreshToken, timestamp),
                     credential.credentialID,
                     credential.certificate,
-                    credential.multisign,
+                    authorizedNumOfSignatures,
                     documentsDigests,
                 )
             }

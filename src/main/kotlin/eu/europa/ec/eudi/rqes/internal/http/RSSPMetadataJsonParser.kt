@@ -160,6 +160,11 @@ private fun authTypesSupported(
             require(grants.isNotEmpty()) {
                 "oauth2Servers SHALL only be present if authType contains $OAUTH2_CODE or $OAUTH2_CLIENT"
             }
+            val metadataOauth2Types = metadata.authTypes.filter { it in listOf(OAUTH2_CODE, OAUTH2_CLIENT) }.toSet()
+            val serversUnionAuthTypes = servers.flatMap { it.authType }.toSet()
+            require(metadataOauth2Types.all { it in serversUnionAuthTypes }) {
+                "oauth2Servers SHALL collectively satisfy all oauth2-related authTypes declared in metadata.authType"
+            }
             val authServerRefs = servers.mapNotNull { server ->
                 authServerRefFromOAuth2Server(server)
             }.toSet()
