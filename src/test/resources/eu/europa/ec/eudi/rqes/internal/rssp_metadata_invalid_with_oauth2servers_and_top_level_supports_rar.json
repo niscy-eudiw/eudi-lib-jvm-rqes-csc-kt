@@ -13,15 +13,21 @@
     "oauth2code",
     "oauth2client"
   ],
-  "oauth2Issuer": "https://auth.domain.org",
+  "supportsRar": true,
+  "oauth2Servers": [
+    {
+      "label": "oauth2 server1",
+      "baseUri": "https://auth.domain.org",
+      "authType": ["oauth2code"],
+      "supportsRar": false
+    }
+  ],
   "methods": [
     "info",
     "auth/login",
     "auth/revoke",
     "credentials/list",
     "credentials/info",
-    "credentials/create",
-    "credentials/delete",
     "credentials/authorize",
     "credentials/authorizeCheck",
     "credentials/getChallenge",
@@ -34,37 +40,16 @@
   ],
   "signAlgorithms": {
     "algos": [
-      "1.2.840.10045.4.3.2",
-      "1.2.840.113549.1.1.1",
-      "1.2.840.113549.1.1.10"
+      "1.2.840.10045.4.3.2"
     ]
   },
   "signature_formats": {
     "formats": [
-      "C",
-      "X",
-      "P"
-    ],
-    "envelope_properties": [
-      [
-        "Detached",
-        "Attached",
-        "Parallel"
-      ],
-      [
-        "Enveloped",
-        "Enveloping",
-        "Detached"
-      ],
-      [
-        "Certification",
-        "Revision"
-      ]
+      "C"
     ]
   },
     "conformance_levels": [
-    "AdeS-B-B",
-    "AdeS-B-T"
+    "Ades-B-B"
   ],
   "supportedHashTypes": ["SHA-256"]
 }

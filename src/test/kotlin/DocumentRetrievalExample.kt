@@ -48,7 +48,7 @@ fun main() {
                     """
                     mdoc-openid4vp://https//walletcentric.signer.eudiw.dev/rp?request_uri=
                     https://walletcentric.signer.eudiw.dev/rp/wallet/sd/LAIfYMo0H4O3L8Ua9AQutH7IWPQxrXpaTb3IfoQNze0
-                    &client_id=walletcentric.signer.eudiw.dev
+                    &.client_id=walletcentric.signer.eudiw.dev
                     """.trimIndent().replace("\n", ""),
                 )
 

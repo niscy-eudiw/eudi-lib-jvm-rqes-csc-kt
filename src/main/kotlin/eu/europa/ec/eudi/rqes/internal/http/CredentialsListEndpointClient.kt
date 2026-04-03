@@ -18,8 +18,8 @@ package eu.europa.ec.eudi.rqes.internal.http
 import eu.europa.ec.eudi.rqes.*
 import eu.europa.ec.eudi.rqes.internal.http.AuthenticationObjectTO.Companion.toDomain
 import eu.europa.ec.eudi.rqes.internal.http.CredentialAuthTO.Companion.toDomain
-import eu.europa.ec.eudi.rqes.internal.http.CredentialKeyCertificateTO.Companion.toDomain
 import eu.europa.ec.eudi.rqes.internal.http.CredentialKeyTO.Companion.toDomain
+import eu.europa.ec.eudi.rqes.internal.http.CredentialListCertificateTO.Companion.toDomain
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
@@ -79,7 +79,7 @@ internal class ListCredentialInfoTO(
     @SerialName("description") val description: String? = null,
     @SerialName("signatureQualifier") val signatureQualifier: String? = null,
     @SerialName("key") val key: CredentialKeyTO,
-    @SerialName("cert") val certificate: CredentialKeyCertificateTO,
+    @SerialName("cert") val certificate: CredentialListCertificateTO,
     @SerialName("auth") @Required val auth: CredentialAuthTO,
     @SerialName("SCAL") val scal: String? = "1",
     @SerialName("multisign") @Required val multisign: Int,
@@ -93,7 +93,7 @@ internal class ListCredentialInfoTO(
             key = key.toDomain(),
             certificate = certificate.toDomain(),
             authorization = auth.toDomain(),
-            scal = if (scal == "1") SCAL.One else SCAL.Two,
+            scal = SCAL.from(scal ?: "1"),
             multisign = multisign,
             lang = null,
         )
@@ -141,7 +141,7 @@ private fun toAuthorizationMode(value: String) =
     }
 
 @Serializable
-internal class CredentialKeyCertificateTO(
+internal class CredentialListCertificateTO(
     @SerialName("status") val status: String? = null,
     @SerialName("certificates") val certificates: List<String>? = null,
     @SerialName("issuerDN") val issuerDN: String? = null,
@@ -151,23 +151,38 @@ internal class CredentialKeyCertificateTO(
     @SerialName("validTo") val validTo: String? = null,
 ) {
     companion object {
-        fun CredentialKeyCertificateTO.toDomain(): CredentialCertificate = CredentialCertificate(
-            status = status?.let { toCertificateStatus(it) },
-            certificates = certificates?.map {
-                val certificateBytes: ByteArray = Base64.getDecoder().decode(it)
-                val inputStream = ByteArrayInputStream(certificateBytes)
-                val x509CertificateFactory = CertificateFactory.getInstance("X.509")
-                x509CertificateFactory.generateCertificate(inputStream) as X509Certificate
-            },
-            rawCertificates = certificates ?: emptyList(),
-            issuerDN = X500Principal(issuerDN),
-            serialNumber = serialNumber,
-            subjectDN = X500Principal(subjectDN),
-            validFrom = validFrom?.let { LocalDateTime.parse(it, DateTimeFormatter.ofPattern("yyyyMMddHHmmssX")) },
-            validTo = validTo?.let { LocalDateTime.parse(it, DateTimeFormatter.ofPattern("yyyyMMddHHmmssX")) },
-        )
+        fun CredentialListCertificateTO.toDomain(): CredentialCertificate =
+            toCertificate(status, certificates, issuerDN, serialNumber, subjectDN, validFrom, validTo)
     }
 }
+
+internal fun toCertificate(
+    status: String?,
+    certificates: List<String>?,
+    issuerDN: String?,
+    serialNumber: String?,
+    subjectDN: String?,
+    validFrom: String?,
+    validTo: String?,
+    qcStatements: List<String> = emptyList(),
+    policy: List<String>? = null,
+): CredentialCertificate = CredentialCertificate(
+    status = status?.let { toCertificateStatus(it) },
+    certificates = certificates?.map {
+        val certificateBytes: ByteArray = Base64.getDecoder().decode(it)
+        val inputStream = ByteArrayInputStream(certificateBytes)
+        val x509CertificateFactory = CertificateFactory.getInstance("X.509")
+        x509CertificateFactory.generateCertificate(inputStream) as X509Certificate
+    },
+    rawCertificates = certificates ?: emptyList(),
+    issuerDN = X500Principal(issuerDN),
+    serialNumber = serialNumber,
+    subjectDN = X500Principal(subjectDN),
+    validFrom = validFrom?.let { LocalDateTime.parse(it, DateTimeFormatter.ofPattern("yyyyMMddHHmmssX")) },
+    validTo = validTo?.let { LocalDateTime.parse(it, DateTimeFormatter.ofPattern("yyyyMMddHHmmssX")) },
+    qcStatements = qcStatements,
+    policy = policy,
+)
 
 @Serializable
 internal class CredentialAuthTO(

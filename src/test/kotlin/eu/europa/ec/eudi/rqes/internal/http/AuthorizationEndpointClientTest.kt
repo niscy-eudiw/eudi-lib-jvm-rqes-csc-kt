@@ -23,6 +23,7 @@ import java.net.URI
 import java.net.URLEncoder
 import java.time.Instant
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class AuthorizationEndpointClientTest {
@@ -80,6 +81,26 @@ class AuthorizationEndpointClientTest {
     }
 
     @Test
+    fun `should fail when RAR is required but authorization server does not support it`() = runTest {
+        // Given
+        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory()
+        val endpoint = authEndpointClient(
+            mockedKtorHttpClientFactory,
+            ParUsage.Never,
+            RarUsage.Required,
+            supportsRar = false,
+        )
+
+        // When
+        assertFailsWith<IllegalArgumentException> {
+            endpoint.submitParOrCreateAuthorizationRequestUrl(
+                listOf(Scope.Credential),
+                state = "state",
+            ).getOrThrow()
+        }
+    }
+
+    @Test
     fun `should fail when PAR is required but it fails`() = runTest {
         // Given
         val parEndpoint = URI("https://localhost:8084/oauth2/par")
@@ -122,9 +143,11 @@ class AuthorizationEndpointClientTest {
         clientFactory: KtorHttpClientFactory,
         parUsage: ParUsage,
         rarUsage: RarUsage,
+        supportsRar: Boolean = true,
     ) = AuthorizationEndpointClient(
         URI("https://localhost:8084/oauth2/authorize").toURL(),
         null,
+        supportsRar,
         CSCClientConfig(
             client = OAuth2Client.Public("wallet-client-tester"),
             authFlowRedirectionURI = URI("https://oauthdebugger.com/debug").toURL().toURI(),
@@ -138,9 +161,11 @@ class AuthorizationEndpointClientTest {
         clientFactory: KtorHttpClientFactory,
         parUsage: ParUsage,
         rarUsage: RarUsage,
+        supportsRar: Boolean = true,
     ) = AuthorizationEndpointClient(
         URI("https://localhost:8084/oauth2/authorize").toURL(),
         URI("https://localhost:8084/oauth2/par").toURL(),
+        supportsRar,
         CSCClientConfig(
             client = OAuth2Client.Public("wallet-client-tester"),
             authFlowRedirectionURI = URI("https://oauthdebugger.com/debug").toURL().toURI(),

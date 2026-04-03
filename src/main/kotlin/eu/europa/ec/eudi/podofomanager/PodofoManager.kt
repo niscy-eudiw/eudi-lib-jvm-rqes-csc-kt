@@ -81,6 +81,7 @@ class PodofoManager {
                     // the hashes produced by podofo are Base64 encoded and then URL encoded
                     hash = Digest.URLEncodedBase64Digest(urlEncodedBase64Hash),
                     label = documents[idx].label,
+                    hashType = HashType.DTBSR,
                 )
             }
 

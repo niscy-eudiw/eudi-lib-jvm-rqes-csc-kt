@@ -40,7 +40,15 @@ data class CredentialInfo(
 )
 
 enum class SCAL {
-    One, Two
+    One, Two;
+
+    companion object {
+        fun from(value: String) = when (value) {
+            "1" -> One
+            "2" -> Two
+            else -> throw IllegalArgumentException("Unsupported SCAL value: $value")
+        }
+    }
 }
 
 data class CredentialKey(
@@ -59,6 +67,8 @@ data class CredentialCertificate(
     val subjectDN: X500Principal?,
     val validFrom: LocalDateTime?,
     val validTo: LocalDateTime?,
+    val qcStatements: List<String>,
+    val policy: List<String>? = emptyList(),
 )
 
 sealed interface CredentialAuthorization {

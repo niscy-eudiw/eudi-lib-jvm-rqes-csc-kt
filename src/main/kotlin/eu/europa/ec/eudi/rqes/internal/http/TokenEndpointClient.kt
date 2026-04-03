@@ -25,6 +25,7 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
+import kotlinx.serialization.Required
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.net.URI
@@ -86,12 +87,13 @@ internal sealed interface TokenResponseTO {
                                     DocumentDigest(
                                         hash = Digest.Base64Digest(it.hash),
                                         label = it.label,
+                                        hashType = it.hashType?.let { hashType -> HashType.valueOf(hashType) },
                                     )
                                 },
                                 hashAlgorithmOID = HashAlgorithmOID(authorizationDetails.first().hashAlgorithmOID),
                                 hashCalculationTime = Instant.now(),
                             ),
-                            authorizationDetails.first().numSignatures?.toInt(),
+                            authorizationDetails.first().numSignatures,
                         )
                     },
                 )
@@ -105,15 +107,17 @@ internal sealed interface TokenResponseTO {
 internal data class AuthorizationDetailTO(
     @SerialName("type") val type: String,
     @SerialName("credentialID") val credentialID: String,
-    @SerialName("numSignatures") val numSignatures: String? = "1",
+    @SerialName("numSignatures") val numSignatures: Int,
     @SerialName("documentDigests") val documentDigests: List<DocumentDigestTO>,
     @SerialName("hashAlgorithmOID") val hashAlgorithmOID: String,
 )
 
 @Serializable
 internal data class DocumentDigestTO(
-    @SerialName("hash") val hash: String,
-    @SerialName("label") val label: String?,
+    @SerialName("hash") @Required val hash: String,
+    @SerialName("label") val label: String? = null,
+    @SerialName("hashType") val hashType: String? = HashType.DTBSR.name,
+    @SerialName("circumstantialData") val circumstantialData: String? = null,
 )
 
 internal class TokenEndpointClient(

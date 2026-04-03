@@ -1,0 +1,34 @@
+{
+  "specs": "2.2.0.0",
+  "name": "ACME Trust Services",
+  "logo": "https://service.domain.org/images/logo.png",
+  "region": "IT",
+  "lang": "en-US",
+  "description": "An efficient remote signature service",
+  "authType": [
+    "oauth2code"
+  ],
+  "oauth2Servers": [
+    {
+      "label": "oauth2 server1",
+      "baseUri": "https://auth.domain.org",
+      "authType": ["basic"],
+      "supportsRar": false
+    }
+  ],
+  "methods": [
+    "info"
+  ],
+  "signAlgorithms": {
+    "algos": [
+      "1.2.840.10045.4.3.2"
+    ]
+  },
+  "signature_formats": {
+    "formats": [
+      "P"
+    ]
+  },
+  "conformance_levels": ["Ades-B-B"],
+  "supportedHashTypes": ["SHA-256"]
+}

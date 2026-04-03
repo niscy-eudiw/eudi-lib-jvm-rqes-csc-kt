@@ -25,17 +25,20 @@ sealed interface CredentialAuthorized : java.io.Serializable {
     val tokens: OAuth2Tokens
     val credentialID: CredentialID
     val credentialCertificate: CredentialCertificate
+    val numberOfSignatures: Int
 
     data class SCAL1(
         override val tokens: OAuth2Tokens,
         override val credentialID: CredentialID,
         override val credentialCertificate: CredentialCertificate,
+        override val numberOfSignatures: Int,
     ) : CredentialAuthorized
 
     data class SCAL2(
         override val tokens: OAuth2Tokens,
         override val credentialID: CredentialID,
         override val credentialCertificate: CredentialCertificate,
+        override val numberOfSignatures: Int,
         val documentDigestList: DocumentDigestList,
     ) : CredentialAuthorized
 }
@@ -51,7 +54,7 @@ interface AuthorizeCredential {
      * Initial step for the credential authorization process using the Authorization code flow.
      * @param credentialAuthorizationSubject the subject of the credential authorization request
      * @param walletState an optional parameter that if provided will be included in the authorization request.
-     * If it is not provided,  a random value will be used
+     * If it is not provided, a random value will be used
      * @see <a href="https://www.rfc-editor.org/rfc/rfc7636.html">RFC7636</a>
      * @return an HTTPS URL of the authorization request to be placed
      */

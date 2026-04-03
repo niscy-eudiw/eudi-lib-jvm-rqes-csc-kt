@@ -109,19 +109,6 @@ fun main() {
                 listCredentials(CredentialsListRequest()).getOrThrow()
             }
 
-            // old (r3)
-//            val documentToSign = DocumentToSign(
-//                Document(
-//                    File(ClassLoader.getSystemResource("sample.pdf").path),
-//                    "A sample pdf",
-//                ),
-//                SignatureFormat.P,
-//                ConformanceLevel.ADES_B_B,
-//                SigningAlgorithmOID.RSA,
-//                SignedEnvelopeProperty.ENVELOPED,
-//                ASICContainer.NONE,
-//            )
-
             // new (R5)
             val documentToSign = DocumentToSign(
                 "/storage/emulated/0/Android/data/com.example.demorqesmobile/files/Documents/sample.pdf", // input path

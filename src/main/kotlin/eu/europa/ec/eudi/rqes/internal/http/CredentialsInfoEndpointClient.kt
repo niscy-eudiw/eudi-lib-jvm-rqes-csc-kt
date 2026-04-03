@@ -17,7 +17,7 @@ package eu.europa.ec.eudi.rqes.internal.http
 
 import eu.europa.ec.eudi.rqes.*
 import eu.europa.ec.eudi.rqes.internal.http.CredentialAuthTO.Companion.toDomain
-import eu.europa.ec.eudi.rqes.internal.http.CredentialKeyCertificateTO.Companion.toDomain
+import eu.europa.ec.eudi.rqes.internal.http.CredentialInfoCertificateTO.Companion.toDomain
 import eu.europa.ec.eudi.rqes.internal.http.CredentialKeyTO.Companion.toDomain
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -26,6 +26,24 @@ import kotlinx.serialization.Required
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.net.URL
+
+@Serializable
+internal class CredentialInfoCertificateTO(
+    @SerialName("status") val status: String? = null,
+    @SerialName("certificates") val certificates: List<String>? = null,
+    @SerialName("issuerDN") val issuerDN: String? = null,
+    @SerialName("serialNumber") val serialNumber: String? = null,
+    @SerialName("subjectDN") val subjectDN: String? = null,
+    @SerialName("validFrom") val validFrom: String? = null,
+    @SerialName("validTo") val validTo: String? = null,
+    @SerialName("qcStatements") val qcStatements: List<String> = emptyList(),
+    @SerialName("policy") val policy: List<String>? = null,
+) {
+    companion object {
+        fun CredentialInfoCertificateTO.toDomain(): CredentialCertificate =
+            toCertificate(status, certificates, issuerDN, serialNumber, subjectDN, validFrom, validTo, qcStatements, policy)
+    }
+}
 
 @Serializable
 private data class CredentialsInfoRequestTO(
@@ -55,7 +73,7 @@ internal sealed interface CredentialInfoTO {
         @SerialName("description") val description: String? = null,
         @SerialName("signatureQualifier") val signatureQualifier: String? = null,
         @SerialName("key") val key: CredentialKeyTO,
-        @SerialName("cert") val certificate: CredentialKeyCertificateTO,
+        @SerialName("cert") val certificate: CredentialInfoCertificateTO,
         @SerialName("auth") @Required val auth: CredentialAuthTO,
         @SerialName("SCAL") val scal: String? = "1",
         @SerialName("multisign") @Required val multisign: Int,
@@ -69,7 +87,7 @@ internal sealed interface CredentialInfoTO {
                 key = key.toDomain(),
                 certificate = certificate.toDomain(),
                 authorization = auth.toDomain(),
-                scal = if (scal == "2") SCAL.Two else SCAL.One,
+                scal = SCAL.from(scal ?: "1"),
                 multisign = multisign,
                 lang = null,
             )

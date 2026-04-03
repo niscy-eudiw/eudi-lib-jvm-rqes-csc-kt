@@ -25,6 +25,10 @@ internal class SignHashImpl(private val signHashEndpointClient: SignHashEndpoint
         signingAlgorithmOID: SigningAlgorithmOID,
         signingAlgorithmParams: String?,
     ): Result<SignaturesList> = runCatching {
+        require(documentDigestList.documentDigests.size <= numberOfSignatures) {
+            "The authorized number of signatures ($numberOfSignatures) is exceeded " +
+                "by the number of documents to sign (${documentDigestList.documentDigests.size})"
+        }
         signHashEndpointClient.signHashes(
             credentialID,
             documentDigestList.documentDigests.map { it.hash.asBase64() },
@@ -39,6 +43,10 @@ internal class SignHashImpl(private val signHashEndpointClient: SignHashEndpoint
         signingAlgorithmOID: SigningAlgorithmOID,
         signingAlgorithmParams: String?,
     ): Result<SignaturesList> = runCatching {
+        require(documentDigestList.documentDigests.size <= numberOfSignatures) {
+            "The authorized number of signatures ($numberOfSignatures) is exceeded " +
+                "by the number of documents to sign (${documentDigestList.documentDigests.size})"
+        }
         signHashEndpointClient.signHashes(
             credentialID,
             documentDigestList.documentDigests.map(DocumentDigest::hash).map { it.asBase64() },

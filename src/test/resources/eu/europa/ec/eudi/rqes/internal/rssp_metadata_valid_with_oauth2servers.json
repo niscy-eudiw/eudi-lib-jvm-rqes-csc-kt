@@ -13,15 +13,26 @@
     "oauth2code",
     "oauth2client"
   ],
-  "oauth2Issuer": "https://auth.domain.org",
+  "oauth2Servers": [
+    {
+      "label": "oauth2 server1",
+      "baseUri": "https://auth.domain.org",
+      "authType": ["oauth2code"],
+      "supportsRar": false
+    },
+    {
+      "label": "oauth2 server2",
+      "issuerIdentifier": "https://auth.domain.org",
+      "authType": ["oauth2code", "oauth2client"],
+      "supportsRar": true
+    }
+  ],
   "methods": [
     "info",
     "auth/login",
     "auth/revoke",
     "credentials/list",
     "credentials/info",
-    "credentials/create",
-    "credentials/delete",
     "credentials/authorize",
     "credentials/authorizeCheck",
     "credentials/getChallenge",
@@ -63,8 +74,8 @@
     ]
   },
     "conformance_levels": [
-    "AdeS-B-B",
-    "AdeS-B-T"
+    "Ades-B-B",
+    "Ades-B-T"
   ],
   "supportedHashTypes": ["SHA-256"]
 }

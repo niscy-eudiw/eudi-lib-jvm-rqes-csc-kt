@@ -35,6 +35,7 @@ internal fun mockPublicClient(
     ktorHttpClientFactory: KtorHttpClientFactory,
     parUsage: ParUsage = ParUsage.Never,
     rarUsage: RarUsage = RarUsage.IfSupported,
+    supportsRar: Boolean = false,
     tsaurl: String? = URI("http://ts.cartaodecidadao.pt/tsa/server").toString(),
     includeRevocationInfo: Boolean = false,
 ) =
@@ -43,6 +44,7 @@ internal fun mockPublicClient(
         ktorHttpClientFactory,
         parUsage,
         rarUsage,
+        supportsRar,
         tsaurl,
         includeRevocationInfo,
     )
@@ -51,6 +53,7 @@ internal fun mockConfidentialClient(
     ktorHttpClientFactory: KtorHttpClientFactory,
     parUsage: ParUsage = ParUsage.Never,
     rarUsage: RarUsage = RarUsage.IfSupported,
+    supportsRar: Boolean = false,
     tsaurl: String? = URI("http://ts.cartaodecidadao.pt/tsa/server").toString(),
     includeRevocationInfo: Boolean = false,
 ) = mockClient(
@@ -58,6 +61,7 @@ internal fun mockConfidentialClient(
     ktorHttpClientFactory,
     parUsage,
     rarUsage,
+    supportsRar,
     tsaurl,
     includeRevocationInfo,
 )
@@ -67,10 +71,11 @@ private fun mockClient(
     ktorHttpClientFactory: KtorHttpClientFactory,
     parUsage: ParUsage = ParUsage.Never,
     rarUsage: RarUsage = RarUsage.IfSupported,
+    supportsRar: Boolean = false,
     tsaurl: String? = URI("http://ts.cartaodecidadao.pt/tsa/server").toString(),
     includeRevocationInfo: Boolean = false,
 ) = CSCClient.oauth2(
-    rsspMetadata = rsspMetadata(),
+    rsspMetadata = rsspMetadata(supportsRar),
     cscClientConfig = CSCClientConfig(
         oauth2Client,
         URI("https://example.com/redirect"),
@@ -91,7 +96,7 @@ internal fun RSSPId.info() = HttpsUrl(
  */
 internal fun rsspMetadata() = RSSPMetadata(
     rsspId = SampleRSSP.Id,
-    specs = "2.0.0.0",
+    specs = "2.2.0.0",
     name = "ACME Trust Services",
     logo = URI("https://service.domain.org/images/logo.png"),
     region = "IT",
@@ -99,7 +104,23 @@ internal fun rsspMetadata() = RSSPMetadata(
     description = "An efficient remote signature service",
     authTypes = setOf(
         AuthType.Basic,
-        AuthType.OAuth2(authorizationServerMetadata, setOf(Oauth2Grant.AuthorizationCode)),
+        AuthType.OAuth2(setOf(authorizationServerMetadata(false))),
+    ),
+
+    methods = methods,
+)
+
+internal fun rsspMetadata(supportsRar: Boolean) = RSSPMetadata(
+    rsspId = SampleRSSP.Id,
+    specs = "2.2.0.0",
+    name = "ACME Trust Services",
+    logo = URI("https://service.domain.org/images/logo.png"),
+    region = "IT",
+    lang = Locale.forLanguageTag("en-US"),
+    description = "An efficient remote signature service",
+    authTypes = setOf(
+        AuthType.Basic,
+        AuthType.OAuth2(setOf(authorizationServerMetadata(supportsRar))),
     ),
 
     methods = methods,
@@ -115,8 +136,8 @@ private val methods = listOf(
     RSSPMethod.SignaturesSignHash,
 )
 
-private val authorizationServerMetadata =
-    asMetadata(HttpsUrl("https://auth.domain.org").getOrThrow())
+private fun authorizationServerMetadata(supportsRar: Boolean) =
+    asMetadata(HttpsUrl("https://auth.domain.org").getOrThrow(), supportsRar = supportsRar)
 
 internal val mockServiceAccessAuthorized = ServiceAccessAuthorized(
     OAuth2Tokens(
@@ -134,6 +155,7 @@ internal fun mockCredentialAuthorizedSCAL1() = CredentialAuthorized.SCAL1(
     ),
     mockCredential.credentialID,
     mockCredential.certificate,
+    1,
 )
 
 internal fun mockCredentialAuthorizedSCAL2() = CredentialAuthorized.SCAL2(
@@ -144,6 +166,7 @@ internal fun mockCredentialAuthorizedSCAL2() = CredentialAuthorized.SCAL2(
     ),
     mockCredential.credentialID,
     mockCredential.certificate,
+    1,
     mockDocumentDigestList,
 )
 
@@ -241,6 +264,7 @@ internal val mockCredential = CredentialInfo(
         subjectDN = X500Principal("C=FC, GIVENNAME=FirstName, SURNAME=TesterUser, CN=FirstName TesterUser"),
         validFrom = LocalDateTime.now().minusDays(1),
         validTo = LocalDateTime.now().plusYears(1),
+        qcStatements = listOf("0.4.0.1862.1.1", "0.4.0.1862.1.2"),
     ),
     CredentialAuthorization.OAuth2Code(AuthorizationMode.OAuth2Code),
     SCAL.Two,

@@ -18,7 +18,7 @@ the [EUDI Wallet Reference Implementation project description](https://github.co
 ## Overview
 
 This is a Kotlin library, targeting Android, that supports
-the [Cloud Signature Consortium API (version 2)](https://cloudsignatureconsortium.org/wp-content/uploads/2023/04/csc-api-v2.0.0.2.pdf)
+the [Cloud Signature Consortium API (version 2.2)](https://cloudsignatureconsortium.org/resources/csc-api-v2-2/)
 protocol.
 
 See [CHANGELOG.md](./CHANGELOG.md) for the latest updates.

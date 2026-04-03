@@ -15,6 +15,7 @@
  */
 package eu.europa.ec.eudi.rqes.internal
 
+import com.nimbusds.oauth2.sdk.GrantType
 import com.nimbusds.oauth2.sdk.`as`.AuthorizationServerMetadata
 import com.nimbusds.oauth2.sdk.`as`.ReadOnlyAuthorizationServerMetadata
 import com.nimbusds.oauth2.sdk.id.Issuer
@@ -30,11 +31,9 @@ import java.net.URI
 import java.util.*
 
 internal sealed interface AuthorizationServerRef {
-    @JvmInline
-    value class IssuerClaim(val value: HttpsUrl) : AuthorizationServerRef
+    data class IssuerClaim(val value: HttpsUrl, val grants: List<String>, val supportsRar: Boolean) : AuthorizationServerRef
 
-    @JvmInline
-    value class CSCAuth2Claim(val value: HttpsUrl) : AuthorizationServerRef
+    data class CSCAuth2Claim(val value: HttpsUrl, val grants: List<String>, val supportsRar: Boolean) : AuthorizationServerRef
 }
 
 internal class DefaultRSSPMetadataResolver(
@@ -70,15 +69,19 @@ internal class DefaultRSSPMetadataResolver(
         serverRef: AuthorizationServerRef,
     ): CSCAuthorizationServerMetadata = when (serverRef) {
         is AuthorizationServerRef.IssuerClaim ->
-            DefaultAuthorizationServerMetadataResolver(httpClient).resolve(serverRef.value).getOrThrow()
+            DefaultAuthorizationServerMetadataResolver(httpClient)
+                .resolve(serverRef.value)
+                .getOrThrow()
+                .withAdvertisedRarSupport(serverRef.supportsRar)
 
         is AuthorizationServerRef.CSCAuth2Claim ->
-            asMetadata(serverRef.value)
+            asMetadata(serverRef.value, serverRef.supportsRar)
     }
 }
 
 internal fun asMetadata(
     oauth2Url: HttpsUrl,
+    supportsRar: Boolean,
 ): CSCAuthorizationServerMetadata {
     val issuer = Issuer(oauth2Url.toString())
     val meta = AuthorizationServerMetadata(issuer).apply {
@@ -86,9 +89,24 @@ internal fun asMetadata(
         authorizationEndpointURI = URI("$oauth2Url/oauth2/authorize")
         pushedAuthorizationRequestEndpointURI = URI("$oauth2Url/oauth2/pushed_authorize")
         revocationEndpointURI = URI("$oauth2Url/revoke")
+        grantTypes = listOf(GrantType.AUTHORIZATION_CODE)
     }
-    return object : ReadOnlyAuthorizationServerMetadata by meta {}
+    return (object : ReadOnlyAuthorizationServerMetadata by meta {}).withAdvertisedRarSupport(supportsRar)
 }
+
+internal interface RarSupportAwareAuthorizationServerMetadata {
+    val supportsRar: Boolean
+}
+
+internal fun CSCAuthorizationServerMetadata.supportsRar(): Boolean =
+    (this as? RarSupportAwareAuthorizationServerMetadata)?.supportsRar ?: false
+
+private fun CSCAuthorizationServerMetadata.withAdvertisedRarSupport(
+    supportsRar: Boolean,
+): CSCAuthorizationServerMetadata =
+    object : ReadOnlyAuthorizationServerMetadata by this, RarSupportAwareAuthorizationServerMetadata {
+        override val supportsRar: Boolean = supportsRar
+    }
 
 private fun RSSPId.info() = URLBuilder(Url(value.value.toURI()))
     .appendPathSegments("/info", encodeSlash = false)
