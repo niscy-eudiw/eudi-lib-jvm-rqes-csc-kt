@@ -1,22 +1,22 @@
 [versions]
-agp = "8.2.0"
-kotlin = "2.1.21"
+agp = "8.12.2"
+kotlin = "2.2.21"
 coroutines = "1.10.2"
-dependency-check = "12.1.1"
+dependency-check = "12.2.0"
 spotless = "6.25.0"
-nimbus-sdk = "11.20.1"
-ktor = "3.2.3"
-jsoup = "1.18.3"
+nimbus-sdk = "11.37"
+ktor = "3.3.3"
+jsoup = "1.22.1"
 java = "17"
 ktlint = "0.50.0"
-dokka = "2.1.0"
-maven-publish = "0.34.0"
-binary-compatibility-validator = "0.16.3"
-uri-kmp = "0.0.18"
-kover = "0.9.1"
-composeBom = "2024.06.00"
-composeCompiler = "1.5.13"
-eudi-podofo="0.3.1"
+dokka = "2.2.0"
+maven-publish = "0.35.0"
+binary-compatibility-validator = "0.18.1"
+uri-kmp = "0.0.21"
+kover = "0.9.8"
+composeBom = "2026.03.00"
+eudi-podofo = "0.3.1"
+kotlinx-serialization = "1.9.0"
 
 [libraries]
 nimbus-oauth2-oidc-sdk = { module = "com.nimbusds:oauth2-oidc-sdk", version.ref = "nimbus-sdk" }
@@ -35,6 +35,7 @@ uri-kmp = { module = "com.eygraber:uri-kmp", version.ref = "uri-kmp" }
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
 eudi-podofo = { module = "eu.europa.ec.eudi:eudi-lib-android-podofo", version.ref = "eudi-podofo" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 
 [plugins]
 android-library = { id = "com.android.library", version.ref = "agp" }

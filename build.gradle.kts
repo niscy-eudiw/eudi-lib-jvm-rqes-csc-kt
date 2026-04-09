@@ -1,5 +1,5 @@
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
-import org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.net.URI
 
 object Meta {
@@ -32,16 +32,14 @@ android {
         targetCompatibility = JavaVersion.toVersion(libs.versions.java.get())
     }
 
-    kotlinOptions {
-        jvmTarget = libs.versions.java.get()
-    }
-
     buildFeatures {
         compose = true
     }
+}
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.fromTarget(libs.versions.java.get())
     }
 }
 
@@ -50,6 +48,7 @@ dependencies {
     api(libs.ktor.client.core)
     api(libs.ktor.client.content.negotiation)
     api(libs.ktor.client.serialization)
+    api(libs.kotlinx.serialization.json)
     api(libs.ktor.serialization.kotlinx.json)
     implementation(libs.uri.kmp)
     implementation(libs.eudi.podofo)
@@ -133,9 +132,10 @@ mavenPublishing {
     }
 }
 
-val nvdApiKey: String? = System.getenv("NVD_API_KEY") ?: properties["nvdApiKey"]?.toString()
-val dependencyCheckExtension = extensions.findByType(DependencyCheckExtension::class.java)
-dependencyCheckExtension?.apply {
+dependencyCheck {
     formats = mutableListOf("XML", "HTML")
-    nvd.apiKey = nvdApiKey ?: ""
+
+    nvd {
+        apiKey = System.getenv("NVD_API_KEY") ?: properties["nvdApiKey"]?.toString() ?: ""
+    }
 }
