@@ -225,8 +225,8 @@ private fun SignedJWT.requestObject(): UnvalidatedRequestObject {
             nonce = getStringClaim("nonce"),
             state = getStringClaim("state"),
             signatureQualifier = getStringClaim("signatureQualifier"),
-            documentDigests = getListClaim("documentDigests").asJsonArray(),
-            documentLocations = getListClaim("documentLocations").asJsonArray(),
+            documentDigests = getListClaim("documentDigests")?.asJsonArray(),
+            documentLocations = getListClaim("documentLocations")?.asJsonArray(),
             hashAlgorithmOID = getStringClaim("hashAlgorithmOID"),
             clientData = getStringClaim("clientData"),
         )
