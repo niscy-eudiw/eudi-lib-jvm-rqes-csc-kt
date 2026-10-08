@@ -13,7 +13,6 @@ plugins {
     alias(libs.plugins.dokka)
     alias(libs.plugins.spotless)
     alias(libs.plugins.kover)
-    alias(libs.plugins.dependency.check)
     alias(libs.plugins.maven.publish)
     alias(libs.plugins.binary.compatibility.validator)
 }
@@ -125,13 +124,5 @@ mavenPublishing {
             developerConnection.set("scm:git:ssh://git@github.com" + Meta.BASE_URL.substringAfter("https://github.com") + ".git")
             url.set(Meta.BASE_URL)
         }
-    }
-}
-
-dependencyCheck {
-    formats = mutableListOf("XML", "HTML")
-
-    nvd {
-        apiKey = System.getenv("NVD_API_KEY") ?: properties["nvdApiKey"]?.toString() ?: ""
     }
 }

@@ -2,7 +2,6 @@
 agp = "8.12.2"
 kotlin = "2.2.21"
 coroutines = "1.10.2"
-dependency-check = "12.2.0"
 spotless = "6.25.0"
 nimbus-sdk = "11.37"
 ktor = "3.3.3"
@@ -37,7 +36,7 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 [plugins]
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-dependency-check = { id = "org.owasp.dependencycheck", version.ref = "dependency-check" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
