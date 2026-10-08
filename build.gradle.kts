@@ -19,7 +19,7 @@ plugins {
 
 android {
     namespace = "eu.europa.ec.eudi.rqes.csc"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 26
@@ -56,6 +56,7 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.jsoup)
     testImplementation(kotlin("test"))
+    testImplementation(libs.junit.jupiter.api)
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.ktor.server.content.negotiation)
     testImplementation(libs.ktor.client.mock)
