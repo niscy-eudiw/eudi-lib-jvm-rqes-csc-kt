@@ -27,117 +27,129 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class AuthorizationEndpointClientTest {
-
     @Test
-    fun `should prepare credential authorization request without PAR, without RAR`() = runTest {
-        // Given
-        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory()
+    fun `should prepare credential authorization request without PAR, without RAR`() =
+        runTest {
+            // Given
+            val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory()
 
-        val credentialID = CredentialID("83c7c559-db74-48da-aacc-d439d415cb81")
-        val hash1 = Digest.Base64Digest("sTOgwOm+474gFj0q0x1iSNspKqbcse4IeiqlDg/HWuI=")
-        val hash2 = Digest.Base64Digest("c1RPZ3dPbSs0NzRnRmowcTB4MWlTTnNwS3FiY3NlNEllaXFsRGcvSFd1ST0=")
+            val credentialID = CredentialID("83c7c559-db74-48da-aacc-d439d415cb81")
+            val hash1 = Digest.Base64Digest("sTOgwOm+474gFj0q0x1iSNspKqbcse4IeiqlDg/HWuI=")
+            val hash2 = Digest.Base64Digest("c1RPZ3dPbSs0NzRnRmowcTB4MWlTTnNwS3FiY3NlNEllaXFsRGcvSFd1ST0=")
 
-        val credentialAuthorizationSubject = credentialAuthorizationSubject(credentialID, listOf(hash1, hash2))
-        val endpoint = authEndpointClient(mockedKtorHttpClientFactory, ParUsage.Never, RarUsage.Never)
+            val credentialAuthorizationSubject = credentialAuthorizationSubject(credentialID, listOf(hash1, hash2))
+            val endpoint = authEndpointClient(mockedKtorHttpClientFactory, ParUsage.Never, RarUsage.Never)
 
-        // When
-        val result = endpoint.submitParOrCreateAuthorizationRequestUrl(
-            listOf(Scope.Credential),
-            credentialAuthorizationSubject,
-            "state",
-        ).getOrThrow()
+            // When
+            val result =
+                endpoint
+                    .submitParOrCreateAuthorizationRequestUrl(
+                        listOf(Scope.Credential),
+                        credentialAuthorizationSubject,
+                        "state",
+                    ).getOrThrow()
 
-        val authUrl = result.second.value.toString()
-        // Assert
-        assertTrue(authUrl.startsWith("https://localhost:8084/oauth2/authorize"))
-        assertTrue(authUrl.contains(hash1.asBase64URLEncoded()))
-        assertTrue(authUrl.contains(URLEncoder.encode(credentialID.value, Charsets.UTF_8)))
-    }
-
-    @Test
-    fun `should prepare credential authorization request without PAR, with RAR`() = runTest {
-        // Given
-        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory()
-
-        val credentialID = CredentialID("83c7c559-db74-48da-aacc-d439d415cb81")
-        val hash1 = Digest.Base64Digest("sTOgwOm+474gFj0q0x1iSNspKqbcse4IeiqlDg/HWuI=")
-        val hash2 = Digest.Base64Digest("c1RPZ3dPbSs0NzRnRmowcTB4MWlTTnNwS3FiY3NlNEllaXFsRGcvSFd1ST0=")
-
-        val credentialAuthorizationSubject = credentialAuthorizationSubject(credentialID, listOf(hash1, hash2))
-        val endpoint = authEndpointClient(mockedKtorHttpClientFactory, ParUsage.Never, RarUsage.Required)
-
-        // When
-        val result = endpoint.submitParOrCreateAuthorizationRequestUrl(
-            listOf(Scope.Credential),
-            credentialAuthorizationSubject,
-            "state",
-        ).getOrThrow()
-
-        val authUrl = result.second.value.toString()
-        // Assert
-        assertTrue(authUrl.startsWith("https://localhost:8084/oauth2/authorize"))
-        assertTrue(authUrl.contains(URLEncoder.encode(hash2.asBase64(), Charsets.UTF_8)))
-        assertTrue(authUrl.contains(URLEncoder.encode(credentialID.value, Charsets.UTF_8)))
-    }
-
-    @Test
-    fun `should fail when RAR is required but authorization server does not support it`() = runTest {
-        // Given
-        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory()
-        val endpoint = authEndpointClient(
-            mockedKtorHttpClientFactory,
-            ParUsage.Never,
-            RarUsage.Required,
-            supportsRar = false,
-        )
-
-        // When
-        assertFailsWith<IllegalArgumentException> {
-            endpoint.submitParOrCreateAuthorizationRequestUrl(
-                listOf(Scope.Credential),
-                state = "state",
-            ).getOrThrow()
+            val authUrl = result.second.value.toString()
+            // Assert
+            assertTrue(authUrl.startsWith("https://localhost:8084/oauth2/authorize"))
+            assertTrue(authUrl.contains(hash1.asBase64URLEncoded()))
+            assertTrue(authUrl.contains(URLEncoder.encode(credentialID.value, Charsets.UTF_8)))
         }
-    }
 
     @Test
-    fun `should fail when PAR is required but it fails`() = runTest {
-        // Given
-        val parEndpoint = URI("https://localhost:8084/oauth2/par")
-        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
-            RequestMocker(
-                requestMatcher = match(parEndpoint, HttpMethod.Post),
-                responseBuilder = {
-                    respond(
-                        content = """
-                            {
-                                "error": "invalid_request",
-                                "error_description": "Something went wrong"
-                            }
-                        """.trimIndent(),
-                        status = HttpStatusCode.BadRequest,
-                        headers = headersOf(HttpHeaders.ContentType to listOf("application/json")),
-                    )
-                },
-            ),
-        )
+    fun `should prepare credential authorization request without PAR, with RAR`() =
+        runTest {
+            // Given
+            val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory()
 
-        val hash1 = Digest.Base64Digest("sTOgwOm+474gFj0q0x1iSNspKqbcse4IeiqlDg/HWuI=")
-        val credentialID = CredentialID("83c7c559-db74-48da-aacc-d439d415cb81")
-        val credentialAuthorizationSubject = credentialAuthorizationSubject(credentialID, listOf(hash1))
-        val endpoint = authEndpointClientWithPar(mockedKtorHttpClientFactory, ParUsage.Required, RarUsage.Never)
+            val credentialID = CredentialID("83c7c559-db74-48da-aacc-d439d415cb81")
+            val hash1 = Digest.Base64Digest("sTOgwOm+474gFj0q0x1iSNspKqbcse4IeiqlDg/HWuI=")
+            val hash2 = Digest.Base64Digest("c1RPZ3dPbSs0NzRnRmowcTB4MWlTTnNwS3FiY3NlNEllaXFsRGcvSFd1ST0=")
 
-        // When
-        val result = endpoint.submitParOrCreateAuthorizationRequestUrl(
-            listOf(Scope.Credential),
-            credentialAuthorizationSubject,
-            "state",
-        )
+            val credentialAuthorizationSubject = credentialAuthorizationSubject(credentialID, listOf(hash1, hash2))
+            val endpoint = authEndpointClient(mockedKtorHttpClientFactory, ParUsage.Never, RarUsage.Required)
 
-        // Assert
-        assertTrue(result.isFailure)
-        assertTrue(result.exceptionOrNull() is RQESError.PushedAuthorizationRequestFailed)
-    }
+            // When
+            val result =
+                endpoint
+                    .submitParOrCreateAuthorizationRequestUrl(
+                        listOf(Scope.Credential),
+                        credentialAuthorizationSubject,
+                        "state",
+                    ).getOrThrow()
+
+            val authUrl = result.second.value.toString()
+            // Assert
+            assertTrue(authUrl.startsWith("https://localhost:8084/oauth2/authorize"))
+            assertTrue(authUrl.contains(URLEncoder.encode(hash2.asBase64(), Charsets.UTF_8)))
+            assertTrue(authUrl.contains(URLEncoder.encode(credentialID.value, Charsets.UTF_8)))
+        }
+
+    @Test
+    fun `should fail when RAR is required but authorization server does not support it`() =
+        runTest {
+            // Given
+            val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory()
+            val endpoint =
+                authEndpointClient(
+                    mockedKtorHttpClientFactory,
+                    ParUsage.Never,
+                    RarUsage.Required,
+                    supportsRar = false,
+                )
+
+            // When
+            assertFailsWith<IllegalArgumentException> {
+                endpoint
+                    .submitParOrCreateAuthorizationRequestUrl(
+                        listOf(Scope.Credential),
+                        state = "state",
+                    ).getOrThrow()
+            }
+        }
+
+    @Test
+    fun `should fail when PAR is required but it fails`() =
+        runTest {
+            // Given
+            val parEndpoint = URI("https://localhost:8084/oauth2/par")
+            val mockedKtorHttpClientFactory =
+                mockedKtorHttpClientFactory(
+                    RequestMocker(
+                        requestMatcher = match(parEndpoint, HttpMethod.Post),
+                        responseBuilder = {
+                            respond(
+                                content =
+                                    """
+                                    {
+                                        "error": "invalid_request",
+                                        "error_description": "Something went wrong"
+                                    }
+                                    """.trimIndent(),
+                                status = HttpStatusCode.BadRequest,
+                                headers = headersOf(HttpHeaders.ContentType to listOf("application/json")),
+                            )
+                        },
+                    ),
+                )
+
+            val hash1 = Digest.Base64Digest("sTOgwOm+474gFj0q0x1iSNspKqbcse4IeiqlDg/HWuI=")
+            val credentialID = CredentialID("83c7c559-db74-48da-aacc-d439d415cb81")
+            val credentialAuthorizationSubject = credentialAuthorizationSubject(credentialID, listOf(hash1))
+            val endpoint = authEndpointClientWithPar(mockedKtorHttpClientFactory, ParUsage.Required, RarUsage.Never)
+
+            // When
+            val result =
+                endpoint.submitParOrCreateAuthorizationRequestUrl(
+                    listOf(Scope.Credential),
+                    credentialAuthorizationSubject,
+                    "state",
+                )
+
+            // Assert
+            assertTrue(result.isFailure)
+            assertTrue(result.exceptionOrNull() is RQESError.PushedAuthorizationRequestFailed)
+        }
 
     private fun authEndpointClient(
         clientFactory: KtorHttpClientFactory,
@@ -175,7 +187,10 @@ class AuthorizationEndpointClientTest {
         clientFactory,
     )
 
-    private fun credentialAuthorizationSubject(credentialID: CredentialID, hashes: List<Digest>) = CredentialAuthorizationSubject(
+    private fun credentialAuthorizationSubject(
+        credentialID: CredentialID,
+        hashes: List<Digest>,
+    ) = CredentialAuthorizationSubject(
         CredentialRef.ByCredentialID(credentialID),
         DocumentDigestList(
             hashes.mapIndexed { index, hash ->

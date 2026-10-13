@@ -25,15 +25,15 @@ import kotlin.test.assertIs
 import kotlin.test.assertNull
 
 class AuthorizationDetailsOpsTest {
-
     @Test
     fun `toNimbusAuthDetail with ByCredentialID and no document digests`() {
         val credentialID = CredentialID("test-credential-id")
-        val subject = CredentialAuthorizationSubject(
-            credentialRef = CredentialRef.ByCredentialID(credentialID),
-            documentDigestList = null,
-            numSignatures = 1,
-        )
+        val subject =
+            CredentialAuthorizationSubject(
+                credentialRef = CredentialRef.ByCredentialID(credentialID),
+                documentDigestList = null,
+                numSignatures = 1,
+            )
 
         val authDetail = subject.toNimbusAuthDetail()
 
@@ -48,11 +48,12 @@ class AuthorizationDetailsOpsTest {
     @Test
     fun `toNimbusAuthDetail with BySignatureQualifier and no document digests`() {
         val signatureQualifier = SignatureQualifier.EU_EIDAS_QES
-        val subject = CredentialAuthorizationSubject(
-            credentialRef = CredentialRef.BySignatureQualifier(signatureQualifier),
-            documentDigestList = null,
-            numSignatures = 5,
-        )
+        val subject =
+            CredentialAuthorizationSubject(
+                credentialRef = CredentialRef.BySignatureQualifier(signatureQualifier),
+                documentDigestList = null,
+                numSignatures = 5,
+            )
 
         val authDetail = subject.toNimbusAuthDetail()
 
@@ -68,20 +69,23 @@ class AuthorizationDetailsOpsTest {
         val digest1 = Digest.Base64Digest("sTOgwOm+474gFj0q0x1iSNspKqbcse4IeiqlDg/HWuI=")
         val digest2 = Digest.Base64Digest("vTOgwOm+474gFj0q0x1iSNspKqbcse4IeiqlDg/HWuI=")
 
-        val documentDigestList = DocumentDigestList(
-            documentDigests = listOf(
-                DocumentDigest(hash = digest1, label = "doc1", hashType = HashType.DTBSR),
-                DocumentDigest(hash = digest2, label = "doc2", hashType = HashType.SDR),
-            ),
-            hashAlgorithmOID = HashAlgorithmOID.SHA_256,
-            hashCalculationTime = Instant.now(),
-        )
+        val documentDigestList =
+            DocumentDigestList(
+                documentDigests =
+                    listOf(
+                        DocumentDigest(hash = digest1, label = "doc1", hashType = HashType.DTBSR),
+                        DocumentDigest(hash = digest2, label = "doc2", hashType = HashType.SDR),
+                    ),
+                hashAlgorithmOID = HashAlgorithmOID.SHA_256,
+                hashCalculationTime = Instant.now(),
+            )
 
-        val subject = CredentialAuthorizationSubject(
-            credentialRef = CredentialRef.ByCredentialID(credentialID),
-            documentDigestList = documentDigestList,
-            numSignatures = 2,
-        )
+        val subject =
+            CredentialAuthorizationSubject(
+                credentialRef = CredentialRef.ByCredentialID(credentialID),
+                documentDigestList = documentDigestList,
+                numSignatures = 2,
+            )
 
         val authDetail = subject.toNimbusAuthDetail()
 

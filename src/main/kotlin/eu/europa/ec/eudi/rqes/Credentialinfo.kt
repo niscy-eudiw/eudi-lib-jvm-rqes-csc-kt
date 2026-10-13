@@ -29,19 +29,18 @@ data class CredentialsInfoRequest(
 )
 
 fun interface GetCredentialInfo {
-
-    suspend fun ServiceAccessAuthorized.credentialInfo(
-        request: CredentialsInfoRequest,
-    ): Result<CredentialInfo>
+    suspend fun ServiceAccessAuthorized.credentialInfo(request: CredentialsInfoRequest): Result<CredentialInfo>
 
     companion object {
         internal operator fun invoke(credentialsInfoEndpointClient: CredentialsInfoEndpointClient): GetCredentialInfo =
             GetCredentialInfo { request ->
                 runCatching {
-                    val credentialsInfo = credentialsInfoEndpointClient.credentialInfo(
-                        request,
-                        tokens.accessToken,
-                    ).getOrThrow()
+                    val credentialsInfo =
+                        credentialsInfoEndpointClient
+                            .credentialInfo(
+                                request,
+                                tokens.accessToken,
+                            ).getOrThrow()
 
                     when (credentialsInfo) {
                         is CredentialInfoTO.Success -> credentialsInfo.toDomain(request.credentialID)

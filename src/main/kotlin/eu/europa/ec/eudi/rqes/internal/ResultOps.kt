@@ -22,11 +22,15 @@ import kotlin.contracts.contract
 // Helper methods
 //
 internal fun <T> T.success(): Result<T> = Result.success(this)
+
 internal fun <T> Result<T>.mapError(map: (Throwable) -> Throwable): Result<T> =
     fold(onSuccess = { it.success() }, onFailure = { Result.failure(map(it)) })
 
 @OptIn(ExperimentalContracts::class)
-internal inline fun ensure(value: Boolean, ex: () -> Throwable) {
+internal inline fun ensure(
+    value: Boolean,
+    ex: () -> Throwable,
+) {
     contract {
         returns() implies value
     }
@@ -34,7 +38,10 @@ internal inline fun ensure(value: Boolean, ex: () -> Throwable) {
 }
 
 @OptIn(ExperimentalContracts::class)
-internal inline fun <T : Any> ensureNotNull(value: T?, ex: () -> Throwable): T {
+internal inline fun <T : Any> ensureNotNull(
+    value: T?,
+    ex: () -> Throwable,
+): T {
     contract {
         returns() implies (value != null)
     }

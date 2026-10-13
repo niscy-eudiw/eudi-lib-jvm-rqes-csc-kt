@@ -20,10 +20,10 @@ import eu.europa.ec.eudi.documentretrieval.internal.response.DefaultDispatcher
 import eu.europa.ec.eudi.rqes.DefaultHttpClientFactory
 import eu.europa.ec.eudi.rqes.KtorHttpClientFactory
 
-interface DocumentRetrieval : AuthorizationRequestResolver, Dispatcher {
-
+interface DocumentRetrieval :
+    AuthorizationRequestResolver,
+    Dispatcher {
     companion object {
-
         operator fun invoke(
             documentRetrievalConfig: DocumentRetrievalConfig,
             httpClientFactory: KtorHttpClientFactory = DefaultHttpClientFactory,

@@ -16,27 +16,31 @@
 package eu.europa.ec.eudi.rqes
 
 @JvmInline
-value class ServiceAuthorizationRequestPrepared(val value: AuthorizationRequestPrepared) {
+value class ServiceAuthorizationRequestPrepared(
+    val value: AuthorizationRequestPrepared,
+) {
     companion object {
         operator fun invoke(
             authorizationCodeUrl: HttpsUrl,
             pkceVerifier: PKCEVerifier,
             state: String,
-        ): ServiceAuthorizationRequestPrepared = ServiceAuthorizationRequestPrepared(
-            AuthorizationRequestPrepared(
-                authorizationCodeUrl,
-                pkceVerifier,
-                state,
-            ),
-        )
+        ): ServiceAuthorizationRequestPrepared =
+            ServiceAuthorizationRequestPrepared(
+                AuthorizationRequestPrepared(
+                    authorizationCodeUrl,
+                    pkceVerifier,
+                    state,
+                ),
+            )
     }
 }
 
 @JvmInline
-value class ServiceAccessAuthorized(val tokens: OAuth2Tokens) : java.io.Serializable
+value class ServiceAccessAuthorized(
+    val tokens: OAuth2Tokens,
+) : java.io.Serializable
 
 interface AuthorizeService {
-
     /**
      * Initial step for the service authorization process using the Authorization code flow.
      * @param walletState an optional parameter that if provided will be included in the authorization request.

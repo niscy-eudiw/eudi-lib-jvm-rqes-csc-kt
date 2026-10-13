@@ -29,44 +29,53 @@ internal class AuthorizeCredentialImpl(
     private val tokenEndpointClient: TokenEndpointClient,
     private val credentialsInfoEndpointClient: CredentialsInfoEndpointClient,
 ) : AuthorizeCredential {
-
     override suspend fun prepareCredentialAuthorizationRequest(
         credentialAuthorizationSubject: CredentialAuthorizationSubject,
         walletState: String?,
-    ): Result<CredentialAuthorizationRequestPrepared> = runCatching {
-        checkNotNull(authorizationEndpointClient)
+    ): Result<CredentialAuthorizationRequestPrepared> =
+        runCatching {
+            checkNotNull(authorizationEndpointClient)
 
-        require(credentialAuthorizationSubject.credentialRef is CredentialRef.ByCredentialID) {
-            "Authorizing a credential by Signature Qualifier is not implemented yet"
+            require(credentialAuthorizationSubject.credentialRef is CredentialRef.ByCredentialID) {
+                "Authorizing a credential by Signature Qualifier is not implemented yet"
+            }
+
+            val scopes = listOf(Scope(Scope.Credential.value))
+            val state = walletState ?: State().value
+
+            val (codeVerifier, authorizationCodeUrl, credentialAuthorizationSubjectMethod) =
+                authorizationEndpointClient
+                    .submitParOrCreateAuthorizationRequestUrl(
+                        scopes,
+                        credentialAuthorizationSubject,
+                        state,
+                    ).getOrThrow()
+
+            CredentialAuthorizationRequestPrepared(
+                AuthorizationRequestPrepared(authorizationCodeUrl, codeVerifier, state),
+                credentialAuthorizationSubjectMethod!!,
+            )
         }
 
-        val scopes = listOf(Scope(Scope.Credential.value))
-        val state = walletState ?: State().value
-
-        val (codeVerifier, authorizationCodeUrl, credentialAuthorizationSubjectMethod) =
-            authorizationEndpointClient.submitParOrCreateAuthorizationRequestUrl(
-                scopes,
-                credentialAuthorizationSubject,
-                state,
-            ).getOrThrow()
-
-        CredentialAuthorizationRequestPrepared(
-            AuthorizationRequestPrepared(authorizationCodeUrl, codeVerifier, state),
-            credentialAuthorizationSubjectMethod!!,
-        )
-    }
-
-    private suspend fun getCredentialInfo(credentialID: CredentialID, accessToken: AccessToken): CredentialInfo {
-        val credentialInfoTO = credentialsInfoEndpointClient.credentialInfo(
-            CredentialsInfoRequest(credentialID),
-            accessToken,
-        ).getOrThrow()
+    private suspend fun getCredentialInfo(
+        credentialID: CredentialID,
+        accessToken: AccessToken,
+    ): CredentialInfo {
+        val credentialInfoTO =
+            credentialsInfoEndpointClient
+                .credentialInfo(
+                    CredentialsInfoRequest(credentialID),
+                    accessToken,
+                ).getOrThrow()
 
         return when (credentialInfoTO) {
             is CredentialInfoTO.Success -> {
                 credentialInfoTO.toDomain(credentialID)
             }
-            else -> error("Unexpected response: $credentialInfoTO")
+
+            else -> {
+                error("Unexpected response: $credentialInfoTO")
+            }
         }
     }
 
@@ -74,71 +83,80 @@ internal class AuthorizeCredentialImpl(
         authorizationCode: AuthorizationCode,
         serverState: String,
         authDetailsOption: AccessTokenOption,
-    ): Result<CredentialAuthorized> = runCatching {
-        ensure(serverState == authorizationRequestPrepared.state) { InvalidAuthorizationState() }
+    ): Result<CredentialAuthorized> =
+        runCatching {
+            ensure(serverState == authorizationRequestPrepared.state) { InvalidAuthorizationState() }
 
-        val tokenResponse =
-            tokenEndpointClient.requestAccessTokenAuthFlow(
-                authorizationCode,
-                authorizationRequestPrepared.pkceVerifier,
-                credentialAuthorizationRequestType,
-            )
-
-        val (accessToken, refreshToken, timestamp, credentialID, credentialAuthorizationSubject) = tokenResponse.getOrThrow()
-
-        // TODO compare requested authorization with what was actually authorized
-        val authorizedCredentialID = when {
-            credentialAuthorizationSubject != null -> {
-                require(credentialAuthorizationSubject.credentialRef is CredentialRef.ByCredentialID) {
-                    "CredentialID was provided by the signing service"
-                }
-                credentialAuthorizationSubject.credentialRef.credentialID
-            }
-            credentialID != null -> {
-                credentialID
-            }
-            credentialAuthorizationRequestType.credentialAuthorizationSubject.credentialRef
-            is CredentialRef.ByCredentialID -> {
-                (
-                    credentialAuthorizationRequestType.credentialAuthorizationSubject.credentialRef
-                        as CredentialRef.ByCredentialID
-                    ).credentialID
-            }
-            else -> error("Credential ID is required")
-        }
-
-        val credential = getCredentialInfo(authorizedCredentialID, accessToken)
-        require(credential.key.status == CredentialKeyStatus.Enabled) {
-            "Credential key is disabled and cannot be used"
-        }
-
-        val authorizedNumOfSignatures = when {
-            credentialAuthorizationSubject == null -> credential.multisign
-            else -> credentialAuthorizationSubject.numSignatures
-        }
-
-        when (credential.scal) {
-            SCAL.One ->
-                CredentialAuthorized.SCAL1(
-                    OAuth2Tokens(accessToken, refreshToken, timestamp),
-                    credential.credentialID,
-                    credential.certificate,
-                    credential.multisign,
+            val tokenResponse =
+                tokenEndpointClient.requestAccessTokenAuthFlow(
+                    authorizationCode,
+                    authorizationRequestPrepared.pkceVerifier,
+                    credentialAuthorizationRequestType,
                 )
 
-            SCAL.Two -> {
-                val documentsDigests =
-                    requireNotNull(credentialAuthorizationRequestType.credentialAuthorizationSubject.documentDigestList) {
-                        "Document list is required for SCAL 2"
+            val (accessToken, refreshToken, timestamp, credentialID, credentialAuthorizationSubject) = tokenResponse.getOrThrow()
+
+            // TODO compare requested authorization with what was actually authorized
+            val authorizedCredentialID =
+                when {
+                    credentialAuthorizationSubject != null -> {
+                        require(credentialAuthorizationSubject.credentialRef is CredentialRef.ByCredentialID) {
+                            "CredentialID was provided by the signing service"
+                        }
+                        credentialAuthorizationSubject.credentialRef.credentialID
                     }
-                CredentialAuthorized.SCAL2(
-                    OAuth2Tokens(accessToken, refreshToken, timestamp),
-                    credential.credentialID,
-                    credential.certificate,
-                    authorizedNumOfSignatures,
-                    documentsDigests,
-                )
+
+                    credentialID != null -> {
+                        credentialID
+                    }
+
+                    credentialAuthorizationRequestType.credentialAuthorizationSubject.credentialRef
+                        is CredentialRef.ByCredentialID -> {
+                        (
+                            credentialAuthorizationRequestType.credentialAuthorizationSubject.credentialRef
+                                as CredentialRef.ByCredentialID
+                        ).credentialID
+                    }
+
+                    else -> {
+                        error("Credential ID is required")
+                    }
+                }
+
+            val credential = getCredentialInfo(authorizedCredentialID, accessToken)
+            require(credential.key.status == CredentialKeyStatus.Enabled) {
+                "Credential key is disabled and cannot be used"
+            }
+
+            val authorizedNumOfSignatures =
+                when {
+                    credentialAuthorizationSubject == null -> credential.multisign
+                    else -> credentialAuthorizationSubject.numSignatures
+                }
+
+            when (credential.scal) {
+                SCAL.One -> {
+                    CredentialAuthorized.SCAL1(
+                        OAuth2Tokens(accessToken, refreshToken, timestamp),
+                        credential.credentialID,
+                        credential.certificate,
+                        credential.multisign,
+                    )
+                }
+
+                SCAL.Two -> {
+                    val documentsDigests =
+                        requireNotNull(credentialAuthorizationRequestType.credentialAuthorizationSubject.documentDigestList) {
+                            "Document list is required for SCAL 2"
+                        }
+                    CredentialAuthorized.SCAL2(
+                        OAuth2Tokens(accessToken, refreshToken, timestamp),
+                        credential.credentialID,
+                        credential.certificate,
+                        authorizedNumOfSignatures,
+                        documentsDigests,
+                    )
+                }
             }
         }
-    }
 }

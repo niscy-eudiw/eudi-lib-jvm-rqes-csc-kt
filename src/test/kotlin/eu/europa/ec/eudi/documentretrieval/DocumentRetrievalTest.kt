@@ -29,7 +29,6 @@ import kotlin.test.Test
 import kotlin.test.assertNotNull
 
 internal class DocumentRetrievalTest {
-
     @Test
     fun `DocumentRetrieval invoke with default HttpClientFactory returns non-null instance`() {
         val config = getConfig()
@@ -56,33 +55,41 @@ internal class DocumentRetrievalTest {
         assertNotNull(documentRetrieval)
     }
 
-    internal fun getConfig(): DocumentRetrievalConfig = DocumentRetrievalConfig(
-        supportedClientIdSchemes = listOf(
-            SupportedClientIdScheme.X509SanUri.NoValidation,
-            SupportedClientIdScheme.Preregistered(
-                clients = mapOf<String, PreregisteredClient>(
-                    "16b45b1e-3253-436d-a5ef-c235c3f61075" to PreregisteredClient(
-                        clientId = "16b45b1e-3253-436d-a5ef-c235c3f61075",
-                        legalName = "walletcentric.signer.eudiw.dev",
-                        jarConfig = JWSAlgorithm.HS256 to JwkSetSource.ByValue(
-                            jwks = Json.parseToJsonElement(
-                                """
-                                   {
-                                       "keys": [
-                                           {
-                                               "kty": "oct",
-                                               "use": "sig",
-                                               "alg": "HS256",
-                                               "k": "U0mY7v8Q1w2Z4v6y9B+D-KaPdSgVkXpA"
-                                           }
-                                       ]
-                                   }
-                                """.trimIndent(),
-                            ).jsonObject,
-                        ),
+    internal fun getConfig(): DocumentRetrievalConfig =
+        DocumentRetrievalConfig(
+            supportedClientIdSchemes =
+                listOf(
+                    SupportedClientIdScheme.X509SanUri.NoValidation,
+                    SupportedClientIdScheme.Preregistered(
+                        clients =
+                            mapOf<String, PreregisteredClient>(
+                                "16b45b1e-3253-436d-a5ef-c235c3f61075" to
+                                    PreregisteredClient(
+                                        clientId = "16b45b1e-3253-436d-a5ef-c235c3f61075",
+                                        legalName = "walletcentric.signer.eudiw.dev",
+                                        jarConfig =
+                                            JWSAlgorithm.HS256 to
+                                                JwkSetSource.ByValue(
+                                                    jwks =
+                                                        Json
+                                                            .parseToJsonElement(
+                                                                """
+                                                                {
+                                                                    "keys": [
+                                                                        {
+                                                                            "kty": "oct",
+                                                                            "use": "sig",
+                                                                            "alg": "HS256",
+                                                                            "k": "U0mY7v8Q1w2Z4v6y9B+D-KaPdSgVkXpA"
+                                                                        }
+                                                                    ]
+                                                                }
+                                                                """.trimIndent(),
+                                                            ).jsonObject,
+                                                ),
+                                    ),
+                            ),
                     ),
                 ),
-            ),
-        ),
-    )
+        )
 }

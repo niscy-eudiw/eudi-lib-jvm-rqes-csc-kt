@@ -16,7 +16,6 @@
 package eu.europa.ec.eudi.documentretrieval
 
 object OpenId4VPSpec {
-
     const val CLIENT_ID_SCHEME_PRE_REGISTERED = "pre-registered"
     const val CLIENT_ID_SCHEME_X509_SAN_URI = "x509_san_uri"
     const val CLIENT_ID_SCHEME_X509_SAN_DNS = "x509_san_dns"

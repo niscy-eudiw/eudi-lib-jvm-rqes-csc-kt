@@ -20,21 +20,23 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ListCredentialsTest {
-
     @Test
-    fun `successful retrieval of credentials list`() = runTest {
-        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
-            authServerWellKnownMocker(),
-            credentialsListPostMocker(),
-        )
+    fun `successful retrieval of credentials list`() =
+        runTest {
+            val mockedKtorHttpClientFactory =
+                mockedKtorHttpClientFactory(
+                    authServerWellKnownMocker(),
+                    credentialsListPostMocker(),
+                )
 
-        val credentialsList = with(mockPublicClient(mockedKtorHttpClientFactory)) {
-            with(mockServiceAccessAuthorized) {
-                listCredentials(CredentialsListRequest()).getOrThrow()
-            }
+            val credentialsList =
+                with(mockPublicClient(mockedKtorHttpClientFactory)) {
+                    with(mockServiceAccessAuthorized) {
+                        listCredentials(CredentialsListRequest()).getOrThrow()
+                    }
+                }
+
+            assertEquals(1, credentialsList.size)
+            assertEquals("83c7c559-db74-48da-aacc-d439d415cb81", credentialsList[0].credentialID.value)
         }
-
-        assertEquals(1, credentialsList.size)
-        assertEquals("83c7c559-db74-48da-aacc-d439d415cb81", credentialsList[0].credentialID.value)
-    }
 }

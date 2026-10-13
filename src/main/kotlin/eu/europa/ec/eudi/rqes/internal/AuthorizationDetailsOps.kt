@@ -24,29 +24,32 @@ import net.minidev.json.JSONArray
 import net.minidev.json.JSONObject
 
 internal fun CredentialAuthorizationSubject.toNimbusAuthDetail(): AuthorizationDetail {
-    val hashesArray = documentDigestList?.let {
-        val docDigests = JSONArray()
-        it.documentDigests.forEach() { documentDigest ->
-            docDigests.add(
-                JSONObject().apply {
-                    put("hash", documentDigest.hash.asBase64())
-                    put("label", documentDigest.label)
-                    put("hashType", documentDigest.hashType?.name ?: HashType.DTBSR.name)
-                },
-            )
-        }
-        docDigests
-    }
-
-    return AuthorizationDetail.Builder(AuthorizationType("https://cloudsignatureconsortium.org/2025/credential")).apply {
-        field("numSignatures", numSignatures)
-        when (credentialRef) {
-            is CredentialRef.ByCredentialID -> field("credentialID", credentialRef.credentialID.value)
-            is CredentialRef.BySignatureQualifier -> field("signatureQualifier", credentialRef.signatureQualifier.value)
-        }
+    val hashesArray =
         documentDigestList?.let {
-            field("documentDigests", hashesArray)
-            field("hashAlgorithmOID", it.hashAlgorithmOID.value)
+            val docDigests = JSONArray()
+            it.documentDigests.forEach { documentDigest ->
+                docDigests.add(
+                    JSONObject().apply {
+                        put("hash", documentDigest.hash.asBase64())
+                        put("label", documentDigest.label)
+                        put("hashType", documentDigest.hashType?.name ?: HashType.DTBSR.name)
+                    },
+                )
+            }
+            docDigests
         }
-    }.build()
+
+    return AuthorizationDetail
+        .Builder(AuthorizationType("https://cloudsignatureconsortium.org/2025/credential"))
+        .apply {
+            field("numSignatures", numSignatures)
+            when (credentialRef) {
+                is CredentialRef.ByCredentialID -> field("credentialID", credentialRef.credentialID.value)
+                is CredentialRef.BySignatureQualifier -> field("signatureQualifier", credentialRef.signatureQualifier.value)
+            }
+            documentDigestList?.let {
+                field("documentDigests", hashesArray)
+                field("hashAlgorithmOID", it.hashAlgorithmOID.value)
+            }
+        }.build()
 }

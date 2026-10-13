@@ -24,8 +24,13 @@ import java.time.Clock
 import java.time.Duration
 
 sealed interface JwkSetSource {
-    data class ByValue(val jwks: JsonObject) : JwkSetSource
-    data class ByReference(val jwksUri: URI) : JwkSetSource
+    data class ByValue(
+        val jwks: JsonObject,
+    ) : JwkSetSource
+
+    data class ByReference(
+        val jwksUri: URI,
+    ) : JwkSetSource
 }
 
 /**
@@ -51,11 +56,12 @@ fun interface X509CertificateTrust {
  * The Client identifier scheme supported (or trusted) by the wallet.
  */
 sealed interface SupportedClientIdScheme {
-
     /**
      * The Client Identifier is known to the Wallet in advance of the Authorization Request.
      */
-    data class Preregistered(val clients: Map<String, PreregisteredClient>) : SupportedClientIdScheme {
+    data class Preregistered(
+        val clients: Map<String, PreregisteredClient>,
+    ) : SupportedClientIdScheme {
         constructor(vararg clients: PreregisteredClient) : this(clients.toList().associateBy { it.clientId })
     }
 
@@ -69,7 +75,9 @@ sealed interface SupportedClientIdScheme {
      * @param trust a function that accepts a chain of certificates (contents of `x5c` claim) and
      * indicates whether is trusted or not
      */
-    data class X509SanUri(val trust: X509CertificateTrust) : SupportedClientIdScheme {
+    data class X509SanUri(
+        val trust: X509CertificateTrust,
+    ) : SupportedClientIdScheme {
         companion object {
             internal val NoValidation: X509SanUri = X509SanUri { _ -> true }
         }
@@ -85,17 +93,20 @@ sealed interface SupportedClientIdScheme {
      * @param trust a function that accepts a chain of certificates (contents of `x5c` claim) and
      * indicates whether is trusted or not
      */
-    data class X509SanDns(val trust: X509CertificateTrust) : SupportedClientIdScheme {
+    data class X509SanDns(
+        val trust: X509CertificateTrust,
+    ) : SupportedClientIdScheme {
         companion object {
             internal val NoValidation: X509SanDns = X509SanDns { _ -> true }
         }
     }
 
-    fun scheme(): ClientIdScheme = when (this) {
-        is Preregistered -> ClientIdScheme.PreRegistered
-        is X509SanDns -> ClientIdScheme.X509_SAN_DNS
-        is X509SanUri -> ClientIdScheme.X509_SAN_URI
-    }
+    fun scheme(): ClientIdScheme =
+        when (this) {
+            is Preregistered -> ClientIdScheme.PreRegistered
+            is X509SanDns -> ClientIdScheme.X509_SAN_DNS
+            is X509SanUri -> ClientIdScheme.X509_SAN_URI
+        }
 }
 
 data class DocumentRetrievalConfig(
@@ -145,9 +156,10 @@ data class JarConfiguration(
         /**
          * The default JAR configuration list as trusted algorithms ES256, ES384, and ES512.
          */
-        val Default = JarConfiguration(
-            supportedAlgorithms = listOf(JWSAlgorithm.ES256, JWSAlgorithm.ES384, JWSAlgorithm.ES512),
-        )
+        val Default =
+            JarConfiguration(
+                supportedAlgorithms = listOf(JWSAlgorithm.ES256, JWSAlgorithm.ES384, JWSAlgorithm.ES512),
+            )
     }
 }
 

@@ -28,17 +28,20 @@ import java.util.*
 
 fun main() {
     runBlocking {
-        val config = DocumentRetrievalConfig(
-            jarConfiguration = JarConfiguration(
-                supportedAlgorithms = listOf(JWSAlgorithm.ES256),
-            ),
-            clock = Clock.systemDefaultZone(),
-            jarClockSkew = Duration.ofSeconds(15L),
-            supportedClientIdSchemes = listOf(
-                SupportedClientIdScheme.X509SanUri.NoValidation,
-                SupportedClientIdScheme.X509SanDns.NoValidation,
-            ),
-        )
+        val config =
+            DocumentRetrievalConfig(
+                jarConfiguration =
+                    JarConfiguration(
+                        supportedAlgorithms = listOf(JWSAlgorithm.ES256),
+                    ),
+                clock = Clock.systemDefaultZone(),
+                jarClockSkew = Duration.ofSeconds(15L),
+                supportedClientIdSchemes =
+                    listOf(
+                        SupportedClientIdScheme.X509SanUri.NoValidation,
+                        SupportedClientIdScheme.X509SanDns.NoValidation,
+                    ),
+            )
 
         val client = DocumentRetrieval(config)
 
@@ -53,25 +56,25 @@ fun main() {
                 )
 
             if (resolution is Resolution.Success) {
-                val documentsToSign = resolution.requestObject.documentLocations
-                    .zip(resolution.requestObject.documentDigests) {
-                            location, digest ->
-                        DefaultHttpClientFactory().get(location.uri).let {
-                            // read the response as a file to a byte array
-                            val documentContent = it.readRawBytes()
+                val documentsToSign =
+                    resolution.requestObject.documentLocations
+                        .zip(resolution.requestObject.documentDigests) { location, digest ->
+                            DefaultHttpClientFactory().get(location.uri).let {
+                                // read the response as a file to a byte array
+                                val documentContent = it.readRawBytes()
 
-                            // calculate the document digest using the hash algorithm OID from the request object
-                            val messageDigest = MessageDigest.getInstance(resolution.requestObject.hashAlgorithmOID.value)
+                                // calculate the document digest using the hash algorithm OID from the request object
+                                val messageDigest = MessageDigest.getInstance(resolution.requestObject.hashAlgorithmOID.value)
 
-                            val computedDigest = messageDigest.digest(documentContent)
-                            val base64Digest = String(Base64.getEncoder().encode(computedDigest))
+                                val computedDigest = messageDigest.digest(documentContent)
+                                val base64Digest = String(Base64.getEncoder().encode(computedDigest))
 
-                            // compare the calculated digest with the provided one
-                            val validDigest = base64Digest == digest.hash
+                                // compare the calculated digest with the provided one
+                                val validDigest = base64Digest == digest.hash
 
-                            documentContent
-                        }
-                    }.map { it }
+                                documentContent
+                            }
+                        }.map { it }
 
                 // the document signing flow starts here, as shown in the Example.kt file
 
@@ -81,11 +84,12 @@ fun main() {
                     listOf(
                         "signed document content".toByteArray(),
                     )
-                val signatureList = SignaturesList(
-                    listOf(
-                        Signature("signature content"),
-                    ),
-                )
+                val signatureList =
+                    SignaturesList(
+                        listOf(
+                            Signature("signature content"),
+                        ),
+                    )
 
                 dispatch(
                     resolution.requestObject,

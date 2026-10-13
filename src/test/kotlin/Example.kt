@@ -33,15 +33,24 @@ val client_secret = "somesecrettester2"
 
 private fun getUnsafeOkHttpClient(): OkHttpClient {
     // Create a trust manager that does not validate certificate chains
-    val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
-        override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {
-        }
+    val trustAllCerts =
+        arrayOf<TrustManager>(
+            object : X509TrustManager {
+                override fun checkClientTrusted(
+                    chain: Array<out X509Certificate>?,
+                    authType: String?,
+                ) {
+                }
 
-        override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {
-        }
+                override fun checkServerTrusted(
+                    chain: Array<out X509Certificate>?,
+                    authType: String?,
+                ) {
+                }
 
-        override fun getAcceptedIssuers() = arrayOf<X509Certificate>()
-    })
+                override fun getAcceptedIssuers() = arrayOf<X509Certificate>()
+            },
+        )
 
     // Install the all-trusting trust manager
     val sslContext = SSLContext.getInstance("SSL")
@@ -49,9 +58,11 @@ private fun getUnsafeOkHttpClient(): OkHttpClient {
     // Create an ssl socket factory with our all-trusting manager
     val sslSocketFactory = sslContext.socketFactory
 
-    return OkHttpClient.Builder()
+    return OkHttpClient
+        .Builder()
         .sslSocketFactory(sslSocketFactory, trustAllCerts[0] as X509TrustManager)
-        .hostnameVerifier { _, _ -> true }.build()
+        .hostnameVerifier { _, _ -> true }
+        .build()
 }
 
 private val unsafeHttpClientFactory: KtorHttpClientFactory = {
@@ -71,21 +82,24 @@ private val unsafeHttpClientFactory: KtorHttpClientFactory = {
     }
 }
 
-private var cscClientConfig = CSCClientConfig(
-    OAuth2Client.Confidential.ClientSecretBasic(client_id, client_secret),
-    URI("https://oauthdebugger.com/debug"),
-    ParUsage.IfSupported,
-    RarUsage.IfSupported,
-)
+private var cscClientConfig =
+    CSCClientConfig(
+        OAuth2Client.Confidential.ClientSecretBasic(client_id, client_secret),
+        URI("https://oauthdebugger.com/debug"),
+        ParUsage.IfSupported,
+        RarUsage.IfSupported,
+    )
 
 fun main() {
     runBlocking {
         // create the CSC client
-        val cscClient: CSCClient = CSCClient.oauth2(
-            cscClientConfig,
-            "https://walletcentric.signer.eudiw.dev/csc/v2",
-            unsafeHttpClientFactory,
-        ).getOrThrow()
+        val cscClient: CSCClient =
+            CSCClient
+                .oauth2(
+                    cscClientConfig,
+                    "https://walletcentric.signer.eudiw.dev/csc/v2",
+                    unsafeHttpClientFactory,
+                ).getOrThrow()
 
         val rsspMetadata = cscClient.rsspMetadata
 
@@ -99,57 +113,63 @@ fun main() {
             println("Enter the service authorization code:")
             val serviceAuthorizationCode = AuthorizationCode(readln())
 
-            val authorizedServiceRequest = with(serviceAuthRequestPrepared) {
-                // provide the authorization code to the client
-                authorizeWithAuthorizationCode(serviceAuthorizationCode, walletState).getOrThrow()
-            }
+            val authorizedServiceRequest =
+                with(serviceAuthRequestPrepared) {
+                    // provide the authorization code to the client
+                    authorizeWithAuthorizationCode(serviceAuthorizationCode, walletState).getOrThrow()
+                }
 
             // retrieve the list of credentials from the RSSP
-            val credentials = with(authorizedServiceRequest) {
-                listCredentials(CredentialsListRequest()).getOrThrow()
-            }
+            val credentials =
+                with(authorizedServiceRequest) {
+                    listCredentials(CredentialsListRequest()).getOrThrow()
+                }
 
             // new (R5)
-            val documentToSign = DocumentToSign(
-                "/storage/emulated/0/Android/data/com.example.demorqesmobile/files/Documents/sample.pdf", // input path
-                "/storage/emulated/0/Android/data/com.example.demorqesmobile/files/Documents/signed-sample.pdf", // output path
-                "A sample pdf",
-                SignatureFormat.P,
-                ConformanceLevel.ADES_B_B,
-                SignedEnvelopeProperty.ENVELOPED,
-                ASICContainer.NONE,
-            )
+            val documentToSign =
+                DocumentToSign(
+                    "/storage/emulated/0/Android/data/com.example.demorqesmobile/files/Documents/sample.pdf", // input path
+                    "/storage/emulated/0/Android/data/com.example.demorqesmobile/files/Documents/signed-sample.pdf", // output path
+                    "A sample pdf",
+                    SignatureFormat.P,
+                    ConformanceLevel.ADES_B_B,
+                    SignedEnvelopeProperty.ENVELOPED,
+                    ASICContainer.NONE,
+                )
 
             walletState = UUID.randomUUID().toString()
 
             // calculate the hash of the document to sign
-            val documentDigests = calculateDocumentHashes(
-                listOf(documentToSign),
-                credentials.first().certificate,
-                HashAlgorithmOID.SHA_256,
-            )
+            val documentDigests =
+                calculateDocumentHashes(
+                    listOf(documentToSign),
+                    credentials.first().certificate,
+                    HashAlgorithmOID.SHA_256,
+                )
 
             // initiate the credential authorization request flow, using the hashes calculated above
-            val credAuthRequestPrepared = prepareCredentialAuthorizationRequest(
-                CredentialAuthorizationSubject(
-                    CredentialRef.ByCredentialID(credentials.first().credentialID),
-                    documentDigests,
-                    1,
-                ),
-                walletState,
-            ).getOrThrow()
+            val credAuthRequestPrepared =
+                prepareCredentialAuthorizationRequest(
+                    CredentialAuthorizationSubject(
+                        CredentialRef.ByCredentialID(credentials.first().credentialID),
+                        documentDigests,
+                        1,
+                    ),
+                    walletState,
+                ).getOrThrow()
 
             println("Use the following URL to authenticate:\n${credAuthRequestPrepared.authorizationRequestPrepared.authorizationCodeURL}")
             println("Enter the credential authorization code:")
             val credentialAuthorizationCode = AuthorizationCode(readln())
 
             // provide the credential authorization code to the CSC client
-            val credentialAuthorized = with(credAuthRequestPrepared) {
-                authorizeWithAuthorizationCode(
-                    credentialAuthorizationCode,
-                    walletState,
-                ).getOrThrow()
-            }
+            val credentialAuthorized =
+                with(credAuthRequestPrepared) {
+                    authorizeWithAuthorizationCode(
+                        credentialAuthorizationCode,
+                        walletState,
+                    ).getOrThrow()
+                }
 
             require(credentialAuthorized is CredentialAuthorized.SCAL2)
 

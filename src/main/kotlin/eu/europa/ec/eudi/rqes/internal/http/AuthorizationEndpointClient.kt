@@ -39,7 +39,6 @@ import kotlin.collections.toTypedArray
 import com.nimbusds.oauth2.sdk.Scope as NimbusScope
 
 internal sealed interface PushedAuthorizationRequestResponseTO {
-
     /**
      * Successful request submission.
      *
@@ -72,7 +71,6 @@ internal class AuthorizationEndpointClient(
     private val cscClientConfig: CSCClientConfig,
     private val ktorHttpClientFactory: KtorHttpClientFactory,
 ) {
-
     private val supportsPar: Boolean
         get() = pushedAuthorizationRequestEndpoint != null
 
@@ -81,23 +79,31 @@ internal class AuthorizationEndpointClient(
         authorizationSubject: CredentialAuthorizationSubject? = null,
         state: String,
     ): Result<Triple<PKCEVerifier, HttpsUrl, CredentialAuthorizationRequestType?>> {
-        val useRichAuthorizationRequests = when (cscClientConfig.rarUsage) {
-            RarUsage.IfSupported -> supportsRar
-            RarUsage.Never -> false
-            RarUsage.Required -> {
-                require(supportsRar) {
-                    "Rich Authorization Requests usage is required, yet authorization server doesn't support it"
+        val useRichAuthorizationRequests =
+            when (cscClientConfig.rarUsage) {
+                RarUsage.IfSupported -> {
+                    supportsRar
                 }
-                true
-            }
-        }
 
-        val credentialAuthorizationRequestType = authorizationSubject?.let {
-            when (useRichAuthorizationRequests) {
-                true -> CredentialAuthorizationRequestType.PassByAuthorizationDetails(authorizationSubject)
-                false -> CredentialAuthorizationRequestType.PassByScope(authorizationSubject)
+                RarUsage.Never -> {
+                    false
+                }
+
+                RarUsage.Required -> {
+                    require(supportsRar) {
+                        "Rich Authorization Requests usage is required, yet authorization server doesn't support it"
+                    }
+                    true
+                }
             }
-        }
+
+        val credentialAuthorizationRequestType =
+            authorizationSubject?.let {
+                when (useRichAuthorizationRequests) {
+                    true -> CredentialAuthorizationRequestType.PassByAuthorizationDetails(authorizationSubject)
+                    false -> CredentialAuthorizationRequestType.PassByScope(authorizationSubject)
+                }
+            }
 
         return when (cscClientConfig.parUsage) {
             ParUsage.Required -> {
@@ -107,13 +113,18 @@ internal class AuthorizationEndpointClient(
                 // Do not fall back when PAR is required; propagate the failure
                 submitPushedAuthorizationRequest(scopes, credentialAuthorizationRequestType, state)
             }
-            ParUsage.IfSupported ->
+
+            ParUsage.IfSupported -> {
                 // Fallback to standard authorization request URL if PAR fails
                 submitPushedAuthorizationRequest(scopes, credentialAuthorizationRequestType, state)
                     .recoverCatching {
                         authorizationRequestUrl(scopes, credentialAuthorizationRequestType, state).getOrThrow()
                     }
-            ParUsage.Never -> authorizationRequestUrl(scopes, credentialAuthorizationRequestType, state)
+            }
+
+            ParUsage.Never -> {
+                authorizationRequestUrl(scopes, credentialAuthorizationRequestType, state)
+            }
         }
     }
 
@@ -121,73 +132,86 @@ internal class AuthorizationEndpointClient(
         scopes: List<Scope>,
         credentialAuthorizationRequestType: CredentialAuthorizationRequestType?,
         state: String,
-    ): Result<Triple<PKCEVerifier, HttpsUrl, CredentialAuthorizationRequestType?>> = runCatching {
-        require(scopes.isNotEmpty() || credentialAuthorizationRequestType != null) {
-            "No scopes or authorization details provided. Cannot prepare authorization request."
+    ): Result<Triple<PKCEVerifier, HttpsUrl, CredentialAuthorizationRequestType?>> =
+        runCatching {
+            require(scopes.isNotEmpty() || credentialAuthorizationRequestType != null) {
+                "No scopes or authorization details provided. Cannot prepare authorization request."
+            }
+
+            val parEndpoint = pushedAuthorizationRequestEndpoint?.toURI()
+            checkNotNull(parEndpoint) { "PAR endpoint not advertised" }
+            val clientID = ClientID(cscClientConfig.client.clientId)
+            val codeVerifier = CodeVerifier()
+            val pushedAuthorizationRequest =
+                run {
+                    val request = prepareAuthRequest(clientID, codeVerifier, state, scopes, credentialAuthorizationRequestType)
+                    PushedAuthorizationRequest(parEndpoint, request)
+                }
+            val response = pushAuthorizationRequest(parEndpoint, pushedAuthorizationRequest, cscClientConfig.client)
+
+            val (pkceVerifier, httpsUrl) = response.authorizationCodeUrlOrFail(clientID, codeVerifier, state)
+
+            Triple(pkceVerifier, httpsUrl, credentialAuthorizationRequestType)
         }
-
-        val parEndpoint = pushedAuthorizationRequestEndpoint?.toURI()
-        checkNotNull(parEndpoint) { "PAR endpoint not advertised" }
-        val clientID = ClientID(cscClientConfig.client.clientId)
-        val codeVerifier = CodeVerifier()
-        val pushedAuthorizationRequest = run {
-            val request = prepareAuthRequest(clientID, codeVerifier, state, scopes, credentialAuthorizationRequestType)
-            PushedAuthorizationRequest(parEndpoint, request)
-        }
-        val response = pushAuthorizationRequest(parEndpoint, pushedAuthorizationRequest, cscClientConfig.client)
-
-        val (pkceVerifier, httpsUrl) = response.authorizationCodeUrlOrFail(clientID, codeVerifier, state)
-
-        Triple(pkceVerifier, httpsUrl, credentialAuthorizationRequestType)
-    }
 
     private fun PushedAuthorizationRequestResponseTO.authorizationCodeUrlOrFail(
         clientID: ClientID,
         codeVerifier: CodeVerifier,
         state: String,
-    ): Pair<PKCEVerifier, HttpsUrl> = when (this) {
-        is PushedAuthorizationRequestResponseTO.Success -> {
-            val authorizationCodeUrl = run {
-                val httpsUrl = URLBuilder(Url(authorizationEndpoint.toURI())).apply {
-                    parameters.append(AuthorizationEndpointParams.PARAM_CLIENT_ID, clientID.value)
-                    parameters.append(AuthorizationEndpointParams.PARAM_STATE, state)
-                    parameters.append(AuthorizationEndpointParams.PARAM_REQUEST_URI, requestURI)
-                }.build()
-                HttpsUrl(httpsUrl.toString()).getOrThrow()
+    ): Pair<PKCEVerifier, HttpsUrl> =
+        when (this) {
+            is PushedAuthorizationRequestResponseTO.Success -> {
+                val authorizationCodeUrl =
+                    run {
+                        val httpsUrl =
+                            URLBuilder(Url(authorizationEndpoint.toURI()))
+                                .apply {
+                                    parameters.append(AuthorizationEndpointParams.PARAM_CLIENT_ID, clientID.value)
+                                    parameters.append(AuthorizationEndpointParams.PARAM_STATE, state)
+                                    parameters.append(AuthorizationEndpointParams.PARAM_REQUEST_URI, requestURI)
+                                }.build()
+                        HttpsUrl(httpsUrl.toString()).getOrThrow()
+                    }
+                val pkceVerifier = PKCEVerifier(codeVerifier.value, CodeChallengeMethod.S256.toString())
+                pkceVerifier to authorizationCodeUrl
             }
-            val pkceVerifier = PKCEVerifier(codeVerifier.value, CodeChallengeMethod.S256.toString())
-            pkceVerifier to authorizationCodeUrl
-        }
 
-        is PushedAuthorizationRequestResponseTO.Failure -> throw RQESError.PushedAuthorizationRequestFailed(
-            error,
-            errorDescription,
-        )
-    }
+            is PushedAuthorizationRequestResponseTO.Failure -> {
+                throw RQESError.PushedAuthorizationRequestFailed(
+                    error,
+                    errorDescription,
+                )
+            }
+        }
 
     private suspend fun pushAuthorizationRequest(
         parEndpoint: URI,
         pushedAuthorizationRequest: PushedAuthorizationRequest,
         oauth2Client: OAuth2Client,
-    ): PushedAuthorizationRequestResponseTO = ktorHttpClientFactory().use { client ->
-        val url = parEndpoint.toURL()
-        val formParameters = pushedAuthorizationRequest.asFormPostParams()
+    ): PushedAuthorizationRequestResponseTO =
+        ktorHttpClientFactory().use { client ->
+            val url = parEndpoint.toURL()
+            val formParameters = pushedAuthorizationRequest.asFormPostParams()
 
-        val response = client.submitForm(
-            url = url.toString(),
-            formParameters = Parameters.build {
-                formParameters.entries.forEach { (k, v) -> append(k, v) }
-            },
-        ) {
-            if (oauth2Client is OAuth2Client.Confidential.ClientSecretBasic) {
-                headers {
-                    basicAuth(username = oauth2Client.clientId, password = oauth2Client.clientSecret)
+            val response =
+                client.submitForm(
+                    url = url.toString(),
+                    formParameters =
+                        Parameters.build {
+                            formParameters.entries.forEach { (k, v) -> append(k, v) }
+                        },
+                ) {
+                    if (oauth2Client is OAuth2Client.Confidential.ClientSecretBasic) {
+                        headers {
+                            basicAuth(username = oauth2Client.clientId, password = oauth2Client.clientSecret)
+                        }
+                    }
                 }
-            }
+            if (response.status.isSuccess())
+                response.body<PushedAuthorizationRequestResponseTO.Success>()
+            else
+                response.body<PushedAuthorizationRequestResponseTO.Failure>()
         }
-        if (response.status.isSuccess()) response.body<PushedAuthorizationRequestResponseTO.Success>()
-        else response.body<PushedAuthorizationRequestResponseTO.Failure>()
-    }
 
     private fun PushedAuthorizationRequest.asFormPostParams(): Map<String, String> =
         authorizationRequest.toParameters().mapValues { (_, value) -> value[0] }.toMap()
@@ -196,21 +220,23 @@ internal class AuthorizationEndpointClient(
         scopes: List<Scope>,
         credentialAuthorizationRequestType: CredentialAuthorizationRequestType?,
         state: String,
-    ): Result<Triple<PKCEVerifier, HttpsUrl, CredentialAuthorizationRequestType?>> = runCatching {
-        require(scopes.isNotEmpty() || credentialAuthorizationRequestType != null) {
-            "No scopes or authorization details provided. Cannot prepare authorization request."
-        }
+    ): Result<Triple<PKCEVerifier, HttpsUrl, CredentialAuthorizationRequestType?>> =
+        runCatching {
+            require(scopes.isNotEmpty() || credentialAuthorizationRequestType != null) {
+                "No scopes or authorization details provided. Cannot prepare authorization request."
+            }
 
-        val clientID = ClientID(cscClientConfig.client.clientId)
-        val codeVerifier = CodeVerifier()
-        val authorizationRequest = prepareAuthRequest(clientID, codeVerifier, state, scopes, credentialAuthorizationRequestType) {
-            endpointURI(authorizationEndpoint.toURI())
-        }
+            val clientID = ClientID(cscClientConfig.client.clientId)
+            val codeVerifier = CodeVerifier()
+            val authorizationRequest =
+                prepareAuthRequest(clientID, codeVerifier, state, scopes, credentialAuthorizationRequestType) {
+                    endpointURI(authorizationEndpoint.toURI())
+                }
 
-        val pkceVerifier = PKCEVerifier(codeVerifier.value, CodeChallengeMethod.S256.toString())
-        val url = HttpsUrl(authorizationRequest.toURI().toString()).getOrThrow()
-        Triple(pkceVerifier, url, credentialAuthorizationRequestType)
-    }
+            val pkceVerifier = PKCEVerifier(codeVerifier.value, CodeChallengeMethod.S256.toString())
+            val url = HttpsUrl(authorizationRequest.toURI().toString()).getOrThrow()
+            Triple(pkceVerifier, url, credentialAuthorizationRequestType)
+        }
 
     private fun prepareAuthRequest(
         clientID: ClientID,
@@ -219,8 +245,9 @@ internal class AuthorizationEndpointClient(
         scopes: List<Scope>,
         credentialAuthorizationRequestType: CredentialAuthorizationRequestType?,
         customize: AuthorizationRequest.Builder.() -> Unit = {},
-    ) =
-        AuthorizationRequest.Builder(ResponseType.CODE, clientID).apply {
+    ) = AuthorizationRequest
+        .Builder(ResponseType.CODE, clientID)
+        .apply {
             redirectionURI(cscClientConfig.authFlowRedirectionURI)
             codeChallenge(codeVerifier, CodeChallengeMethod.S256)
             state(State(state))
@@ -242,14 +269,19 @@ internal class AuthorizationEndpointClient(
             ) {
                 val subject = credentialAuthorizationRequestType.credentialAuthorizationSubject
                 when (subject.credentialRef) {
-                    is CredentialRef.ByCredentialID -> customParameter(
-                        "credentialID",
-                        subject.credentialRef.credentialID.value,
-                    )
-                    is CredentialRef.BySignatureQualifier -> customParameter(
-                        "signatureQualifier",
-                        subject.credentialRef.signatureQualifier.value,
-                    )
+                    is CredentialRef.ByCredentialID -> {
+                        customParameter(
+                            "credentialID",
+                            subject.credentialRef.credentialID.value,
+                        )
+                    }
+
+                    is CredentialRef.BySignatureQualifier -> {
+                        customParameter(
+                            "signatureQualifier",
+                            subject.credentialRef.signatureQualifier.value,
+                        )
+                    }
                 }
                 customParameter(
                     "hashes",

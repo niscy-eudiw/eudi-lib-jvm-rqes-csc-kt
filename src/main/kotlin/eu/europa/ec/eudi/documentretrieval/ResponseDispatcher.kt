@@ -23,7 +23,6 @@ import java.net.URI
  * and holder's [consensus][Consensus] and then dispatches it to the verifier
  */
 fun interface Dispatcher {
-
     /**
      * Assembles an appropriate authorization response given a [request][request]
      * and holder's [consensus][Consensus] and then dispatches it to the verifier.
@@ -39,7 +38,6 @@ fun interface Dispatcher {
  * a [ResolvedRequestObject]
  */
 sealed interface Consensus : Serializable {
-
     /**
      * Positive consensus. Holder decided to
      *  respond to the request
@@ -59,7 +57,9 @@ sealed interface Consensus : Serializable {
      * No consensus. Holder decided to reject
      * the request
      */
-    data class Negative(val error: String) : Consensus
+    data class Negative(
+        val error: String,
+    ) : Consensus
 }
 
 /**
@@ -67,11 +67,12 @@ sealed interface Consensus : Serializable {
  * verifier/RP.
  */
 sealed interface DispatchOutcome : Serializable {
-
     /**
      * When verifier/RP acknowledged the direct post
      */
-    data class Accepted(val redirectURI: URI?) : DispatchOutcome
+    data class Accepted(
+        val redirectURI: URI?,
+    ) : DispatchOutcome
 
     /**
      * When verifier/RP reject the direct post

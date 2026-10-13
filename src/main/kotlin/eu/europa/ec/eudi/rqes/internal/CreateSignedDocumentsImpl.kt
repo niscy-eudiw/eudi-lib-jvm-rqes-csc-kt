@@ -19,24 +19,26 @@ import eu.europa.ec.eudi.podofomanager.PodofoManager
 import eu.europa.ec.eudi.rqes.*
 import kotlinx.coroutines.runBlocking
 
-internal class CreateSignedDocumentsImpl() : CreateSignedDocuments {
+internal class CreateSignedDocumentsImpl : CreateSignedDocuments {
     companion object {
         private var podofoManager: PodofoManager? = null
         private var tsaUrl: String? = null
         private var includeRevocationInfo: Boolean = false
 
-        internal fun initialize(podofoManager: PodofoManager, cscClientConfig: CSCClientConfig) {
+        internal fun initialize(
+            podofoManager: PodofoManager,
+            cscClientConfig: CSCClientConfig,
+        ) {
             this.podofoManager = podofoManager
             this.tsaUrl = cscClientConfig.tsaurl
             this.includeRevocationInfo = cscClientConfig.includeRevocationInfo
         }
     }
 
-    override suspend fun createSignedDocuments(
-        signatures: List<Signature>,
-    ) = runBlocking {
-        val pdfManager = podofoManager ?: throw IllegalStateException("PodofoManager is not initialized")
-        val tsaUrl = tsaUrl ?: ""
-        pdfManager.createSignedDocuments(signatures.map { it.value }, tsaUrl, includeRevocationInfo)
-    }
+    override suspend fun createSignedDocuments(signatures: List<Signature>) =
+        runBlocking {
+            val pdfManager = podofoManager ?: throw IllegalStateException("PodofoManager is not initialized")
+            val tsaUrl = tsaUrl ?: ""
+            pdfManager.createSignedDocuments(signatures.map { it.value }, tsaUrl, includeRevocationInfo)
+        }
 }

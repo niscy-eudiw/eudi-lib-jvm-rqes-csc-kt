@@ -27,7 +27,6 @@ import java.net.URL
  * The payload of an [AuthorizationResponse]
  */
 internal sealed interface AuthorizationResponsePayload : Serializable {
-
     val nonce: String?
     val state: String?
     val clientId: String
@@ -70,7 +69,6 @@ internal sealed interface AuthorizationResponsePayload : Serializable {
  * An OAUTH2 authorization response
  */
 internal sealed interface AuthorizationResponse : Serializable {
-
     /**
      * An authorization response to be communicated to verifier/RP via direct_post method
      *
@@ -83,30 +81,29 @@ internal sealed interface AuthorizationResponse : Serializable {
     ) : AuthorizationResponse
 }
 
-internal fun ResolvedRequestObject.responseWith(
-    consensus: Consensus,
-): AuthorizationResponse {
+internal fun ResolvedRequestObject.responseWith(consensus: Consensus): AuthorizationResponse {
     val payload = responsePayload(consensus)
     return responseWith(payload)
 }
 
-private fun ResolvedRequestObject.responsePayload(
-    consensus: Consensus,
-): AuthorizationResponsePayload = when (consensus) {
-    is Consensus.Negative -> AuthorizationResponsePayload.NoConsensusResponseData(nonce, state, client.id)
-    is Consensus.Positive -> AuthorizationResponsePayload.Success(
-        nonce,
-        state,
-        client.id,
-        consensus.documentWithSignature,
-        consensus.signatureObject,
-    )
-}
+private fun ResolvedRequestObject.responsePayload(consensus: Consensus): AuthorizationResponsePayload =
+    when (consensus) {
+        is Consensus.Negative -> {
+            AuthorizationResponsePayload.NoConsensusResponseData(nonce, state, client.id)
+        }
 
-private fun ResolvedRequestObject.responseWith(
-    data: AuthorizationResponsePayload,
-): AuthorizationResponse {
-    return when (val mode = responseMode) {
+        is Consensus.Positive -> {
+            AuthorizationResponsePayload.Success(
+                nonce,
+                state,
+                client.id,
+                consensus.documentWithSignature,
+                consensus.signatureObject,
+            )
+        }
+    }
+
+private fun ResolvedRequestObject.responseWith(data: AuthorizationResponsePayload): AuthorizationResponse =
+    when (val mode = responseMode) {
         is ResponseMode.DirectPost -> AuthorizationResponse.DirectPost(mode.responseURI, data)
     }
-}

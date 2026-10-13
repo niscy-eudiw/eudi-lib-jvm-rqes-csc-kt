@@ -23,11 +23,12 @@ import kotlinx.serialization.json.Json
 
 typealias KtorHttpClientFactory = () -> HttpClient
 
-internal val JsonSupport: Json = Json {
-    ignoreUnknownKeys = true
-    prettyPrint = true
-    encodeDefaults = true
-}
+internal val JsonSupport: Json =
+    Json {
+        ignoreUnknownKeys = true
+        prettyPrint = true
+        encodeDefaults = true
+    }
 
 /**
  * Factory which produces a [Ktor Http client][HttpClient]

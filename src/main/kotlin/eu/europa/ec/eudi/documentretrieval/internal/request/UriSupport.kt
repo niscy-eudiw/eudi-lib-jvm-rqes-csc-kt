@@ -22,11 +22,9 @@ import java.net.URL
 /**
  * Convenient method for parsing a string into a [URL]
  */
-internal fun String.asURL(onError: (Throwable) -> Throwable = { it }): Result<URL> =
-    runCatching { URL(this) }.mapError(onError)
+internal fun String.asURL(onError: (Throwable) -> Throwable = { it }): Result<URL> = runCatching { URL(this) }.mapError(onError)
 
 /**
  * Convenient method for parsing a string into a [URI]
  */
-internal fun String.asURI(onError: (Throwable) -> Throwable = { it }): Result<URI> =
-    runCatching { URI(this) }.mapError(onError)
+internal fun String.asURI(onError: (Throwable) -> Throwable = { it }): Result<URI> = runCatching { URI(this) }.mapError(onError)

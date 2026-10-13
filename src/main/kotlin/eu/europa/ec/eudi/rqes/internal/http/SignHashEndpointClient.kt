@@ -35,7 +35,6 @@ internal data class SignHashRequestTO(
 
 @Serializable
 internal sealed interface SignHashResponseTO {
-
     @Serializable
     data class Success(
         @SerialName("signatures") val signatures: List<String>,
@@ -58,7 +57,6 @@ internal class SignHashEndpointClient(
     private val cscBaseURL: URL,
     private val ktorHttpClientFactory: KtorHttpClientFactory,
 ) {
-
     suspend fun signHashes(
         credentialID: CredentialID,
         hashes: List<String>,
@@ -67,25 +65,27 @@ internal class SignHashEndpointClient(
         signingAlgorithmParams: String?,
         token: AccessToken,
     ): SignaturesList =
-        ktorHttpClientFactory().use { client ->
-            val response = client.post("$cscBaseURL/signatures/signHash") {
-                header("Authorization", "Bearer ${token.accessToken}")
-                contentType(ContentType.Application.Json)
-                setBody(
-                    SignHashRequestTO(
-                        credentialID.value,
-                        hashes,
-                        hashAlgorithmOID.value,
-                        signAlgorithmOID.value,
-                        signingAlgorithmParams,
-                    ),
-                )
-            }
+        ktorHttpClientFactory()
+            .use { client ->
+                val response =
+                    client.post("$cscBaseURL/signatures/signHash") {
+                        header("Authorization", "Bearer ${token.accessToken}")
+                        contentType(ContentType.Application.Json)
+                        setBody(
+                            SignHashRequestTO(
+                                credentialID.value,
+                                hashes,
+                                hashAlgorithmOID.value,
+                                signAlgorithmOID.value,
+                                signingAlgorithmParams,
+                            ),
+                        )
+                    }
 
-            if (response.status.isSuccess()) {
-                response.body<SignHashResponseTO.Success>()
-            } else {
-                response.body<SignHashResponseTO.Failure>()
-            }
-        }.getOrFail()
+                if (response.status.isSuccess()) {
+                    response.body<SignHashResponseTO.Success>()
+                } else {
+                    response.body<SignHashResponseTO.Failure>()
+                }
+            }.getOrFail()
 }

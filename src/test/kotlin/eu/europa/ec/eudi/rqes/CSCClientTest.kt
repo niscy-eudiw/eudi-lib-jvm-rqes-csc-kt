@@ -21,44 +21,50 @@ import java.net.URI
 import kotlin.test.Test
 
 class CSCClientTest {
+    @Test
+    fun `create with RSSP Id`() =
+        runTest {
+            val mockedKtorHttpClientFactory =
+                mockedKtorHttpClientFactory(
+                    credentialIssuerMetaDataHandler(SampleRSSP.Id, "eu/europa/ec/eudi/rqes/internal/rssp_metadata_valid.json"),
+                    authServerWellKnownMocker(),
+                )
+
+            assertDoesNotThrow {
+                CSCClient
+                    .oauth2(
+                        rsspId = SampleRSSP.Id.toString(),
+                        cscClientConfig =
+                            CSCClientConfig(
+                                OAuth2Client.Public("client-id"),
+                                URI("https://example.com/redirect"),
+                                ParUsage.Never,
+                                RarUsage.Never,
+                                tsaurl = URI("http://ts.cartaodecidadao.pt/tsa/server").toString(),
+                                includeRevocationInfo = false,
+                            ),
+                        ktorHttpClientFactory = mockedKtorHttpClientFactory,
+                    ).getOrThrow()
+            }
+        }
 
     @Test
-    fun `create with RSSP Id`() = runTest {
-        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
-            credentialIssuerMetaDataHandler(SampleRSSP.Id, "eu/europa/ec/eudi/rqes/internal/rssp_metadata_valid.json"),
-            authServerWellKnownMocker(),
-        )
-
-        assertDoesNotThrow {
-            CSCClient.oauth2(
-                rsspId = SampleRSSP.Id.toString(),
-                cscClientConfig = CSCClientConfig(
-                    OAuth2Client.Public("client-id"),
-                    URI("https://example.com/redirect"),
-                    ParUsage.Never,
-                    RarUsage.Never,
-                    tsaurl = URI("http://ts.cartaodecidadao.pt/tsa/server").toString(),
-                    includeRevocationInfo = false,
-                ),
-                ktorHttpClientFactory = mockedKtorHttpClientFactory,
-            ).getOrThrow()
+    fun `create with metadata`() =
+        runTest {
+            assertDoesNotThrow {
+                CSCClient
+                    .oauth2(
+                        rsspMetadata = rsspMetadata(),
+                        cscClientConfig =
+                            CSCClientConfig(
+                                OAuth2Client.Public("client-id"),
+                                URI("https://example.com/redirect"),
+                                ParUsage.Never,
+                                RarUsage.Never,
+                                includeRevocationInfo = false,
+                            ),
+                        ktorHttpClientFactory = DefaultHttpClientFactory,
+                    ).getOrThrow()
+            }
         }
-    }
-
-    @Test
-    fun `create with metadata`() = runTest {
-        assertDoesNotThrow {
-            CSCClient.oauth2(
-                rsspMetadata = rsspMetadata(),
-                cscClientConfig = CSCClientConfig(
-                    OAuth2Client.Public("client-id"),
-                    URI("https://example.com/redirect"),
-                    ParUsage.Never,
-                    RarUsage.Never,
-                    includeRevocationInfo = false,
-                ),
-                ktorHttpClientFactory = DefaultHttpClientFactory,
-            ).getOrThrow()
-        }
-    }
 }

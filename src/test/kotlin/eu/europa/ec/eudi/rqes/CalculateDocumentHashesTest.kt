@@ -19,29 +19,37 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.*
 
 class CalculateDocumentHashesTest {
-
     @Test
-    fun `successful hash calculation`() = runTest {
-        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
-            authServerWellKnownMocker(),
-            credentialsInfoPostMocker(),
-            calculateHashPostMocker(),
-        )
+    fun `successful hash calculation`() =
+        runTest {
+            val mockedKtorHttpClientFactory =
+                mockedKtorHttpClientFactory(
+                    authServerWellKnownMocker(),
+                    credentialsInfoPostMocker(),
+                    calculateHashPostMocker(),
+                )
 
-        with(mockPublicClient(mockedKtorHttpClientFactory)) {
-            val documentDigestList = with(mockServiceAccessAuthorized) {
-                val credential = credentialInfo(CredentialsInfoRequest(CredentialID("83c7c559-db74-48da-aacc-d439d415cb81"))).getOrThrow()
+            with(mockPublicClient(mockedKtorHttpClientFactory)) {
+                val documentDigestList =
+                    with(mockServiceAccessAuthorized) {
+                        val credential =
+                            credentialInfo(
+                                CredentialsInfoRequest(CredentialID("83c7c559-db74-48da-aacc-d439d415cb81")),
+                            ).getOrThrow()
 
-                calculateDocumentHashes(
-                    mockDocumentsToSign,
-                    credential.certificate,
-                    HashAlgorithmOID.SHA_256,
+                        calculateDocumentHashes(
+                            mockDocumentsToSign,
+                            credential.certificate,
+                            HashAlgorithmOID.SHA_256,
+                        )
+                    }
+                assertNotNull(documentDigestList)
+                assertEquals(1, documentDigestList.documentDigests.size)
+                assertEquals(HashAlgorithmOID.SHA_256, documentDigestList.hashAlgorithmOID)
+                assertEquals(
+                    "sTOgwOm+474gFj0q0x1iSNspKqbcse4IeiqlDg/HWuI=",
+                    documentDigestList.documentDigests[0].hash.asBase64(),
                 )
             }
-            assertNotNull(documentDigestList)
-            assertEquals(1, documentDigestList.documentDigests.size)
-            assertEquals(HashAlgorithmOID.SHA_256, documentDigestList.hashAlgorithmOID)
-            assertEquals("sTOgwOm+474gFj0q0x1iSNspKqbcse4IeiqlDg/HWuI=", documentDigestList.documentDigests[0].hash.asBase64())
         }
-    }
 }

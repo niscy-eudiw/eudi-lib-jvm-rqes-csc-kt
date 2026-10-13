@@ -55,19 +55,19 @@ private data class CredentialsInfoRequestTO(
     @SerialName("clientData") val clientData: String? = null,
 ) {
     companion object {
-        fun from(request: CredentialsInfoRequest): CredentialsInfoRequestTO = CredentialsInfoRequestTO(
-            credentialID = request.credentialID.value,
-            certificates = request.certificates?.toString()?.lowercase(),
-            certInfo = request.certInfo,
-            authInfo = request.authInfo,
-            lang = request.lang,
-            clientData = request.clientData,
-        )
+        fun from(request: CredentialsInfoRequest): CredentialsInfoRequestTO =
+            CredentialsInfoRequestTO(
+                credentialID = request.credentialID.value,
+                certificates = request.certificates?.toString()?.lowercase(),
+                certInfo = request.certInfo,
+                authInfo = request.authInfo,
+                lang = request.lang,
+                clientData = request.clientData,
+            )
     }
 }
 
 internal sealed interface CredentialInfoTO {
-
     @Serializable
     data class Success(
         @SerialName("description") val description: String? = null,
@@ -80,17 +80,18 @@ internal sealed interface CredentialInfoTO {
         @SerialName("lang") val lang: String? = null,
     ) : CredentialInfoTO {
         companion object {
-            fun Success.toDomain(credentialID: CredentialID): CredentialInfo = CredentialInfo(
-                credentialID = credentialID,
-                description = description?.let { CredentialDescription(it) },
-                signatureQualifier = signatureQualifier?.let { SignatureQualifier(it) },
-                key = key.toDomain(),
-                certificate = certificate.toDomain(),
-                authorization = auth.toDomain(),
-                scal = SCAL.from(scal ?: "1"),
-                multisign = multisign,
-                lang = null,
-            )
+            fun Success.toDomain(credentialID: CredentialID): CredentialInfo =
+                CredentialInfo(
+                    credentialID = credentialID,
+                    description = description?.let { CredentialDescription(it) },
+                    signatureQualifier = signatureQualifier?.let { SignatureQualifier(it) },
+                    key = key.toDomain(),
+                    certificate = certificate.toDomain(),
+                    authorization = auth.toDomain(),
+                    scal = SCAL.from(scal ?: "1"),
+                    multisign = multisign,
+                    lang = null,
+                )
         }
     }
 
@@ -105,15 +106,18 @@ internal class CredentialsInfoEndpointClient(
     private val rsspBaseURL: URL,
     private val ktorHttpClientFactory: KtorHttpClientFactory,
 ) {
-
-    suspend fun credentialInfo(request: CredentialsInfoRequest, accessToken: AccessToken): Result<CredentialInfoTO> =
+    suspend fun credentialInfo(
+        request: CredentialsInfoRequest,
+        accessToken: AccessToken,
+    ): Result<CredentialInfoTO> =
         runCatching {
             ktorHttpClientFactory().use { client ->
-                val response = client.post("$rsspBaseURL/credentials/info") {
-                    bearerAuth(accessToken.accessToken)
-                    contentType(ContentType.Application.Json)
-                    setBody(CredentialsInfoRequestTO.from(request))
-                }
+                val response =
+                    client.post("$rsspBaseURL/credentials/info") {
+                        bearerAuth(accessToken.accessToken)
+                        contentType(ContentType.Application.Json)
+                        setBody(CredentialsInfoRequestTO.from(request))
+                    }
                 if (response.status.isSuccess()) {
                     response.body<CredentialInfoTO.Success>()
                 } else {

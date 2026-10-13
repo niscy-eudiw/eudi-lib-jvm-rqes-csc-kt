@@ -18,42 +18,45 @@ package eu.europa.ec.eudi.rqes.internal
 import eu.europa.ec.eudi.rqes.*
 import eu.europa.ec.eudi.rqes.internal.http.SignHashEndpointClient
 
-internal class SignHashImpl(private val signHashEndpointClient: SignHashEndpointClient) : SignHash {
-
+internal class SignHashImpl(
+    private val signHashEndpointClient: SignHashEndpointClient,
+) : SignHash {
     override suspend fun CredentialAuthorized.SCAL1.signHash(
         documentDigestList: DocumentDigestList,
         signingAlgorithmOID: SigningAlgorithmOID,
         signingAlgorithmParams: String?,
-    ): Result<SignaturesList> = runCatching {
-        require(documentDigestList.documentDigests.size <= numberOfSignatures) {
-            "The authorized number of signatures ($numberOfSignatures) is exceeded " +
-                "by the number of documents to sign (${documentDigestList.documentDigests.size})"
+    ): Result<SignaturesList> =
+        runCatching {
+            require(documentDigestList.documentDigests.size <= numberOfSignatures) {
+                "The authorized number of signatures ($numberOfSignatures) is exceeded " +
+                    "by the number of documents to sign (${documentDigestList.documentDigests.size})"
+            }
+            signHashEndpointClient.signHashes(
+                credentialID,
+                documentDigestList.documentDigests.map { it.hash.asBase64() },
+                documentDigestList.hashAlgorithmOID,
+                signingAlgorithmOID,
+                signingAlgorithmParams,
+                tokens.accessToken,
+            )
         }
-        signHashEndpointClient.signHashes(
-            credentialID,
-            documentDigestList.documentDigests.map { it.hash.asBase64() },
-            documentDigestList.hashAlgorithmOID,
-            signingAlgorithmOID,
-            signingAlgorithmParams,
-            tokens.accessToken,
-        )
-    }
 
     override suspend fun CredentialAuthorized.SCAL2.signHash(
         signingAlgorithmOID: SigningAlgorithmOID,
         signingAlgorithmParams: String?,
-    ): Result<SignaturesList> = runCatching {
-        require(documentDigestList.documentDigests.size <= numberOfSignatures) {
-            "The authorized number of signatures ($numberOfSignatures) is exceeded " +
-                "by the number of documents to sign (${documentDigestList.documentDigests.size})"
+    ): Result<SignaturesList> =
+        runCatching {
+            require(documentDigestList.documentDigests.size <= numberOfSignatures) {
+                "The authorized number of signatures ($numberOfSignatures) is exceeded " +
+                    "by the number of documents to sign (${documentDigestList.documentDigests.size})"
+            }
+            signHashEndpointClient.signHashes(
+                credentialID,
+                documentDigestList.documentDigests.map(DocumentDigest::hash).map { it.asBase64() },
+                documentDigestList.hashAlgorithmOID,
+                signingAlgorithmOID,
+                signingAlgorithmParams,
+                tokens.accessToken,
+            )
         }
-        signHashEndpointClient.signHashes(
-            credentialID,
-            documentDigestList.documentDigests.map(DocumentDigest::hash).map { it.asBase64() },
-            documentDigestList.hashAlgorithmOID,
-            signingAlgorithmOID,
-            signingAlgorithmParams,
-            tokens.accessToken,
-        )
-    }
 }

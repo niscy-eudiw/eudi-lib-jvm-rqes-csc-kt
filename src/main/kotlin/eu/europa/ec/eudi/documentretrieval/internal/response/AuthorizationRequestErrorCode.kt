@@ -19,8 +19,9 @@ import eu.europa.ec.eudi.documentretrieval.AuthorizationRequestError
 import eu.europa.ec.eudi.documentretrieval.HttpError
 import eu.europa.ec.eudi.documentretrieval.RequestValidationError.*
 
-internal enum class AuthorizationRequestErrorCode(val code: String) {
-
+internal enum class AuthorizationRequestErrorCode(
+    val code: String,
+) {
     /**
      * OpenId4VP Error Codes
      */
@@ -34,12 +35,11 @@ internal enum class AuthorizationRequestErrorCode(val code: String) {
     ;
 
     companion object {
-
         /**
          * Maps an [error] into a [AuthorizationRequestErrorCode]
          */
-        fun fromError(error: AuthorizationRequestError): AuthorizationRequestErrorCode {
-            return when (error) {
+        fun fromError(error: AuthorizationRequestError): AuthorizationRequestErrorCode =
+            when (error) {
                 InvalidClientId, UnsupportedClientIdScheme -> INVALID_CLIENT
 
                 is InvalidJarJwt,
@@ -69,6 +69,5 @@ internal enum class AuthorizationRequestErrorCode(val code: String) {
                 UnsupportedDocumentLocationMethod,
                 -> INVALID_REQUEST
             }
-        }
     }
 }

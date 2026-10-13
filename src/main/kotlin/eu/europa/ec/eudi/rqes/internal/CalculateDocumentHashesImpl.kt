@@ -18,12 +18,15 @@ package eu.europa.ec.eudi.rqes.internal
 import eu.europa.ec.eudi.podofomanager.PodofoManager
 import eu.europa.ec.eudi.rqes.*
 
-internal class CalculateDocumentHashesImpl() : CalculateDocumentHashes {
+internal class CalculateDocumentHashesImpl : CalculateDocumentHashes {
     companion object {
         private var podofoManager: PodofoManager? = null
         private var tsaUrl: String? = null
 
-        internal fun initialize(podofoManager: PodofoManager, tsaUrl: String?) {
+        internal fun initialize(
+            podofoManager: PodofoManager,
+            tsaUrl: String?,
+        ) {
             this.podofoManager = podofoManager
             this.tsaUrl = tsaUrl
         }

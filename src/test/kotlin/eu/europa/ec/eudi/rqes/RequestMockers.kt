@@ -25,39 +25,50 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.util.*
 
-internal fun credentialIssuerMetaDataHandler(id: RSSPId, resource: String): RequestMocker = RequestMocker(
-    match(id.info().value.toURI(), HttpMethod.Post),
-    jsonResponse(resource),
-)
+internal fun credentialIssuerMetaDataHandler(
+    id: RSSPId,
+    resource: String,
+): RequestMocker =
+    RequestMocker(
+        match(id.info().value.toURI(), HttpMethod.Post),
+        jsonResponse(resource),
+    )
 
-internal fun authServerWellKnownMocker(): RequestMocker = RequestMocker(
-    requestMatcher = endsWith("/.well-known/openid-configuration", HttpMethod.Get),
-    responseBuilder = {
-        respond(
-            content = getResourceAsText("well-known/openid-configuration.json"),
-            status = HttpStatusCode.OK,
-            headers = headersOf(
-                HttpHeaders.ContentType to listOf("application/json"),
-            ),
-        )
-    },
-)
+internal fun authServerWellKnownMocker(): RequestMocker =
+    RequestMocker(
+        requestMatcher = endsWith("/.well-known/openid-configuration", HttpMethod.Get),
+        responseBuilder = {
+            respond(
+                content = getResourceAsText("well-known/openid-configuration.json"),
+                status = HttpStatusCode.OK,
+                headers =
+                    headersOf(
+                        HttpHeaders.ContentType to listOf("application/json"),
+                    ),
+            )
+        },
+    )
 
-internal fun parPostMocker(parEndpoint: String, validator: (request: HttpRequestData) -> Unit = {}): RequestMocker =
+internal fun parPostMocker(
+    parEndpoint: String,
+    validator: (request: HttpRequestData) -> Unit = {},
+): RequestMocker =
     RequestMocker(
         requestMatcher = endsWith(parEndpoint, HttpMethod.Post),
         responseBuilder = {
             respond(
-                content = Json.encodeToString(
-                    PushedAuthorizationRequestResponseTO.Success(
-                        "org:example:oauth:request_uri:6esc_11ACC5bwc014ltc14eY22c",
-                        3600,
+                content =
+                    Json.encodeToString(
+                        PushedAuthorizationRequestResponseTO.Success(
+                            "org:example:oauth:request_uri:6esc_11ACC5bwc014ltc14eY22c",
+                            3600,
+                        ),
                     ),
-                ),
                 status = HttpStatusCode.OK,
-                headers = headersOf(
-                    HttpHeaders.ContentType to listOf("application/json"),
-                ),
+                headers =
+                    headersOf(
+                        HttpHeaders.ContentType to listOf("application/json"),
+                    ),
             )
         },
         requestValidator = validator,
@@ -71,17 +82,19 @@ internal fun tokenPostMocker(
         requestMatcher = endsWith("/token", HttpMethod.Post),
         responseBuilder = {
             respond(
-                content = Json.encodeToString(
-                    TokenResponseTO.Success(
-                        accessToken = UUID.randomUUID().toString(),
-                        expiresIn = 3600,
-                        authorizationDetails = authorizationDetails,
+                content =
+                    Json.encodeToString(
+                        TokenResponseTO.Success(
+                            accessToken = UUID.randomUUID().toString(),
+                            expiresIn = 3600,
+                            authorizationDetails = authorizationDetails,
+                        ),
                     ),
-                ),
                 status = HttpStatusCode.OK,
-                headers = headersOf(
-                    HttpHeaders.ContentType to listOf("application/json"),
-                ),
+                headers =
+                    headersOf(
+                        HttpHeaders.ContentType to listOf("application/json"),
+                    ),
             )
         },
         requestValidator = validator,
@@ -95,9 +108,10 @@ internal fun credentialsListPostMocker(validator: (request: HttpRequestData) -> 
             respond(
                 content = content,
                 status = HttpStatusCode.OK,
-                headers = headersOf(
-                    HttpHeaders.ContentType to listOf("application/json"),
-                ),
+                headers =
+                    headersOf(
+                        HttpHeaders.ContentType to listOf("application/json"),
+                    ),
             )
         },
         requestValidator = validator,
@@ -114,9 +128,10 @@ internal fun credentialsInfoPostMocker(
             respond(
                 content = content,
                 status = HttpStatusCode.OK,
-                headers = headersOf(
-                    HttpHeaders.ContentType to listOf("application/json"),
-                ),
+                headers =
+                    headersOf(
+                        HttpHeaders.ContentType to listOf("application/json"),
+                    ),
             )
         },
         requestValidator = validator,
@@ -130,9 +145,10 @@ internal fun calculateHashPostMocker(validator: (request: HttpRequestData) -> Un
             respond(
                 content = content,
                 status = HttpStatusCode.OK,
-                headers = headersOf(
-                    HttpHeaders.ContentType to listOf("application/json"),
-                ),
+                headers =
+                    headersOf(
+                        HttpHeaders.ContentType to listOf("application/json"),
+                    ),
             )
         },
         requestValidator = validator,
@@ -146,9 +162,10 @@ internal fun obtainSignedDocPostMocker(validator: (request: HttpRequestData) -> 
             respond(
                 content = content,
                 status = HttpStatusCode.OK,
-                headers = headersOf(
-                    HttpHeaders.ContentType to listOf("application/json"),
-                ),
+                headers =
+                    headersOf(
+                        HttpHeaders.ContentType to listOf("application/json"),
+                    ),
             )
         },
         requestValidator = validator,
@@ -162,9 +179,10 @@ internal fun signHashPostMocker(validator: (request: HttpRequestData) -> Unit = 
             respond(
                 content = content,
                 status = HttpStatusCode.OK,
-                headers = headersOf(
-                    HttpHeaders.ContentType to listOf("application/json"),
-                ),
+                headers =
+                    headersOf(
+                        HttpHeaders.ContentType to listOf("application/json"),
+                    ),
             )
         },
         requestValidator = validator,

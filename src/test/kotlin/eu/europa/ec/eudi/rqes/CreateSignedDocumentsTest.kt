@@ -20,50 +20,59 @@ import java.net.URI
 import kotlin.test.Test
 
 class CreateSignedDocumentsTest {
-
     @Test
-    fun `successful create signed documents`() = runTest {
-        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
-            authServerWellKnownMocker(),
-            credentialsInfoPostMocker(),
-            calculateHashPostMocker(),
-            obtainSignedDocPostMocker(),
-        )
-
-        with(
-            mockPublicClient(
-                mockedKtorHttpClientFactory,
-                tsaurl = URI("http://ts.cartaodecidadao.pt/tsa/server").toString(),
-                includeRevocationInfo = false,
-            ),
-        ) {
-            val documentsToSign = listOf(
-                DocumentToSign(
-                    documentInputPath = ClassLoader.getSystemResource("sample.pdf").path,
-                    documentOutputPath = "signed_test.pdf",
-                    label = "test.pdf",
-                    signatureFormat = SignatureFormat.P,
-                    conformanceLevel = ConformanceLevel.ADES_B_B,
-                    signedEnvelopeProperty = SignedEnvelopeProperty.ENVELOPED,
-                    asicContainer = ASICContainer.NONE,
-                ),
-            )
-
-            with(mockServiceAccessAuthorized) {
-                val credential =
-                    credentialInfo(CredentialsInfoRequest(CredentialID("83c7c559-db74-48da-aacc-d439d415cb81"))).getOrThrow()
-
-                val documentDigestList = calculateDocumentHashes(
-                    documentsToSign,
-                    credential.certificate,
-                    HashAlgorithmOID.SHA_256,
+    fun `successful create signed documents`() =
+        runTest {
+            val mockedKtorHttpClientFactory =
+                mockedKtorHttpClientFactory(
+                    authServerWellKnownMocker(),
+                    credentialsInfoPostMocker(),
+                    calculateHashPostMocker(),
+                    obtainSignedDocPostMocker(),
                 )
 
-                val signatures =
-                    listOf(Signature("MEUCIG5WwZcgN68iRdkGNqUYFpn6Q7v5Up1rqU7/9iHYm3MHAiEAmthZYmnIiUAmKsfElOOBcNtEQuI9LKJTeK2Vd9WUBYA="))
+            with(
+                mockPublicClient(
+                    mockedKtorHttpClientFactory,
+                    tsaurl = URI("http://ts.cartaodecidadao.pt/tsa/server").toString(),
+                    includeRevocationInfo = false,
+                ),
+            ) {
+                val documentsToSign =
+                    listOf(
+                        DocumentToSign(
+                            documentInputPath = ClassLoader.getSystemResource("sample.pdf").path,
+                            documentOutputPath = "signed_test.pdf",
+                            label = "test.pdf",
+                            signatureFormat = SignatureFormat.P,
+                            conformanceLevel = ConformanceLevel.ADES_B_B,
+                            signedEnvelopeProperty = SignedEnvelopeProperty.ENVELOPED,
+                            asicContainer = ASICContainer.NONE,
+                        ),
+                    )
 
-                createSignedDocuments(signatures)
+                with(mockServiceAccessAuthorized) {
+                    val credential =
+                        credentialInfo(
+                            CredentialsInfoRequest(CredentialID("83c7c559-db74-48da-aacc-d439d415cb81")),
+                        ).getOrThrow()
+
+                    val documentDigestList =
+                        calculateDocumentHashes(
+                            documentsToSign,
+                            credential.certificate,
+                            HashAlgorithmOID.SHA_256,
+                        )
+
+                    val signatures =
+                        listOf(
+                            Signature(
+                                "MEUCIG5WwZcgN68iRdkGNqUYFpn6Q7v5Up1rqU7/9iHYm3MHAiEAmthZYmnIiUAmKsfElOOBcNtEQuI9LKJTeK2Vd9WUBYA=",
+                            ),
+                        )
+
+                    createSignedDocuments(signatures)
+                }
             }
         }
-    }
 }

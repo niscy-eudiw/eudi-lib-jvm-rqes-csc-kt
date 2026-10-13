@@ -46,15 +46,16 @@ private data class CredentialsListRequestTO(
     @SerialName("clientData") val clientData: String? = null,
 ) {
     companion object {
-        fun from(request: CredentialsListRequest): CredentialsListRequestTO = CredentialsListRequestTO(
-            credentialInfo = request.credentialInfo,
-            certificates = request.certificates?.toString()?.lowercase(),
-            certInfo = request.certInfo,
-            authInfo = request.authInfo,
-            onlyValid = request.onlyValid,
-            lang = request.lang,
-            clientData = request.clientData,
-        )
+        fun from(request: CredentialsListRequest): CredentialsListRequestTO =
+            CredentialsListRequestTO(
+                credentialInfo = request.credentialInfo,
+                certificates = request.certificates?.toString()?.lowercase(),
+                certInfo = request.certInfo,
+                authInfo = request.authInfo,
+                onlyValid = request.onlyValid,
+                lang = request.lang,
+                clientData = request.clientData,
+            )
     }
 }
 
@@ -86,17 +87,18 @@ internal class ListCredentialInfoTO(
     @SerialName("lang") val lang: String? = null,
 ) {
     companion object {
-        fun ListCredentialInfoTO.toDomain(): CredentialInfo = CredentialInfo(
-            credentialID = CredentialID(credentialId),
-            description = description?.let { CredentialDescription(it) },
-            signatureQualifier = signatureQualifier?.let { SignatureQualifier(it) },
-            key = key.toDomain(),
-            certificate = certificate.toDomain(),
-            authorization = auth.toDomain(),
-            scal = SCAL.from(scal ?: "1"),
-            multisign = multisign,
-            lang = null,
-        )
+        fun ListCredentialInfoTO.toDomain(): CredentialInfo =
+            CredentialInfo(
+                credentialID = CredentialID(credentialId),
+                description = description?.let { CredentialDescription(it) },
+                signatureQualifier = signatureQualifier?.let { SignatureQualifier(it) },
+                key = key.toDomain(),
+                certificate = certificate.toDomain(),
+                authorization = auth.toDomain(),
+                scal = SCAL.from(scal ?: "1"),
+                multisign = multisign,
+                lang = null,
+            )
     }
 }
 
@@ -108,12 +110,13 @@ internal class CredentialKeyTO(
     @SerialName("curve") val curve: String? = null,
 ) {
     companion object {
-        fun CredentialKeyTO.toDomain(): CredentialKey = CredentialKey(
-            status = toCredentialKeyStatus(status),
-            supportedAlgorithms = algo.map { SigningAlgorithmOID(it) },
-            length = length,
-            curve = curve,
-        )
+        fun CredentialKeyTO.toDomain(): CredentialKey =
+            CredentialKey(
+                status = toCredentialKeyStatus(status),
+                supportedAlgorithms = algo.map { SigningAlgorithmOID(it) },
+                length = length,
+                curve = curve,
+            )
     }
 }
 
@@ -166,23 +169,25 @@ internal fun toCertificate(
     validTo: String?,
     qcStatements: List<String> = emptyList(),
     policy: List<String>? = null,
-): CredentialCertificate = CredentialCertificate(
-    status = status?.let { toCertificateStatus(it) },
-    certificates = certificates?.map {
-        val certificateBytes: ByteArray = Base64.getDecoder().decode(it)
-        val inputStream = ByteArrayInputStream(certificateBytes)
-        val x509CertificateFactory = CertificateFactory.getInstance("X.509")
-        x509CertificateFactory.generateCertificate(inputStream) as X509Certificate
-    },
-    rawCertificates = certificates ?: emptyList(),
-    issuerDN = X500Principal(issuerDN),
-    serialNumber = serialNumber,
-    subjectDN = X500Principal(subjectDN),
-    validFrom = validFrom?.let { LocalDateTime.parse(it, DateTimeFormatter.ofPattern("yyyyMMddHHmmssX")) },
-    validTo = validTo?.let { LocalDateTime.parse(it, DateTimeFormatter.ofPattern("yyyyMMddHHmmssX")) },
-    qcStatements = qcStatements,
-    policy = policy,
-)
+): CredentialCertificate =
+    CredentialCertificate(
+        status = status?.let { toCertificateStatus(it) },
+        certificates =
+            certificates?.map {
+                val certificateBytes: ByteArray = Base64.getDecoder().decode(it)
+                val inputStream = ByteArrayInputStream(certificateBytes)
+                val x509CertificateFactory = CertificateFactory.getInstance("X.509")
+                x509CertificateFactory.generateCertificate(inputStream) as X509Certificate
+            },
+        rawCertificates = certificates ?: emptyList(),
+        issuerDN = X500Principal(issuerDN),
+        serialNumber = serialNumber,
+        subjectDN = X500Principal(subjectDN),
+        validFrom = validFrom?.let { LocalDateTime.parse(it, DateTimeFormatter.ofPattern("yyyyMMddHHmmssX")) },
+        validTo = validTo?.let { LocalDateTime.parse(it, DateTimeFormatter.ofPattern("yyyyMMddHHmmssX")) },
+        qcStatements = qcStatements,
+        policy = policy,
+    )
 
 @Serializable
 internal class CredentialAuthTO(
@@ -191,17 +196,22 @@ internal class CredentialAuthTO(
     @SerialName("objects") @Required val objects: List<AuthenticationObjectTO>?,
 ) {
     companion object {
-        fun CredentialAuthTO.toDomain(): CredentialAuthorization = when (mode) {
-            "oauth2Code" -> CredentialAuthorization.OAuth2Code(
-                authorizationMode = toAuthorizationMode(mode),
-            )
+        fun CredentialAuthTO.toDomain(): CredentialAuthorization =
+            when (mode) {
+                "oauth2Code" -> {
+                    CredentialAuthorization.OAuth2Code(
+                        authorizationMode = toAuthorizationMode(mode),
+                    )
+                }
 
-            else -> CredentialAuthorization.Explicit(
-                authorizationMode = toAuthorizationMode(mode),
-                expression = expression,
-                authenticationObjects = objects?.map { it.toDomain() },
-            )
-        }
+                else -> {
+                    CredentialAuthorization.Explicit(
+                        authorizationMode = toAuthorizationMode(mode),
+                        expression = expression,
+                        authenticationObjects = objects?.map { it.toDomain() },
+                    )
+                }
+            }
     }
 }
 
@@ -215,44 +225,55 @@ internal class AuthenticationObjectTO(
     @SerialName("generator") val generator: String? = null,
 ) {
     companion object {
-        fun AuthenticationObjectTO.toDomain(): AuthenticationObject = when (type) {
-            "Password" -> AuthenticationObject.InBandPassword(
-                type = type,
-                id = id,
-                label = label,
-                description = description,
-                format = format?.let { AuthenticationObjectFormat.valueOf(it) },
-                generator = generator,
-            )
+        fun AuthenticationObjectTO.toDomain(): AuthenticationObject =
+            when (type) {
+                "Password" -> {
+                    AuthenticationObject.InBandPassword(
+                        type = type,
+                        id = id,
+                        label = label,
+                        description = description,
+                        format = format?.let { AuthenticationObjectFormat.valueOf(it) },
+                        generator = generator,
+                    )
+                }
 
-            "PasswordOOB" -> AuthenticationObject.OutOfBandPassword(
-                type = type,
-                id = id,
-                label = label,
-                description = description,
-                format = format?.let { AuthenticationObjectFormat.valueOf(it) },
-                generator = generator,
-            )
+                "PasswordOOB" -> {
+                    AuthenticationObject.OutOfBandPassword(
+                        type = type,
+                        id = id,
+                        label = label,
+                        description = description,
+                        format = format?.let { AuthenticationObjectFormat.valueOf(it) },
+                        generator = generator,
+                    )
+                }
 
-            "ChallengeResponse" -> AuthenticationObject.ChallengeResponse(
-                type = type,
-                id = id,
-                label = label,
-                description = description,
-                format = format?.let { AuthenticationObjectFormat.valueOf(it) },
-                generator = generator,
-            )
+                "ChallengeResponse" -> {
+                    AuthenticationObject.ChallengeResponse(
+                        type = type,
+                        id = id,
+                        label = label,
+                        description = description,
+                        format = format?.let { AuthenticationObjectFormat.valueOf(it) },
+                        generator = generator,
+                    )
+                }
 
-            "ChallengeResponseOOB" -> AuthenticationObject.OutOfBandChallengeResponse(
-                type = type,
-                id = id,
-                label = label,
-                description = description,
-                generator = generator,
-            )
+                "ChallengeResponseOOB" -> {
+                    AuthenticationObject.OutOfBandChallengeResponse(
+                        type = type,
+                        id = id,
+                        label = label,
+                        description = description,
+                        generator = generator,
+                    )
+                }
 
-            else -> throw IllegalArgumentException("Unknown authentication object type: $type")
-        }
+                else -> {
+                    throw IllegalArgumentException("Unknown authentication object type: $type")
+                }
+            }
     }
 }
 
@@ -260,15 +281,18 @@ internal class CredentialsListEndpointClient(
     private val rsspBaseURL: URL,
     private val ktorHttpClientFactory: KtorHttpClientFactory,
 ) {
-
-    suspend fun listCredentials(request: CredentialsListRequest, accessToken: AccessToken): Result<CredentialsListTO> =
+    suspend fun listCredentials(
+        request: CredentialsListRequest,
+        accessToken: AccessToken,
+    ): Result<CredentialsListTO> =
         runCatching {
             ktorHttpClientFactory().use { client ->
-                val response = client.post("$rsspBaseURL/credentials/list") {
-                    bearerAuth(accessToken.accessToken)
-                    contentType(ContentType.Application.Json)
-                    setBody(CredentialsListRequestTO.from(request))
-                }
+                val response =
+                    client.post("$rsspBaseURL/credentials/list") {
+                        bearerAuth(accessToken.accessToken)
+                        contentType(ContentType.Application.Json)
+                        setBody(CredentialsListRequestTO.from(request))
+                    }
                 if (response.status.isSuccess()) {
                     response.body<CredentialsListTO.Success>()
                 } else {

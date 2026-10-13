@@ -20,11 +20,14 @@ import java.time.LocalDateTime
 import javax.security.auth.x500.X500Principal
 
 enum class Certificates {
-    None, Single, Chain
+    None,
+    Single,
+    Chain,
 }
 
 enum class AuthorizationMode {
-    Explicit, OAuth2Code
+    Explicit,
+    OAuth2Code,
 }
 
 data class CredentialInfo(
@@ -40,14 +43,17 @@ data class CredentialInfo(
 )
 
 enum class SCAL {
-    One, Two;
+    One,
+    Two,
+    ;
 
     companion object {
-        fun from(value: String) = when (value) {
-            "1" -> One
-            "2" -> Two
-            else -> throw IllegalArgumentException("Unsupported SCAL value: $value")
-        }
+        fun from(value: String) =
+            when (value) {
+                "1" -> One
+                "2" -> Two
+                else -> throw IllegalArgumentException("Unsupported SCAL value: $value")
+            }
     }
 }
 
@@ -128,19 +134,26 @@ sealed interface AuthenticationObject {
 }
 
 enum class AuthenticationObjectFormat {
-    A, N
+    A,
+    N,
 }
 
 enum class CredentialKeyStatus {
-    Enabled, Disabled
+    Enabled,
+    Disabled,
 }
 
 enum class CredentialCertificateStatus {
-    Valid, Expired, Revoked, Suspended
+    Valid,
+    Expired,
+    Revoked,
+    Suspended,
 }
 
 @JvmInline
-value class CredentialDescription(val value: String) {
+value class CredentialDescription(
+    val value: String,
+) {
     init {
         require(value.length <= 255) { "Description cannot be longer than 255 characters" }
     }

@@ -24,7 +24,10 @@ import java.net.URI
 import java.util.*
 
 internal object RSSPMetadataJsonParser {
-    fun parseMetaData(rsspId: RSSPId, json: String): RSSPMetadataContent<AuthorizationServerRef> {
+    fun parseMetaData(
+        rsspId: RSSPId,
+        json: String,
+    ): RSSPMetadataContent<AuthorizationServerRef> {
         val parsed = parseJson(json)
         return contents(rsspId, parsed)
     }
@@ -112,78 +115,91 @@ private fun contents(
     )
 }
 
-private fun localeOf(metadata: RSSPMetadataTO): Locale =
-    run { Locale.forLanguageTag(metadata.lang) }
+private fun localeOf(metadata: RSSPMetadataTO): Locale = run { Locale.forLanguageTag(metadata.lang) }
 
-internal fun RSSPMethod.Companion.from(s: String): RSSPMethod? = when (s) {
-    "info" -> RSSPMethod.Info
-    "auth/login" -> RSSPMethod.AuthLogin
-    "auth/revoke" -> RSSPMethod.AuthRevoke
-    "credentials/list" -> RSSPMethod.CredentialsList
-    "credentials/info" -> RSSPMethod.CredentialsInfo
-    "credentials/authorize" -> RSSPMethod.CredentialsAuthorize
-    "credentials/authorizeCheck" -> RSSPMethod.CredentialsAuthorizeCheck
-    "credentials/getChallenge" -> RSSPMethod.CredentialsGetChallenge
-    "credentials/sendOTP" -> RSSPMethod.CredentialsSendOTP
-    "credentials/extendTransaction" -> RSSPMethod.CredentialsExtendTransaction
-    "credentials/create" -> RSSPMethod.CredentialsCreate
-    "credentials/delete" -> RSSPMethod.CredentialsDelete
-    "signatures/signHash" -> RSSPMethod.SignaturesSignHash
-    "signatures/signDoc" -> RSSPMethod.SignaturesSignDoc
-    "signatures/signPolling" -> RSSPMethod.SignaturesSignPolling
-    "signatures/timestamp" -> RSSPMethod.SignaturesTimestamp
-    else -> null
-}
-
-private fun authTypesSupported(
-    metadata: RSSPMetadataTO,
-): Set<AuthType<AuthorizationServerRef>> {
-    val authTypes = buildSet {
-        metadata.authTypes.forEach { authType ->
-            when (authType) {
-                "external" -> add(AuthType.External)
-                "tls" -> add(AuthType.TLS)
-                "basic" -> add(AuthType.Basic)
-                "digest" -> add(AuthType.Digest)
-                else -> {
-                    // Do nothing
-                }
-            }
-        }
-
-        metadata.oauth2Servers?.let { servers ->
-            require(metadata.supportsRar == null) { "supportsRar SHALL NOT be present if oauth2Servers is present" }
-            require(metadata.oauth2 == null && metadata.oauth2Issuer == null) {
-                "Exactly one of oauth2, oauth2Issuer, or oauth2Servers SHALL be present"
-            }
-            val grants = grantTypesOf(metadata)
-            require(grants.isNotEmpty()) {
-                "oauth2Servers SHALL only be present if authType contains $OAUTH2_CODE or $OAUTH2_CLIENT"
-            }
-            val metadataOauth2Types = metadata.authTypes.filter { it in listOf(OAUTH2_CODE, OAUTH2_CLIENT) }.toSet()
-            val serversUnionAuthTypes = servers.flatMap { it.authType }.toSet()
-            require(metadataOauth2Types.all { it in serversUnionAuthTypes }) {
-                "oauth2Servers SHALL collectively satisfy all oauth2-related authTypes declared in metadata.authType"
-            }
-            val authServerRefs = servers.mapNotNull { server ->
-                authServerRefFromOAuth2Server(server)
-            }.toSet()
-            add(AuthType.OAuth2(authServerRefs))
-        } ?: run {
-            val grants = grantTypesOf(metadata)
-            if (grants.isNotEmpty()) {
-                val authServerRef = authServerRef(metadata)
-                requireNotNull(authServerRef) {
-                    "When authTypes $OAUTH2_CLIENT and/or $OAUTH2_CODE are provided one of oauth2Issuer or oauth2 is expected"
-                }
-                add(AuthType.OAuth2(setOf(authServerRef)))
-            } else {
-                require(metadata.oauth2 == null && metadata.oauth2Issuer == null) {
-                    "oauth2 or oauth2Issuer SHALL NOT be present if authType does not contain $OAUTH2_CODE or $OAUTH2_CLIENT"
-                }
-            }
-        }
+internal fun RSSPMethod.Companion.from(s: String): RSSPMethod? =
+    when (s) {
+        "info" -> RSSPMethod.Info
+        "auth/login" -> RSSPMethod.AuthLogin
+        "auth/revoke" -> RSSPMethod.AuthRevoke
+        "credentials/list" -> RSSPMethod.CredentialsList
+        "credentials/info" -> RSSPMethod.CredentialsInfo
+        "credentials/authorize" -> RSSPMethod.CredentialsAuthorize
+        "credentials/authorizeCheck" -> RSSPMethod.CredentialsAuthorizeCheck
+        "credentials/getChallenge" -> RSSPMethod.CredentialsGetChallenge
+        "credentials/sendOTP" -> RSSPMethod.CredentialsSendOTP
+        "credentials/extendTransaction" -> RSSPMethod.CredentialsExtendTransaction
+        "credentials/create" -> RSSPMethod.CredentialsCreate
+        "credentials/delete" -> RSSPMethod.CredentialsDelete
+        "signatures/signHash" -> RSSPMethod.SignaturesSignHash
+        "signatures/signDoc" -> RSSPMethod.SignaturesSignDoc
+        "signatures/signPolling" -> RSSPMethod.SignaturesSignPolling
+        "signatures/timestamp" -> RSSPMethod.SignaturesTimestamp
+        else -> null
     }
+
+private fun authTypesSupported(metadata: RSSPMetadataTO): Set<AuthType<AuthorizationServerRef>> {
+    val authTypes =
+        buildSet {
+            metadata.authTypes.forEach { authType ->
+                when (authType) {
+                    "external" -> {
+                        add(AuthType.External)
+                    }
+
+                    "tls" -> {
+                        add(AuthType.TLS)
+                    }
+
+                    "basic" -> {
+                        add(AuthType.Basic)
+                    }
+
+                    "digest" -> {
+                        add(AuthType.Digest)
+                    }
+
+                    else -> {
+                        // Do nothing
+                    }
+                }
+            }
+
+            metadata.oauth2Servers?.let { servers ->
+                require(metadata.supportsRar == null) { "supportsRar SHALL NOT be present if oauth2Servers is present" }
+                require(metadata.oauth2 == null && metadata.oauth2Issuer == null) {
+                    "Exactly one of oauth2, oauth2Issuer, or oauth2Servers SHALL be present"
+                }
+                val grants = grantTypesOf(metadata)
+                require(grants.isNotEmpty()) {
+                    "oauth2Servers SHALL only be present if authType contains $OAUTH2_CODE or $OAUTH2_CLIENT"
+                }
+                val metadataOauth2Types = metadata.authTypes.filter { it in listOf(OAUTH2_CODE, OAUTH2_CLIENT) }.toSet()
+                val serversUnionAuthTypes = servers.flatMap { it.authType }.toSet()
+                require(metadataOauth2Types.all { it in serversUnionAuthTypes }) {
+                    "oauth2Servers SHALL collectively satisfy all oauth2-related authTypes declared in metadata.authType"
+                }
+                val authServerRefs =
+                    servers
+                        .mapNotNull { server ->
+                            authServerRefFromOAuth2Server(server)
+                        }.toSet()
+                add(AuthType.OAuth2(authServerRefs))
+            } ?: run {
+                val grants = grantTypesOf(metadata)
+                if (grants.isNotEmpty()) {
+                    val authServerRef = authServerRef(metadata)
+                    requireNotNull(authServerRef) {
+                        "When authTypes $OAUTH2_CLIENT and/or $OAUTH2_CODE are provided one of oauth2Issuer or oauth2 is expected"
+                    }
+                    add(AuthType.OAuth2(setOf(authServerRef)))
+                } else {
+                    require(metadata.oauth2 == null && metadata.oauth2Issuer == null) {
+                        "oauth2 or oauth2Issuer SHALL NOT be present if authType does not contain $OAUTH2_CODE or $OAUTH2_CLIENT"
+                    }
+                }
+            }
+        }
 
     return authTypes
 }
@@ -197,8 +213,12 @@ private fun authServerRef(metadata: RSSPMetadataTO): AuthorizationServerRef? {
 
     val grants = metadata.authTypes.filter { it in listOf(OAUTH2_CLIENT, OAUTH2_CODE) }
 
-    fun urlOrNull(s: String, grants: List<String>, supportsRar: Boolean, f: (HttpsUrl, List<String>, Boolean) -> AuthorizationServerRef) =
-        HttpsUrl(s).getOrNull()?.let { f(it, grants, supportsRar) }
+    fun urlOrNull(
+        s: String,
+        grants: List<String>,
+        supportsRar: Boolean,
+        f: (HttpsUrl, List<String>, Boolean) -> AuthorizationServerRef,
+    ) = HttpsUrl(s).getOrNull()?.let { f(it, grants, supportsRar) }
 
     return when {
         issuerClaim != null -> urlOrNull(issuerClaim, grants, metadata.supportsRar ?: false, AuthorizationServerRef::IssuerClaim)
@@ -212,17 +232,26 @@ private fun authServerRefFromOAuth2Server(server: OAuth2Server): AuthorizationSe
     require(server.issuerIdentifier != null || server.baseUri != null) { "issuerIdentifier or baseUri must be set" }
     require(!(server.issuerIdentifier != null && server.baseUri != null)) { "issuerIdentifier and baseUri cannot both be set" }
 
-    fun urlOrNull(s: String, grants: List<String>, supportsRar: Boolean, f: (HttpsUrl, List<String>, Boolean) -> AuthorizationServerRef) =
-        HttpsUrl(s).getOrNull()?.let { f(it, grants, supportsRar) }
+    fun urlOrNull(
+        s: String,
+        grants: List<String>,
+        supportsRar: Boolean,
+        f: (HttpsUrl, List<String>, Boolean) -> AuthorizationServerRef,
+    ) = HttpsUrl(s).getOrNull()?.let { f(it, grants, supportsRar) }
 
     return when {
-        server.issuerIdentifier != null -> urlOrNull(
-            server.issuerIdentifier,
-            server.authType,
-            server.supportsRar ?: false,
-            AuthorizationServerRef::IssuerClaim,
-        )
-        else -> urlOrNull(server.baseUri!!, server.authType, server.supportsRar ?: false, AuthorizationServerRef::CSCAuth2Claim)
+        server.issuerIdentifier != null -> {
+            urlOrNull(
+                server.issuerIdentifier,
+                server.authType,
+                server.supportsRar ?: false,
+                AuthorizationServerRef::IssuerClaim,
+            )
+        }
+
+        else -> {
+            urlOrNull(server.baseUri!!, server.authType, server.supportsRar ?: false, AuthorizationServerRef::CSCAuth2Claim)
+        }
     }
 }
 

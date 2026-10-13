@@ -39,95 +39,98 @@ import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 
 class AuthorizationResponseDispatcherTest {
-
-    private fun genState(): String {
-        return State().value
-    }
+    private fun genState(): String = State().value
 
     @Test
-    fun `dispatch direct post response`() = runTest {
-        fun test(state: String? = null) {
-            val responseMode = ResponseMode.DirectPost("https://respond.here".asURL().getOrThrow())
+    fun `dispatch direct post response`() =
+        runTest {
+            fun test(state: String? = null) {
+                val responseMode = ResponseMode.DirectPost("https://respond.here".asURL().getOrThrow())
 
-            val requestObject =
-                ResolvedRequestObject(
-                    client = Client.Preregistered("https%3A%2F%2Fclient.example.org%2Fcb", "Verifier"),
-                    nonce = "0S6_WzA2Mj",
-                    responseMode = responseMode,
-                    state = state,
-                    signatureQualifier = SignatureQualifier.EU_EIDAS_QES,
-                    documentDigests = listOf(
-                        DocumentDigest(
-                            hash = "dbe822af4b1cfddea8e8526a04a46557074d093cb02fee0f3dcc5f323629504e",
-                            label = "sample.pdf",
-                        ),
-                    ),
-                    documentLocations = listOf(
-                        DocumentLocation(
-                            uri = URI("https://walletcentric.signer.eudiw.dev/rp/tester/document/sample.pdf").toURL(),
-                            method = AccessMethod.Public,
-                        ),
-                    ),
-                    hashAlgorithmOID = HashAlgorithmOID("2.16.840.1.101.3.4.2.1"),
-                    clientData = "client data",
-                )
+                val requestObject =
+                    ResolvedRequestObject(
+                        client = Client.Preregistered("https%3A%2F%2Fclient.example.org%2Fcb", "Verifier"),
+                        nonce = "0S6_WzA2Mj",
+                        responseMode = responseMode,
+                        state = state,
+                        signatureQualifier = SignatureQualifier.EU_EIDAS_QES,
+                        documentDigests =
+                            listOf(
+                                DocumentDigest(
+                                    hash = "dbe822af4b1cfddea8e8526a04a46557074d093cb02fee0f3dcc5f323629504e",
+                                    label = "sample.pdf",
+                                ),
+                            ),
+                        documentLocations =
+                            listOf(
+                                DocumentLocation(
+                                    uri = URI("https://walletcentric.signer.eudiw.dev/rp/tester/document/sample.pdf").toURL(),
+                                    method = AccessMethod.Public,
+                                ),
+                            ),
+                        hashAlgorithmOID = HashAlgorithmOID("2.16.840.1.101.3.4.2.1"),
+                        clientData = "client data",
+                    )
 
-            val signedDocument = File(ClassLoader.getSystemResource("sample.pdf").path).readBytes()
+                val signedDocument = File(ClassLoader.getSystemResource("sample.pdf").path).readBytes()
 
-            val expectedDocument = Base64.getEncoder().encodeToString(signedDocument)
-            val expectedSignature = "MIAGCSqAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiGSs4rEsQV4AAAAAAAAA=="
+                val expectedDocument = Base64.getEncoder().encodeToString(signedDocument)
+                val expectedSignature = "MIAGCSqAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiGSs4rEsQV4AAAAAAAAA=="
 
-            val consensus = Consensus.Positive(
-                documentWithSignature = listOf(signedDocument),
-                signatureObject = listOf(expectedSignature),
-            )
+                val consensus =
+                    Consensus.Positive(
+                        documentWithSignature = listOf(signedDocument),
+                        signatureObject = listOf(expectedSignature),
+                    )
 
-            testApplication {
-                externalServices {
-                    hosts("https://respond.here") {
-                        install(io.ktor.server.plugins.contentnegotiation.ContentNegotiation) {
-                            json()
-                        }
-                        routing {
-                            post("/") {
-                                val formParameters = call.receiveParameters()
-                                val stateParam = formParameters["state"]
-                                val documentWithSignature = formParameters["documentWithSignature"]
-                                val signatureObject = formParameters["signatureObject"]
+                testApplication {
+                    externalServices {
+                        hosts("https://respond.here") {
+                            install(io.ktor.server.plugins.contentnegotiation.ContentNegotiation) {
+                                json()
+                            }
+                            routing {
+                                post("/") {
+                                    val formParameters = call.receiveParameters()
+                                    val stateParam = formParameters["state"]
+                                    val documentWithSignature = formParameters["documentWithSignature"]
+                                    val signatureObject = formParameters["signatureObject"]
 
-                                assertEquals(
-                                    "application/x-www-form-urlencoded",
-                                    call.request.headers["Content-Type"],
-                                )
-                                assertEquals(state, stateParam)
-                                assertEquals("[\"$expectedDocument\"]", documentWithSignature)
-                                assertEquals("[\"$expectedSignature\"]", signatureObject)
-                                assertNotNull(signatureObject)
+                                    assertEquals(
+                                        "application/x-www-form-urlencoded",
+                                        call.request.headers["Content-Type"],
+                                    )
+                                    assertEquals(state, stateParam)
+                                    assertEquals("[\"$expectedDocument\"]", documentWithSignature)
+                                    assertEquals("[\"$expectedSignature\"]", signatureObject)
+                                    assertNotNull(signatureObject)
 
-                                call.respond(HttpStatusCode.OK)
+                                    call.respond(HttpStatusCode.OK)
+                                }
                             }
                         }
                     }
-                }
 
-                val dispatcher = DefaultDispatcher {
-                    createClient {
-                        install(ContentNegotiation) {
-                            json()
+                    val dispatcher =
+                        DefaultDispatcher {
+                            createClient {
+                                install(ContentNegotiation) {
+                                    json()
+                                }
+                            }
                         }
-                    }
+
+                    val outcome =
+                        dispatcher.dispatch(
+                            requestObject,
+                            consensus,
+                        )
+
+                    assertIs<DispatchOutcome.Accepted>(outcome)
                 }
-
-                val outcome = dispatcher.dispatch(
-                    requestObject,
-                    consensus,
-                )
-
-                assertIs<DispatchOutcome.Accepted>(outcome)
             }
-        }
 
-        test(genState())
-        test()
-    }
+            test(genState())
+            test()
+        }
 }

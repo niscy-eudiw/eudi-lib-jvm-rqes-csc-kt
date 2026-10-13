@@ -55,38 +55,45 @@ data class UnvalidatedRequest(
     val clientId: String,
     val jwtURI: URL,
 ) {
-
     companion object {
         /**
          * Convenient method for parsing a URI representing an OAUTH2 Authorization request.
          */
-        fun make(uriStr: String): Result<UnvalidatedRequest> = runCatching {
-            val uri = Uri.parse(uriStr)
-            fun clientId(): String =
-                uri.getQueryParameter("client_id")
-                    ?: throw RequestValidationError.MissingClientId.asException()
-            val requestUriValue = uri.getQueryParameter("request_uri")
-                ?: throw RequestValidationError.MissingRequestUri.asException()
+        fun make(uriStr: String): Result<UnvalidatedRequest> =
+            runCatching {
+                val uri = Uri.parse(uriStr)
 
-            val requestUri = requestUriValue.asURL().getOrThrow()
-            UnvalidatedRequest(clientId(), requestUri)
-        }
+                fun clientId(): String =
+                    uri.getQueryParameter("client_id")
+                        ?: throw RequestValidationError.MissingClientId.asException()
+                val requestUriValue =
+                    uri.getQueryParameter("request_uri")
+                        ?: throw RequestValidationError.MissingRequestUri.asException()
+
+                val requestUri = requestUriValue.asURL().getOrThrow()
+                UnvalidatedRequest(clientId(), requestUri)
+            }
     }
 }
 
-data class FetchedRequest(val clientId: String, val jwt: SignedJWT)
+data class FetchedRequest(
+    val clientId: String,
+    val jwt: SignedJWT,
+)
 
 internal class DefaultAuthorizationRequestResolver(
     private val documentRetrievalConfig: DocumentRetrievalConfig,
     private val httpKtorHttpClientFactory: KtorHttpClientFactory,
 ) : AuthorizationRequestResolver {
-
     override suspend fun resolveRequestUri(uri: String): Resolution =
         httpKtorHttpClientFactory().use { httpClient ->
             resolveRequestUri(httpClient, uri)
         }
 
-    private suspend fun resolveRequestUri(httpClient: HttpClient, uri: String): Resolution {
+    private suspend fun resolveRequestUri(
+        httpClient: HttpClient,
+        uri: String,
+    ): Resolution {
         val requestFetcher = RequestFetcher(httpClient, documentRetrievalConfig)
         val requestAuthenticator = RequestAuthenticator(documentRetrievalConfig, httpClient)
 

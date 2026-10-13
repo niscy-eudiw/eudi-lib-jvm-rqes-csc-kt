@@ -33,7 +33,6 @@ data class DocumentLocation(
 )
 
 sealed interface AccessMethod {
-
     data object Public : AccessMethod
 
     data object BasicAuth : AccessMethod
@@ -42,7 +41,9 @@ sealed interface AccessMethod {
 
     data object OAuth2 : AccessMethod
 
-    data class OTP(val oneTimePassword: String) : AccessMethod {
+    data class OTP(
+        val oneTimePassword: String,
+    ) : AccessMethod {
         init {
             require(oneTimePassword.isNotBlank()) { "One-time password must not be blank" }
         }
@@ -75,18 +76,20 @@ enum class ClientIdScheme {
 
     ;
 
-    fun value(): String = when (this) {
-        PreRegistered -> OpenId4VPSpec.CLIENT_ID_SCHEME_PRE_REGISTERED
-        X509_SAN_URI -> OpenId4VPSpec.CLIENT_ID_SCHEME_X509_SAN_URI
-        X509_SAN_DNS -> OpenId4VPSpec.CLIENT_ID_SCHEME_X509_SAN_DNS
-    }
+    fun value(): String =
+        when (this) {
+            PreRegistered -> OpenId4VPSpec.CLIENT_ID_SCHEME_PRE_REGISTERED
+            X509_SAN_URI -> OpenId4VPSpec.CLIENT_ID_SCHEME_X509_SAN_URI
+            X509_SAN_DNS -> OpenId4VPSpec.CLIENT_ID_SCHEME_X509_SAN_DNS
+        }
 
     companion object {
-        fun make(s: String): ClientIdScheme? = when (s) {
-            OpenId4VPSpec.CLIENT_ID_SCHEME_PRE_REGISTERED -> PreRegistered
-            OpenId4VPSpec.CLIENT_ID_SCHEME_X509_SAN_URI -> X509_SAN_URI
-            OpenId4VPSpec.CLIENT_ID_SCHEME_X509_SAN_DNS -> X509_SAN_DNS
-            else -> null
-        }
+        fun make(s: String): ClientIdScheme? =
+            when (s) {
+                OpenId4VPSpec.CLIENT_ID_SCHEME_PRE_REGISTERED -> PreRegistered
+                OpenId4VPSpec.CLIENT_ID_SCHEME_X509_SAN_URI -> X509_SAN_URI
+                OpenId4VPSpec.CLIENT_ID_SCHEME_X509_SAN_DNS -> X509_SAN_DNS
+                else -> null
+            }
     }
 }

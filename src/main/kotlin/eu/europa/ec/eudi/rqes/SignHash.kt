@@ -16,7 +16,6 @@
 package eu.europa.ec.eudi.rqes
 
 interface SignHash {
-
     /**
      * Signs the hash of the given document digest list using the given signing algorithm OID.
      * @param documentDigestList the document digests to sign

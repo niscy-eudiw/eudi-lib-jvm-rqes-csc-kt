@@ -21,7 +21,6 @@ data class CredentialAuthorizationRequestPrepared(
 )
 
 sealed interface CredentialAuthorized : java.io.Serializable {
-
     val tokens: OAuth2Tokens
     val credentialID: CredentialID
     val credentialCertificate: CredentialCertificate
@@ -44,12 +43,10 @@ sealed interface CredentialAuthorized : java.io.Serializable {
 }
 
 sealed interface AccessTokenOption {
-
     data object AsRequested : AccessTokenOption
 }
 
 interface AuthorizeCredential {
-
     /**
      * Initial step for the credential authorization process using the Authorization code flow.
      * @param credentialAuthorizationSubject the subject of the credential authorization request

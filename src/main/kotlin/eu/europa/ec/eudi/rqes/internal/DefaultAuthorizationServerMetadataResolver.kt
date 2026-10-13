@@ -43,16 +43,18 @@ internal class DefaultAuthorizationServerMetadataResolver(
      */
     private suspend fun fetchOidcServerMetadata(issuer: HttpsUrl): Result<CSCAuthorizationServerMetadata> =
         runCatching {
-            val url = issuer.metadataUrl(
-                metadata = "/.well-known/openid-configuration",
-                lookup = Lookup.BySpecification,
-            )
+            val url =
+                issuer.metadataUrl(
+                    metadata = "/.well-known/openid-configuration",
+                    lookup = Lookup.BySpecification,
+                )
             fetchAndParse(url, OIDCProviderMetadata::parse)
         }.recoverCatching {
-            val url = issuer.metadataUrl(
-                metadata = "/.well-known/openid-configuration",
-                lookup = Lookup.CommonDeviation,
-            )
+            val url =
+                issuer.metadataUrl(
+                    metadata = "/.well-known/openid-configuration",
+                    lookup = Lookup.CommonDeviation,
+                )
             fetchAndParse(url, OIDCProviderMetadata::parse)
         }
 
@@ -62,16 +64,18 @@ internal class DefaultAuthorizationServerMetadataResolver(
      */
     private suspend fun fetchOauthServerMetadata(issuer: HttpsUrl): Result<CSCAuthorizationServerMetadata> =
         runCatching {
-            val url = issuer.metadataUrl(
-                metadata = "/.well-known/oauth-authorization-server",
-                lookup = Lookup.BySpecification,
-            )
+            val url =
+                issuer.metadataUrl(
+                    metadata = "/.well-known/oauth-authorization-server",
+                    lookup = Lookup.BySpecification,
+                )
             fetchAndParse(url, AuthorizationServerMetadata::parse)
         }.recoverCatching {
-            val url = issuer.metadataUrl(
-                metadata = "/.well-known/oauth-authorization-server",
-                lookup = Lookup.CommonDeviation,
-            )
+            val url =
+                issuer.metadataUrl(
+                    metadata = "/.well-known/oauth-authorization-server",
+                    lookup = Lookup.CommonDeviation,
+                )
             fetchAndParse(url, AuthorizationServerMetadata::parse)
         }
 
@@ -79,7 +83,10 @@ internal class DefaultAuthorizationServerMetadataResolver(
      * Fetches the content of the provided [url], parses it as a [JSONObject], and further parses it
      * using the provided [parser].
      */
-    private suspend fun <T> fetchAndParse(url: Url, parser: (String) -> T): T {
+    private suspend fun <T> fetchAndParse(
+        url: Url,
+        parser: (String) -> T,
+    ): T {
         val body = httpClient.get(url).body<String>()
         return parser(body)
     }
@@ -106,17 +113,23 @@ private enum class Lookup {
  * @param metadata the well-known metadata URL to get
  * @param lookup whether to produce a spec-compliant URL or not
  */
-private fun HttpsUrl.metadataUrl(metadata: String, lookup: Lookup): Url {
+private fun HttpsUrl.metadataUrl(
+    metadata: String,
+    lookup: Lookup,
+): Url {
     val issuer = Url(this.value.toString())
     return when (lookup) {
-        Lookup.BySpecification ->
-            URLBuilder(issuer).apply {
-                path("/${metadata.removePrefix("/").removeSuffix("/")}${issuer.rawSegments.joinToString("/")}")
-            }.build()
+        Lookup.BySpecification -> {
+            URLBuilder(issuer)
+                .apply {
+                    path("/${metadata.removePrefix("/").removeSuffix("/")}${issuer.rawSegments.joinToString("/")}")
+                }.build()
+        }
 
-        Lookup.CommonDeviation ->
+        Lookup.CommonDeviation -> {
             URLBuilder(issuer)
                 .appendPathSegments("/${metadata.removePrefix("/").removeSuffix("/")}", encodeSlash = false)
                 .build()
+        }
     }
 }

@@ -21,35 +21,36 @@ import eu.europa.ec.eudi.rqes.internal.http.SignHashEndpointClient
 internal class SignDocImpl(
     private val signHashEndpointClient: SignHashEndpointClient,
 ) : SignDoc {
-
     override suspend fun CredentialAuthorized.SCAL1.signDoc(
         documents: List<DocumentToSign>,
         documentDigestList: DocumentDigestList,
         signingAlgorithmOID: SigningAlgorithmOID,
         signingAlgorithmParams: String?,
-    ): Result<SignDocResponse> = signDocument(
-        credentialID,
-        documents,
-        documentDigestList,
-        signingAlgorithmOID,
-        signingAlgorithmParams,
-        tokens.accessToken,
-        credentialCertificate,
-    )
+    ): Result<SignDocResponse> =
+        signDocument(
+            credentialID,
+            documents,
+            documentDigestList,
+            signingAlgorithmOID,
+            signingAlgorithmParams,
+            tokens.accessToken,
+            credentialCertificate,
+        )
 
     override suspend fun CredentialAuthorized.SCAL2.signDoc(
         documents: List<DocumentToSign>,
         signingAlgorithmOID: SigningAlgorithmOID,
         signingAlgorithmParams: String?,
-    ): Result<SignDocResponse> = signDocument(
-        credentialID,
-        documents,
-        documentDigestList,
-        signingAlgorithmOID,
-        signingAlgorithmParams,
-        tokens.accessToken,
-        credentialCertificate,
-    )
+    ): Result<SignDocResponse> =
+        signDocument(
+            credentialID,
+            documents,
+            documentDigestList,
+            signingAlgorithmOID,
+            signingAlgorithmParams,
+            tokens.accessToken,
+            credentialCertificate,
+        )
 
     @Suppress("kotlin:S1172")
     private suspend fun signDocument(
@@ -60,7 +61,8 @@ internal class SignDocImpl(
         signingAlgorithmParams: String?,
         accessToken: AccessToken,
         credentialCertificate: CredentialCertificate,
-    ): Result<SignDocResponse> = runCatching {
-        TODO("Not implemented yet")
-    }
+    ): Result<SignDocResponse> =
+        runCatching {
+            TODO("Not implemented yet")
+        }
 }

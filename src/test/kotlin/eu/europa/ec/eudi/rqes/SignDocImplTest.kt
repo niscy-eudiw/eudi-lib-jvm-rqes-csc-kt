@@ -20,41 +20,44 @@ import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
 
 class SignDocImplTest {
-
     @Test
-    fun `successful doc signing with a SCAL1 credential`() = runTest {
-        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
-            authServerWellKnownMocker(),
-        )
+    fun `successful doc signing with a SCAL1 credential`() =
+        runTest {
+            val mockedKtorHttpClientFactory =
+                mockedKtorHttpClientFactory(
+                    authServerWellKnownMocker(),
+                )
 
-        with(mockPublicClient(mockedKtorHttpClientFactory)) {
-            with(mockCredentialAuthorizedSCAL1()) {
-                assertThrows<NotImplementedError> {
-                    signDoc(
-                        mockDocumentsToSign,
-                        mockDocumentDigestList,
-                        SigningAlgorithmOID.RSA,
-                    ).getOrThrow()
+            with(mockPublicClient(mockedKtorHttpClientFactory)) {
+                with(mockCredentialAuthorizedSCAL1()) {
+                    assertThrows<NotImplementedError> {
+                        signDoc(
+                            mockDocumentsToSign,
+                            mockDocumentDigestList,
+                            SigningAlgorithmOID.RSA,
+                        ).getOrThrow()
+                    }
                 }
             }
         }
-    }
 
     @Test
-    fun `successful doc signing with a SCAL2 credential`() = runTest {
-        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
-            authServerWellKnownMocker(),
-        )
+    fun `successful doc signing with a SCAL2 credential`() =
+        runTest {
+            val mockedKtorHttpClientFactory =
+                mockedKtorHttpClientFactory(
+                    authServerWellKnownMocker(),
+                )
 
-        with(mockPublicClient(mockedKtorHttpClientFactory)) {
-            with(mockCredentialAuthorizedSCAL2()) {
-                assertThrows<NotImplementedError> {
-                    signDoc(
-                        mockDocumentsToSign,
-                        SigningAlgorithmOID.RSA,
-                    ).getOrThrow()
+            with(mockPublicClient(mockedKtorHttpClientFactory)) {
+                with(mockCredentialAuthorizedSCAL2()) {
+                    assertThrows<NotImplementedError> {
+                        signDoc(
+                            mockDocumentsToSign,
+                            SigningAlgorithmOID.RSA,
+                        ).getOrThrow()
+                    }
                 }
             }
         }
-    }
 }

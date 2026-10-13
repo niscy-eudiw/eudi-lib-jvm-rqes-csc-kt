@@ -29,7 +29,6 @@ import java.security.cert.X509Certificate
  *
  */
 fun interface AuthorizationRequestResolver {
-
     /**
      * Tries to validate and request the provided [uri] into a [ResolvedRequestObject].
      */
@@ -45,13 +44,17 @@ sealed interface Resolution {
      * Represents the success of validating and resolving an authorization request
      * into a [requestObject]
      */
-    data class Success(val requestObject: ResolvedRequestObject) : Resolution
+    data class Success(
+        val requestObject: ResolvedRequestObject,
+    ) : Resolution
 
     /**
      * Represents the failure of validating or resolving an authorization request
      * due to [error]
      */
-    data class Invalid(val error: AuthorizationRequestError) : Resolution
+    data class Invalid(
+        val error: AuthorizationRequestError,
+    ) : Resolution
 }
 
 data class ResolvedRequestObject(
@@ -75,19 +78,31 @@ data class ResolvedRequestObject(
  * Represents an OAuth2 RP that submitted an Authorization Request.
  */
 sealed interface Client : Serializable {
-    data class Preregistered(val clientId: String, val legalName: String) : Client
-    data class X509SanDns(val clientId: String, val cert: X509Certificate) : Client
-    data class X509SanUri(val clientId: URI, val cert: X509Certificate) : Client
+    data class Preregistered(
+        val clientId: String,
+        val legalName: String,
+    ) : Client
+
+    data class X509SanDns(
+        val clientId: String,
+        val cert: X509Certificate,
+    ) : Client
+
+    data class X509SanUri(
+        val clientId: URI,
+        val cert: X509Certificate,
+    ) : Client
 
     /**
      * The id of the client.
      */
     val id: String
-        get() = when (this) {
-            is Preregistered -> clientId
-            is X509SanDns -> clientId
-            is X509SanUri -> clientId.toString()
-        }
+        get() =
+            when (this) {
+                is Preregistered -> clientId
+                is X509SanDns -> clientId
+                is X509SanUri -> clientId.toString()
+            }
 }
 
 /**
@@ -95,27 +110,31 @@ sealed interface Client : Serializable {
  */
 sealed interface AuthorizationRequestError : Serializable
 
-data class HttpError(val cause: Throwable) : AuthorizationRequestError
+data class HttpError(
+    val cause: Throwable,
+) : AuthorizationRequestError
 
 /**
  * An exception indicating an expected [error] while validating and/or resolving
  * an authorization request
  */
-data class AuthorizationRequestException(val error: AuthorizationRequestError) : RuntimeException()
+data class AuthorizationRequestException(
+    val error: AuthorizationRequestError,
+) : RuntimeException()
 
 /**
  * Convenient method that lifts an [AuthorizationRequestError] into
  * a [AuthorizationRequestException]
  */
-fun AuthorizationRequestError.asException(): AuthorizationRequestException =
-    AuthorizationRequestException(this)
+fun AuthorizationRequestError.asException(): AuthorizationRequestException = AuthorizationRequestException(this)
 
 /**
  * Validation errors that can occur while validating an authorization request
  */
 sealed interface RequestValidationError : AuthorizationRequestError {
-
-    data class InvalidJarJwt(val cause: String) : AuthorizationRequestError
+    data class InvalidJarJwt(
+        val cause: String,
+    ) : AuthorizationRequestError
 
     data object InvalidRequestUriMethod : RequestValidationError {
         private fun readResolve(): Any = InvalidRequestUriMethod
@@ -133,7 +152,9 @@ sealed interface RequestValidationError : AuthorizationRequestError {
         private fun readResolve(): Any = UnsupportedClientIdScheme
     }
 
-    data class InvalidClientIdScheme(val value: String) : RequestValidationError
+    data class InvalidClientIdScheme(
+        val value: String,
+    ) : RequestValidationError
 
     data object MissingRequestUri : RequestValidationError {
         private fun readResolve(): Any = MissingRequestUri
@@ -154,9 +175,14 @@ sealed interface RequestValidationError : AuthorizationRequestError {
     data object InvalidResponseUri : RequestValidationError {
         private fun readResolve(): Any = InvalidResponseUri
     }
-    data class UnsupportedResponseType(val value: String) : RequestValidationError
 
-    data class UnsupportedResponseMode(val value: String?) : RequestValidationError
+    data class UnsupportedResponseType(
+        val value: String,
+    ) : RequestValidationError
+
+    data class UnsupportedResponseMode(
+        val value: String?,
+    ) : RequestValidationError
 
     data object MissingSignatureQualifier : RequestValidationError {
         private fun readResolve(): Any = MissingSignatureQualifier
@@ -206,9 +232,13 @@ sealed interface RequestValidationError : AuthorizationRequestError {
         private fun readResolve(): Any = InvalidDocumentLocations
     }
 
-    data class UnsupportedSignatureQualifier(val value: String) : RequestValidationError
+    data class UnsupportedSignatureQualifier(
+        val value: String,
+    ) : RequestValidationError
 }
 
 sealed interface ResponseMode : Serializable {
-    data class DirectPost(val responseURI: URL) : ResponseMode
+    data class DirectPost(
+        val responseURI: URL,
+    ) : ResponseMode
 }

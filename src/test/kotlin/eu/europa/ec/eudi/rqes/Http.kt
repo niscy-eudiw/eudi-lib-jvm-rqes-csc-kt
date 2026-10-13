@@ -31,25 +31,34 @@ internal typealias HttpResponseDataBuilder = MockRequestHandleScope.(request: Ht
 /**
  * Gets a [HttpRequestDataMatcher] that matches the provided [url] and [method].
  */
-internal fun match(url: URI, method: HttpMethod = HttpMethod.Get): HttpRequestDataMatcher =
-    { request -> request.url.toURI() == url && request.method == method }
+internal fun match(
+    url: URI,
+    method: HttpMethod = HttpMethod.Get,
+): HttpRequestDataMatcher = { request -> request.url.toURI() == url && request.method == method }
 
-internal fun endsWith(endsWith: String, method: HttpMethod = HttpMethod.Get): HttpRequestDataMatcher =
-    { request -> request.url.encodedPath.endsWith(endsWith) && request.method == method }
+internal fun endsWith(
+    endsWith: String,
+    method: HttpMethod = HttpMethod.Get,
+): HttpRequestDataMatcher = { request -> request.url.encodedPath.endsWith(endsWith) && request.method == method }
 
 /**
  * Gets a [HttpResponseDataBuilder] that returns the provided [resource]
  * as an 'application/json' [HttpResponseData] using the provided [status].
  */
-internal fun jsonResponse(resource: String, status: HttpStatusCode = HttpStatusCode.OK): HttpResponseDataBuilder = {
-    respond(
-        content = getResourceAsText(resource),
-        status = status,
-        headers = headersOf(
-            HttpHeaders.ContentType to listOf("application/json"),
-        ),
-    )
-}
+internal fun jsonResponse(
+    resource: String,
+    status: HttpStatusCode = HttpStatusCode.OK,
+): HttpResponseDataBuilder =
+    {
+        respond(
+            content = getResourceAsText(resource),
+            status = status,
+            headers =
+                headersOf(
+                    HttpHeaders.ContentType to listOf("application/json"),
+                ),
+        )
+    }
 
 /**
  * A [requestMatcher] alongside the [responseBuilder] that must be invoked when it matches.
@@ -66,32 +75,34 @@ internal data class RequestMocker(
 internal fun mockedKtorHttpClientFactory(
     vararg requestMockers: RequestMocker,
     expectSuccessOnly: Boolean = false,
-): KtorHttpClientFactory = {
-    HttpClient(MockEngine) {
-        engine {
-            this.addHandler { request ->
-                requestMockers
-                    .firstOrNull { it.requestMatcher(request) }
-                    ?.apply {
-                        requestValidator(request)
-                    }
-                    ?.responseBuilder?.invoke(this, request)
-                    ?: respondError(HttpStatusCode.NotFound)
-            }
-        }
-        install(ContentNegotiation) {
-            json(
-                json = Json { ignoreUnknownKeys = true },
-            )
-        }
-        install(Logging) {
-            level = LogLevel.ALL
-            logger = object : Logger {
-                override fun log(message: String) {
-                    println(message)
+): KtorHttpClientFactory =
+    {
+        HttpClient(MockEngine) {
+            engine {
+                this.addHandler { request ->
+                    requestMockers
+                        .firstOrNull { it.requestMatcher(request) }
+                        ?.apply {
+                            requestValidator(request)
+                        }?.responseBuilder
+                        ?.invoke(this, request)
+                        ?: respondError(HttpStatusCode.NotFound)
                 }
             }
+            install(ContentNegotiation) {
+                json(
+                    json = Json { ignoreUnknownKeys = true },
+                )
+            }
+            install(Logging) {
+                level = LogLevel.ALL
+                logger =
+                    object : Logger {
+                        override fun log(message: String) {
+                            println(message)
+                        }
+                    }
+            }
+            expectSuccess = expectSuccessOnly
         }
-        expectSuccess = expectSuccessOnly
     }
-}

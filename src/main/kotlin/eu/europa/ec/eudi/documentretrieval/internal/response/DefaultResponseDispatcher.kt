@@ -40,7 +40,6 @@ import java.util.Base64
 internal class DefaultDispatcher(
     private val httpClientFactory: KtorHttpClientFactory,
 ) : Dispatcher {
-
     override suspend fun dispatch(
         request: ResolvedRequestObject,
         consensus: Consensus,
@@ -54,13 +53,12 @@ internal class DefaultDispatcher(
     private fun formParameters(
         request: ResolvedRequestObject,
         consensus: Consensus,
-    ) =
-        when (val response = request.responseWith(consensus)) {
-            is DirectPost -> {
-                val parameters = DirectPostForm.parametersOf(response.data)
-                response.responseUri to parameters
-            }
+    ) = when (val response = request.responseWith(consensus)) {
+        is DirectPost -> {
+            val parameters = DirectPostForm.parametersOf(response.data)
+            response.responseUri to parameters
         }
+    }
 
     /**
      * Submits an HTTP Form to [url] with the provided [parameters].
@@ -71,18 +69,21 @@ internal class DefaultDispatcher(
         url: URL,
         parameters: Parameters,
     ): DispatchOutcome {
-        val response = httpClient.post(url.toExternalForm()) {
-            body = FormData(parameters)
-        }
+        val response =
+            httpClient.post(url.toExternalForm()) {
+                body = FormData(parameters)
+            }
 
         return when (response.status) {
             HttpStatusCode.OK -> {
                 val redirectUri =
                     try {
-                        response.body<JsonObject?>()
+                        response
+                            .body<JsonObject?>()
                             ?.get("redirect_uri")
                             ?.takeIf { it is JsonPrimitive }
-                            ?.jsonPrimitive?.contentOrNull
+                            ?.jsonPrimitive
+                            ?.contentOrNull
                             ?.let { URI.create(it) }
                     } catch (_: NoTransformationFoundException) {
                         null
@@ -90,7 +91,9 @@ internal class DefaultDispatcher(
                 DispatchOutcome.Accepted(redirectUri)
             }
 
-            else -> DispatchOutcome.Rejected
+            else -> {
+                DispatchOutcome.Rejected
+            }
         }
     }
 }
@@ -100,7 +103,6 @@ internal class DefaultDispatcher(
  * HTTP form
  */
 internal object DirectPostForm {
-
     private const val DOCUMENT_WITH_SIGNATURE = "documentWithSignature"
     private const val SIGNATURE_OBJECT = "signatureObject"
     private const val STATE_FORM_PARAM = "state"
@@ -123,29 +125,35 @@ internal object DirectPostForm {
         }
 
         return when (p) {
-            is AuthorizationResponsePayload.Success -> buildMap {
-                p.documentWithSignature?.let {
-                    putDocumentWithSignature(it)
-                }
-                p.signatureObject?.let {
-                    putSignatureObject(it)
-                }
-                p.state?.let {
-                    put(STATE_FORM_PARAM, it)
-                }
-            }
-
-            is AuthorizationResponsePayload.InvalidRequest -> buildMap {
-                put(ERROR_FORM_PARAM, AuthorizationRequestErrorCode.fromError(p.error).code)
-                p.state?.let {
-                    put(STATE_FORM_PARAM, it)
+            is AuthorizationResponsePayload.Success -> {
+                buildMap {
+                    p.documentWithSignature?.let {
+                        putDocumentWithSignature(it)
+                    }
+                    p.signatureObject?.let {
+                        putSignatureObject(it)
+                    }
+                    p.state?.let {
+                        put(STATE_FORM_PARAM, it)
+                    }
                 }
             }
 
-            is AuthorizationResponsePayload.NoConsensusResponseData -> buildMap {
-                put(ERROR_FORM_PARAM, AuthorizationRequestErrorCode.USER_CANCELLED.code)
-                p.state?.let {
-                    put(STATE_FORM_PARAM, it)
+            is AuthorizationResponsePayload.InvalidRequest -> {
+                buildMap {
+                    put(ERROR_FORM_PARAM, AuthorizationRequestErrorCode.fromError(p.error).code)
+                    p.state?.let {
+                        put(STATE_FORM_PARAM, it)
+                    }
+                }
+            }
+
+            is AuthorizationResponsePayload.NoConsensusResponseData -> {
+                buildMap {
+                    put(ERROR_FORM_PARAM, AuthorizationRequestErrorCode.USER_CANCELLED.code)
+                    p.state?.let {
+                        put(STATE_FORM_PARAM, it)
+                    }
                 }
             }
         }

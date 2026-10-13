@@ -49,9 +49,19 @@ import kotlin.time.Duration
 import kotlin.time.toKotlinDuration
 
 internal sealed interface AuthenticatedClient {
-    data class Preregistered(val preregisteredClient: PreregisteredClient) : AuthenticatedClient
-    data class X509SanDns(val clientId: String, val chain: List<X509Certificate>) : AuthenticatedClient
-    data class X509SanUri(val clientId: URI, val chain: List<X509Certificate>) : AuthenticatedClient
+    data class Preregistered(
+        val preregisteredClient: PreregisteredClient,
+    ) : AuthenticatedClient
+
+    data class X509SanDns(
+        val clientId: String,
+        val chain: List<X509Certificate>,
+    ) : AuthenticatedClient
+
+    data class X509SanUri(
+        val clientId: URI,
+        val chain: List<X509Certificate>,
+    ) : AuthenticatedClient
 }
 
 internal data class AuthenticatedRequest(
@@ -59,18 +69,24 @@ internal data class AuthenticatedRequest(
     val requestObject: UnvalidatedRequestObject,
 )
 
-internal class RequestAuthenticator(documentRetrievalConfig: DocumentRetrievalConfig, httpClient: HttpClient) {
+internal class RequestAuthenticator(
+    documentRetrievalConfig: DocumentRetrievalConfig,
+    httpClient: HttpClient,
+) {
     private val clientAuthenticator = ClientAuthenticator(documentRetrievalConfig)
     private val signatureVerifier = JarJwtSignatureVerifier(documentRetrievalConfig, httpClient)
 
-    suspend fun authenticate(request: FetchedRequest): AuthenticatedRequest = coroutineScope {
-        val client = clientAuthenticator.authenticateClient(request)
-        with(signatureVerifier) { verifySignature(client, request.jwt) }
-        AuthenticatedRequest(client, request.jwt.requestObject())
-    }
+    suspend fun authenticate(request: FetchedRequest): AuthenticatedRequest =
+        coroutineScope {
+            val client = clientAuthenticator.authenticateClient(request)
+            with(signatureVerifier) { verifySignature(client, request.jwt) }
+            AuthenticatedRequest(client, request.jwt.requestObject())
+        }
 }
 
-internal class ClientAuthenticator(private val documentRetrievalConfig: DocumentRetrievalConfig) {
+internal class ClientAuthenticator(
+    private val documentRetrievalConfig: DocumentRetrievalConfig,
+) {
     fun authenticateClient(request: FetchedRequest): AuthenticatedClient {
         val requestObject = request.jwt.requestObject()
 
@@ -87,18 +103,20 @@ internal class ClientAuthenticator(private val documentRetrievalConfig: Document
             }
 
             is SupportedClientIdScheme.X509SanDns -> {
-                val chain = x5c(request, clientIdScheme.trust) {
-                    val dnsNames = sanOfDNSName().getOrNull()
-                    ensureNotNull(dnsNames) { invalidJarJwt("Certificates misses DNS names") }
-                }
+                val chain =
+                    x5c(request, clientIdScheme.trust) {
+                        val dnsNames = sanOfDNSName().getOrNull()
+                        ensureNotNull(dnsNames) { invalidJarJwt("Certificates misses DNS names") }
+                    }
                 AuthenticatedClient.X509SanDns(request.clientId, chain)
             }
 
             is SupportedClientIdScheme.X509SanUri -> {
-                val chain = x5c(request, clientIdScheme.trust) {
-                    val dnsNames = sanOfUniformResourceIdentifier().getOrNull()
-                    ensureNotNull(dnsNames) { invalidJarJwt("Certificates misses URI names") }
-                }
+                val chain =
+                    x5c(request, clientIdScheme.trust) {
+                        val dnsNames = sanOfUniformResourceIdentifier().getOrNull()
+                        ensureNotNull(dnsNames) { invalidJarJwt("Certificates misses URI names") }
+                    }
                 val clientIdUri = clientId.asURI { RequestValidationError.InvalidClientId.asException() }.getOrThrow()
                 AuthenticatedClient.X509SanUri(clientIdUri, chain)
             }
@@ -142,23 +160,26 @@ private class JarJwtSignatureVerifier(
     private val documentRetrievalConfig: DocumentRetrievalConfig,
     private val httpClient: HttpClient,
 ) {
-
     @Throws(AuthorizationRequestException::class)
-    suspend fun verifySignature(client: AuthenticatedClient, signedJwt: SignedJWT) {
+    suspend fun verifySignature(
+        client: AuthenticatedClient,
+        signedJwt: SignedJWT,
+    ) {
         try {
-            val jwtProcessor = DefaultJWTProcessor<SecurityContext>().apply {
-                // see also: DefaultJOSEObjectTypeVerifier.JWT
-                jwsTypeVerifier =
-                    DefaultJOSEObjectTypeVerifier(
-                        JOSEObjectType("oauth-authz-req+jwt"),
-                        JOSEObjectType.JWT,
-                        JOSEObjectType(""),
-                        null,
-                    )
-                jwsKeySelector = jwsKeySelector(client)
-                jwtClaimsSetVerifier =
-                    TimeChecks(documentRetrievalConfig.clock, documentRetrievalConfig.jarClockSkew.toKotlinDuration())
-            }
+            val jwtProcessor =
+                DefaultJWTProcessor<SecurityContext>().apply {
+                    // see also: DefaultJOSEObjectTypeVerifier.JWT
+                    jwsTypeVerifier =
+                        DefaultJOSEObjectTypeVerifier(
+                            JOSEObjectType("oauth-authz-req+jwt"),
+                            JOSEObjectType.JWT,
+                            JOSEObjectType(""),
+                            null,
+                        )
+                    jwsKeySelector = jwsKeySelector(client)
+                    jwtClaimsSetVerifier =
+                        TimeChecks(documentRetrievalConfig.clock, documentRetrievalConfig.jarClockSkew.toKotlinDuration())
+                }
             jwtProcessor.process(signedJwt, null)
         } catch (e: JOSEException) {
             throw RuntimeException(e)
@@ -170,14 +191,17 @@ private class JarJwtSignatureVerifier(
     @Throws(AuthorizationRequestException::class)
     private suspend fun jwsKeySelector(client: AuthenticatedClient): JWSKeySelector<SecurityContext> =
         when (client) {
-            is AuthenticatedClient.Preregistered ->
+            is AuthenticatedClient.Preregistered -> {
                 getPreRegisteredClientJwsSelector(client)
+            }
 
-            is AuthenticatedClient.X509SanUri ->
+            is AuthenticatedClient.X509SanUri -> {
                 JWSKeySelector<SecurityContext> { _, _ -> listOf(client.chain[0].publicKey) }
+            }
 
-            is AuthenticatedClient.X509SanDns ->
+            is AuthenticatedClient.X509SanDns -> {
                 JWSKeySelector<SecurityContext> { _, _ -> listOf(client.chain[0].publicKey) }
+            }
         }
 
     @Throws(AuthorizationRequestException::class)
@@ -188,14 +212,19 @@ private class JarJwtSignatureVerifier(
         val jarConfig = checkNotNull(trustedClient.jarConfig)
 
         val (jarSigningAlg, jwkSetSource) = jarConfig
+
         suspend fun getJWKSource(): JWKSource<SecurityContext> {
-            val jwkSet = when (jwkSetSource) {
-                is JwkSetSource.ByValue -> JWKSet.parse(jwkSetSource.jwks.toString())
-                is JwkSetSource.ByReference -> {
-                    val unparsed = httpClient.get(jwkSetSource.jwksUri.toURL()).body<String>()
-                    JWKSet.parse(unparsed)
+            val jwkSet =
+                when (jwkSetSource) {
+                    is JwkSetSource.ByValue -> {
+                        JWKSet.parse(jwkSetSource.jwks.toString())
+                    }
+
+                    is JwkSetSource.ByReference -> {
+                        val unparsed = httpClient.get(jwkSetSource.jwksUri.toURL()).body<String>()
+                        JWKSet.parse(unparsed)
+                    }
                 }
-            }
             return ImmutableJWKSet(jwkSet)
         }
 
@@ -204,16 +233,12 @@ private class JarJwtSignatureVerifier(
     }
 }
 
-private fun invalidScheme(cause: String): AuthorizationRequestException =
-    RequestValidationError.InvalidClientIdScheme(cause).asException()
+private fun invalidScheme(cause: String): AuthorizationRequestException = RequestValidationError.InvalidClientIdScheme(cause).asException()
 
-private fun invalidJarJwt(cause: String): AuthorizationRequestException =
-    RequestValidationError.InvalidJarJwt(cause).asException()
+private fun invalidJarJwt(cause: String): AuthorizationRequestException = RequestValidationError.InvalidJarJwt(cause).asException()
 
 private fun SignedJWT.requestObject(): UnvalidatedRequestObject {
-    fun List<Any?>.asJsonArray(): JsonArray {
-        return Json.parseToJsonElement(Gson().toJson(this)).jsonArray
-    }
+    fun List<Any?>.asJsonArray(): JsonArray = Json.parseToJsonElement(Gson().toJson(this)).jsonArray
 
     return with(jwtClaimsSet) {
         UnvalidatedRequestObject(
@@ -237,9 +262,11 @@ private class TimeChecks(
     private val clock: Clock,
     private val skew: Duration,
 ) : JWTClaimsSetVerifier<SecurityContext> {
-
     @Throws(BadJWTException::class)
-    override fun verify(claimsSet: JWTClaimsSet, context: SecurityContext?) {
+    override fun verify(
+        claimsSet: JWTClaimsSet,
+        context: SecurityContext?,
+    ) {
         val now = Date.from(clock.instant())
         val skewInSeconds = skew.inWholeSeconds
 

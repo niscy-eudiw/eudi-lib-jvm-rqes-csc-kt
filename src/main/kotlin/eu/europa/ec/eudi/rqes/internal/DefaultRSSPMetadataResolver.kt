@@ -31,52 +31,67 @@ import java.net.URI
 import java.util.*
 
 internal sealed interface AuthorizationServerRef {
-    data class IssuerClaim(val value: HttpsUrl, val grants: List<String>, val supportsRar: Boolean) : AuthorizationServerRef
+    data class IssuerClaim(
+        val value: HttpsUrl,
+        val grants: List<String>,
+        val supportsRar: Boolean,
+    ) : AuthorizationServerRef
 
-    data class CSCAuth2Claim(val value: HttpsUrl, val grants: List<String>, val supportsRar: Boolean) : AuthorizationServerRef
+    data class CSCAuth2Claim(
+        val value: HttpsUrl,
+        val grants: List<String>,
+        val supportsRar: Boolean,
+    ) : AuthorizationServerRef
 }
 
 internal class DefaultRSSPMetadataResolver(
     private val httpClient: HttpClient,
 ) : RSSPMetadataResolver {
-
-    override suspend fun resolve(rsspId: RSSPId, lang: Locale?): Result<RSSPMetadata> =
+    override suspend fun resolve(
+        rsspId: RSSPId,
+        lang: Locale?,
+    ): Result<RSSPMetadata> =
         runCatching {
             val metadataInJson = fetchMetadata(rsspId, lang)
             val contents = RSSPMetadataJsonParser.parseMetaData(rsspId, metadataInJson)
-            val resolved = contents.map {
-                    serverRef ->
-                fetchAuthorizationServerMetadata(serverRef)
-            }
+            val resolved =
+                contents.map { serverRef ->
+                    fetchAuthorizationServerMetadata(serverRef)
+                }
             resolved
         }
 
-    private suspend fun fetchMetadata(rsspId: RSSPId, lang: Locale?): String =
+    private suspend fun fetchMetadata(
+        rsspId: RSSPId,
+        lang: Locale?,
+    ): String =
         try {
-            httpClient.post(rsspId.info()) {
-                contentType(ContentType.Application.Json)
-                setBody(
-                    buildJsonObject {
-                        lang?.let { put("lang", it.toLanguageTag()) }
-                    },
-                )
-            }.body<String>()
+            httpClient
+                .post(rsspId.info()) {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        buildJsonObject {
+                            lang?.let { put("lang", it.toLanguageTag()) }
+                        },
+                    )
+                }.body<String>()
         } catch (t: Throwable) {
             throw RSSPMetadataError.UnableToFetchRSSPMetadata(t)
         }
 
-    private suspend fun fetchAuthorizationServerMetadata(
-        serverRef: AuthorizationServerRef,
-    ): CSCAuthorizationServerMetadata = when (serverRef) {
-        is AuthorizationServerRef.IssuerClaim ->
-            DefaultAuthorizationServerMetadataResolver(httpClient)
-                .resolve(serverRef.value)
-                .getOrThrow()
-                .withAdvertisedRarSupport(serverRef.supportsRar)
+    private suspend fun fetchAuthorizationServerMetadata(serverRef: AuthorizationServerRef): CSCAuthorizationServerMetadata =
+        when (serverRef) {
+            is AuthorizationServerRef.IssuerClaim -> {
+                DefaultAuthorizationServerMetadataResolver(httpClient)
+                    .resolve(serverRef.value)
+                    .getOrThrow()
+                    .withAdvertisedRarSupport(serverRef.supportsRar)
+            }
 
-        is AuthorizationServerRef.CSCAuth2Claim ->
-            asMetadata(serverRef.value, serverRef.supportsRar)
-    }
+            is AuthorizationServerRef.CSCAuth2Claim -> {
+                asMetadata(serverRef.value, serverRef.supportsRar)
+            }
+        }
 }
 
 internal fun asMetadata(
@@ -84,13 +99,14 @@ internal fun asMetadata(
     supportsRar: Boolean,
 ): CSCAuthorizationServerMetadata {
     val issuer = Issuer(oauth2Url.toString())
-    val meta = AuthorizationServerMetadata(issuer).apply {
-        tokenEndpointURI = URI("$oauth2Url/oauth2/token")
-        authorizationEndpointURI = URI("$oauth2Url/oauth2/authorize")
-        pushedAuthorizationRequestEndpointURI = URI("$oauth2Url/oauth2/pushed_authorize")
-        revocationEndpointURI = URI("$oauth2Url/revoke")
-        grantTypes = listOf(GrantType.AUTHORIZATION_CODE)
-    }
+    val meta =
+        AuthorizationServerMetadata(issuer).apply {
+            tokenEndpointURI = URI("$oauth2Url/oauth2/token")
+            authorizationEndpointURI = URI("$oauth2Url/oauth2/authorize")
+            pushedAuthorizationRequestEndpointURI = URI("$oauth2Url/oauth2/pushed_authorize")
+            revocationEndpointURI = URI("$oauth2Url/revoke")
+            grantTypes = listOf(GrantType.AUTHORIZATION_CODE)
+        }
     return (object : ReadOnlyAuthorizationServerMetadata by meta {}).withAdvertisedRarSupport(supportsRar)
 }
 
@@ -101,18 +117,17 @@ internal interface RarSupportAwareAuthorizationServerMetadata {
 internal fun CSCAuthorizationServerMetadata.supportsRar(): Boolean =
     (this as? RarSupportAwareAuthorizationServerMetadata)?.supportsRar ?: false
 
-private fun CSCAuthorizationServerMetadata.withAdvertisedRarSupport(
-    supportsRar: Boolean,
-): CSCAuthorizationServerMetadata =
+private fun CSCAuthorizationServerMetadata.withAdvertisedRarSupport(supportsRar: Boolean): CSCAuthorizationServerMetadata =
     object : ReadOnlyAuthorizationServerMetadata by this, RarSupportAwareAuthorizationServerMetadata {
         override val supportsRar: Boolean = supportsRar
     }
 
-private fun RSSPId.info() = URLBuilder(Url(value.value.toURI()))
-    .appendPathSegments("/info", encodeSlash = false)
-    .build()
-    .toURI()
-    .toURL()
+private fun RSSPId.info() =
+    URLBuilder(Url(value.value.toURI()))
+        .appendPathSegments("/info", encodeSlash = false)
+        .build()
+        .toURI()
+        .toURL()
 
 internal inline fun <reified T, reified Y> RSSPMetadataContent<T>.map(f: (T) -> Y): RSSPMetadataContent<Y> {
     val authTypes = authTypes.map { authType -> authType.map { f(it) } }.toSet()

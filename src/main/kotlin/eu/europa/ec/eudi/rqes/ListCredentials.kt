@@ -30,25 +30,28 @@ data class CredentialsListRequest(
 )
 
 fun interface ListCredentials {
-
-    suspend fun ServiceAccessAuthorized.listCredentials(
-        request: CredentialsListRequest,
-    ): Result<List<CredentialInfo>>
+    suspend fun ServiceAccessAuthorized.listCredentials(request: CredentialsListRequest): Result<List<CredentialInfo>>
 
     companion object {
         internal operator fun invoke(credentialsListEndpointClient: CredentialsListEndpointClient): ListCredentials =
             ListCredentials { request ->
                 runCatching {
-                    val credentialsList = credentialsListEndpointClient.listCredentials(
-                        request,
-                        tokens.accessToken,
-                    ).getOrThrow()
+                    val credentialsList =
+                        credentialsListEndpointClient
+                            .listCredentials(
+                                request,
+                                tokens.accessToken,
+                            ).getOrThrow()
 
                     when (credentialsList) {
-                        is CredentialsListTO.Success -> credentialsList.credentialInfos?.map { it.toDomain() }
-                            ?: emptyList()
+                        is CredentialsListTO.Success -> {
+                            credentialsList.credentialInfos?.map { it.toDomain() }
+                                ?: emptyList()
+                        }
 
-                        else -> error("Unexpected response: $credentialsList")
+                        else -> {
+                            error("Unexpected response: $credentialsList")
+                        }
                     }
                 }
             }

@@ -32,120 +32,135 @@ import kotlin.test.assertTrue
 import kotlin.time.Duration
 
 class DocumentSigningFlowIT {
-
     // @Test
-    fun `successful document signing cycle`() = runTest(timeout = Duration.parse("1m")) {
-        val httpClient: KtorHttpClientFactory = {
-            HttpClient {
-                install(ContentNegotiation) {
-                    json(
-                        json = JsonSupport,
+    fun `successful document signing cycle`() =
+        runTest(timeout = Duration.parse("1m")) {
+            val httpClient: KtorHttpClientFactory = {
+                HttpClient {
+                    install(ContentNegotiation) {
+                        json(
+                            json = JsonSupport,
+                        )
+                    }
+                    install(HttpRedirect) {
+                        checkHttpMethod = false
+                    }
+                    install(HttpCookies) {
+                        storage = AcceptAllCookiesStorage()
+                    }
+                }
+            }
+
+            val cscClientConfig =
+                CSCClientConfig(
+                    OAuth2Client.Confidential.ClientSecretBasic("wallet-client-tester", "somesecrettester2"),
+                    URI("https://oauthdebugger.com/debug"),
+                    ParUsage.IfSupported,
+                    RarUsage.IfSupported,
+                    includeRevocationInfo = false,
+                )
+
+            val cscClient: CSCClient =
+                CSCClient
+                    .oauth2(
+                        cscClientConfig,
+                        "https://walletcentric.signer.eudiw.dev/csc/v2",
+                        httpClient,
+                    ).getOrThrow()
+
+            with(cscClient) {
+                var walletState = UUID.randomUUID().toString()
+
+                // initiate the service authorization request
+                val serviceAuthRequestPrepared = prepareServiceAuthorizationRequest(walletState).getOrThrow()
+
+                val (serviceAuthorizationCode) =
+                    getCodeAndState(
+                        serviceAuthRequestPrepared.value.authorizationCodeURL,
+                        httpClient(),
                     )
-                }
-                install(HttpRedirect) {
-                    checkHttpMethod = false
-                }
-                install(HttpCookies) {
-                    storage = AcceptAllCookiesStorage()
-                }
+
+                val authorizedServiceRequest =
+                    with(serviceAuthRequestPrepared) {
+                        // provide the authorization code to the client
+                        authorizeWithAuthorizationCode(AuthorizationCode(serviceAuthorizationCode), walletState).getOrThrow()
+                    }
+
+                // retrieve the list of credentials from the RSSP
+                val credentials =
+                    with(authorizedServiceRequest) {
+                        listCredentials(CredentialsListRequest()).getOrThrow()
+                    }
+
+                val documentToSign =
+                    DocumentToSign(
+                        documentInputPath = ClassLoader.getSystemResource("sample.pdf").path,
+                        documentOutputPath = "signed_sample.pdf",
+                        label = "A sample pdf",
+                        signatureFormat = SignatureFormat.P,
+                        conformanceLevel = ConformanceLevel.ADES_B_B,
+                        signedEnvelopeProperty = SignedEnvelopeProperty.ENVELOPED,
+                        asicContainer = ASICContainer.NONE,
+                    )
+
+                walletState = UUID.randomUUID().toString()
+
+                // calculate the hash of the document to sign
+                val documentDigests: DocumentDigestList =
+                    calculateDocumentHashes(
+                        listOf(documentToSign),
+                        credentials.first().certificate,
+                        HashAlgorithmOID.SHA_256,
+                    )
+
+                // initiate the credential authorization request flow, using the hashes calculated above
+                val credAuthRequestPrepared: CredentialAuthorizationRequestPrepared =
+                    prepareCredentialAuthorizationRequest(
+                        CredentialAuthorizationSubject(
+                            CredentialRef.ByCredentialID(credentials.first().credentialID),
+                            documentDigests,
+                            1,
+                        ),
+                        walletState,
+                    ).getOrThrow()
+
+                val (credentialAuthorizationCode) =
+                    getCodeAndState(
+                        credAuthRequestPrepared.authorizationRequestPrepared.authorizationCodeURL,
+                        httpClient(),
+                    )
+
+                // provide the credential authorization code to the CSC client
+                val credentialAuthorized =
+                    with(credAuthRequestPrepared) {
+                        authorizeWithAuthorizationCode(
+                            AuthorizationCode(credentialAuthorizationCode),
+                            walletState,
+                        ).getOrThrow()
+                    }
+
+                require(credentialAuthorized is CredentialAuthorized.SCAL2)
+
+                val signatures =
+                    with(credentialAuthorized) {
+                        // sign the hashes of the documents
+                        val signatures = signHash(SigningAlgorithmOID.RSA).getOrThrow()
+
+                        // createSignedDocuments creates the signed files on disk (returns Unit)
+                        createSignedDocuments(signatures.signatures)
+
+                        signatures // Return signatures to use for verification
+                    }
+
+                // Since createSignedDocuments creates files on disk, we can check if the signing process completed
+                assertTrue(signatures.signatures.isNotEmpty()) // Just verify the signing process completed
             }
         }
 
-        val cscClientConfig = CSCClientConfig(
-            OAuth2Client.Confidential.ClientSecretBasic("wallet-client-tester", "somesecrettester2"),
-            URI("https://oauthdebugger.com/debug"),
-            ParUsage.IfSupported,
-            RarUsage.IfSupported,
-            includeRevocationInfo = false,
-        )
-
-        val cscClient: CSCClient = CSCClient.oauth2(
-            cscClientConfig,
-            "https://walletcentric.signer.eudiw.dev/csc/v2",
-            httpClient,
-        ).getOrThrow()
-
-        with(cscClient) {
-            var walletState = UUID.randomUUID().toString()
-
-            // initiate the service authorization request
-            val serviceAuthRequestPrepared = prepareServiceAuthorizationRequest(walletState).getOrThrow()
-
-            val (serviceAuthorizationCode) = getCodeAndState(
-                serviceAuthRequestPrepared.value.authorizationCodeURL,
-                httpClient(),
-            )
-
-            val authorizedServiceRequest = with(serviceAuthRequestPrepared) {
-                // provide the authorization code to the client
-                authorizeWithAuthorizationCode(AuthorizationCode(serviceAuthorizationCode), walletState).getOrThrow()
-            }
-
-            // retrieve the list of credentials from the RSSP
-            val credentials = with(authorizedServiceRequest) {
-                listCredentials(CredentialsListRequest()).getOrThrow()
-            }
-
-            val documentToSign = DocumentToSign(
-                documentInputPath = ClassLoader.getSystemResource("sample.pdf").path,
-                documentOutputPath = "signed_sample.pdf",
-                label = "A sample pdf",
-                signatureFormat = SignatureFormat.P,
-                conformanceLevel = ConformanceLevel.ADES_B_B,
-                signedEnvelopeProperty = SignedEnvelopeProperty.ENVELOPED,
-                asicContainer = ASICContainer.NONE,
-            )
-
-            walletState = UUID.randomUUID().toString()
-
-            // calculate the hash of the document to sign
-            val documentDigests: DocumentDigestList = calculateDocumentHashes(
-                listOf(documentToSign),
-                credentials.first().certificate,
-                HashAlgorithmOID.SHA_256,
-            )
-
-            // initiate the credential authorization request flow, using the hashes calculated above
-            val credAuthRequestPrepared: CredentialAuthorizationRequestPrepared = prepareCredentialAuthorizationRequest(
-                CredentialAuthorizationSubject(
-                    CredentialRef.ByCredentialID(credentials.first().credentialID),
-                    documentDigests,
-                    1,
-                ),
-                walletState,
-            ).getOrThrow()
-
-            val (credentialAuthorizationCode) = getCodeAndState(
-                credAuthRequestPrepared.authorizationRequestPrepared.authorizationCodeURL,
-                httpClient(),
-            )
-
-            // provide the credential authorization code to the CSC client
-            val credentialAuthorized = with(credAuthRequestPrepared) {
-                authorizeWithAuthorizationCode(
-                    AuthorizationCode(credentialAuthorizationCode),
-                    walletState,
-                ).getOrThrow()
-            }
-
-            require(credentialAuthorized is CredentialAuthorized.SCAL2)
-
-            val signatures = with(credentialAuthorized) {
-                // sign the hashes of the documents
-                val signatures = signHash(SigningAlgorithmOID.RSA).getOrThrow()
-
-                // createSignedDocuments creates the signed files on disk (returns Unit)
-                createSignedDocuments(signatures.signatures)
-
-                signatures // Return signatures to use for verification
-            }
-
-            // Since createSignedDocuments creates files on disk, we can check if the signing process completed
-            assertTrue(signatures.signatures.isNotEmpty()) // Just verify the signing process completed
-        }
-    }
-
-    private suspend fun getCodeAndState(authorizationURL: HttpsUrl, httpClient: HttpClient): Pair<String, String> {
+    private suspend fun getCodeAndState(
+        authorizationURL: HttpsUrl,
+        httpClient: HttpClient,
+    ): Pair<String, String> {
         // do a request with ktor to the authorizationURL
         val response = httpClient.get(authorizationURL.value)
         val responseBody: String = response.bodyAsText()
@@ -168,11 +183,12 @@ class DocumentSigningFlowIT {
         // Perform POST request with the filled form data
         httpClient.submitForm(
             url = "https://walletcentric.signer.eudiw.dev$formAction",
-            formParameters = Parameters.build {
-                formData.forEach { (key, value) ->
-                    append(key, value)
-                }
-            },
+            formParameters =
+                Parameters.build {
+                    formData.forEach { (key, value) ->
+                        append(key, value)
+                    }
+                },
         )
 
         val response2 = httpClient.get(authorizationURL.value)

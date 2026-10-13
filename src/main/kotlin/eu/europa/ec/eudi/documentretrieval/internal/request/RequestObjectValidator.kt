@@ -82,47 +82,48 @@ internal fun validateRequestObject(request: AuthenticatedRequest): ResolvedReque
     )
 }
 
-private fun requiredDocumentDigests(
-    documentDigests: JsonArray?,
-): List<DocumentDigest> {
+private fun requiredDocumentDigests(documentDigests: JsonArray?): List<DocumentDigest> {
     ensureNotNull(documentDigests) { MissingDocumentDigests.asException() }
     try {
-        return documentDigests.stream().map {
-            jsonSupport.decodeFromJsonElement<DocumentDigestDTO>(it)
-        }.map {
-            ensureNotNull(it.hash) { MissingDocumentDigestHash.asException() }
-            ensureNotNull(it.label) { MissingDocumentDigestLabel.asException() }
-            DocumentDigest(it.hash, it.label)
-        }.collect(Collectors.toList())
+        return documentDigests
+            .stream()
+            .map {
+                jsonSupport.decodeFromJsonElement<DocumentDigestDTO>(it)
+            }.map {
+                ensureNotNull(it.hash) { MissingDocumentDigestHash.asException() }
+                ensureNotNull(it.label) { MissingDocumentDigestLabel.asException() }
+                DocumentDigest(it.hash, it.label)
+            }.collect(Collectors.toList())
     } catch (_: Exception) {
         throw InvalidDocumentDigests.asException()
     }
 }
 
-private fun requiredDocumentLocations(
-    documentLocations: JsonArray?,
-): List<DocumentLocation> {
+private fun requiredDocumentLocations(documentLocations: JsonArray?): List<DocumentLocation> {
     ensureNotNull(documentLocations) { MissingDocumentLocations.asException() }
     try {
-        return documentLocations.stream().map {
-            jsonSupport.decodeFromJsonElement<DocumentLocationDTO>(it)
-        }.map {
-            ensureNotNull(it.uri) { MissingDocumentLocationUri.asException() }
-            ensureNotNull(it.method) { MissingDocumentLocationMethod.asException() }
-            ensureNotNull(it.method.type) { MissingDocumentLocationMethod.asException() }
-            val method: AccessMethod = when (it.method.type) {
-                "public" -> AccessMethod.Public
-                "Basic_Auth" -> AccessMethod.BasicAuth
-                "Digest_Auth" -> AccessMethod.DigestAuth
-                "OAuth_20" -> AccessMethod.OAuth2
-                "OTP" -> AccessMethod.OTP(it.method.oneTimePassword ?: throw MissingDocumentLocationOTP.asException())
-                else -> throw UnsupportedDocumentLocationMethod.asException()
-            }
-            DocumentLocation(
-                uri = it.uri.asURL { MissingDocumentLocationUri.asException() }.getOrThrow(),
-                method = method,
-            )
-        }.collect(Collectors.toList())
+        return documentLocations
+            .stream()
+            .map {
+                jsonSupport.decodeFromJsonElement<DocumentLocationDTO>(it)
+            }.map {
+                ensureNotNull(it.uri) { MissingDocumentLocationUri.asException() }
+                ensureNotNull(it.method) { MissingDocumentLocationMethod.asException() }
+                ensureNotNull(it.method.type) { MissingDocumentLocationMethod.asException() }
+                val method: AccessMethod =
+                    when (it.method.type) {
+                        "public" -> AccessMethod.Public
+                        "Basic_Auth" -> AccessMethod.BasicAuth
+                        "Digest_Auth" -> AccessMethod.DigestAuth
+                        "OAuth_20" -> AccessMethod.OAuth2
+                        "OTP" -> AccessMethod.OTP(it.method.oneTimePassword ?: throw MissingDocumentLocationOTP.asException())
+                        else -> throw UnsupportedDocumentLocationMethod.asException()
+                    }
+                DocumentLocation(
+                    uri = it.uri.asURL { MissingDocumentLocationUri.asException() }.getOrThrow(),
+                    method = method,
+                )
+            }.collect(Collectors.toList())
     } catch (e: AuthorizationRequestException) {
         throw e
     } catch (_: Exception) {
@@ -148,16 +149,12 @@ internal data class MethodDTO(
     @SerialName("oneTimePassword") val oneTimePassword: String? = null,
 )
 
-private fun requiredHashAlgorithm(
-    hashAlgorithmOID: String?,
-): HashAlgorithmOID {
+private fun requiredHashAlgorithm(hashAlgorithmOID: String?): HashAlgorithmOID {
     ensureNotNull(hashAlgorithmOID) { MissingHashAlgorithmOID.asException() }
     return HashAlgorithmOID(hashAlgorithmOID)
 }
 
-private fun requiredSignatureQualifier(
-    signatureQualifierStr: String?,
-): SignatureQualifier {
+private fun requiredSignatureQualifier(signatureQualifierStr: String?): SignatureQualifier {
     ensureNotNull(signatureQualifierStr) { MissingSignatureQualifier.asException() }
     return when (signatureQualifierStr) {
         EU_EIDAS_QES.value -> SignatureQualifier(signatureQualifierStr)
@@ -175,36 +172,52 @@ private fun requiredResponseMode(
         return uri.asURL { InvalidResponseUri.asException() }.getOrThrow()
     }
 
-    val responseMode = when (unvalidated.responseMode) {
-        "direct_post" -> requiredResponseUri().let { ResponseMode.DirectPost(it) }
-        else -> throw UnsupportedResponseMode(unvalidated.responseMode).asException()
-    }
+    val responseMode =
+        when (unvalidated.responseMode) {
+            "direct_post" -> requiredResponseUri().let { ResponseMode.DirectPost(it) }
+            else -> throw UnsupportedResponseMode(unvalidated.responseMode).asException()
+        }
 
     val uri = responseMode.uri()
     when (client) {
-        is AuthenticatedClient.Preregistered -> Unit
-        is AuthenticatedClient.X509SanDns -> ensure(client.clientId == uri.host) {
-            UnsupportedResponseMode("$responseMode host doesn't match ${client.clientId}").asException()
+        is AuthenticatedClient.Preregistered -> {
+            Unit
         }
 
-        is AuthenticatedClient.X509SanUri -> ensure(client.clientId == uri) {
-            UnsupportedResponseMode("$responseMode doesn't match ${client.clientId}").asException()
+        is AuthenticatedClient.X509SanDns -> {
+            ensure(client.clientId == uri.host) {
+                UnsupportedResponseMode("$responseMode host doesn't match ${client.clientId}").asException()
+            }
+        }
+
+        is AuthenticatedClient.X509SanUri -> {
+            ensure(client.clientId == uri) {
+                UnsupportedResponseMode("$responseMode doesn't match ${client.clientId}").asException()
+            }
         }
     }
     return responseMode
 }
 
-private fun ResponseMode.uri(): URI = when (this) {
-    is ResponseMode.DirectPost -> responseURI.toURI()
-}
+private fun ResponseMode.uri(): URI =
+    when (this) {
+        is ResponseMode.DirectPost -> responseURI.toURI()
+    }
 
 private fun AuthenticatedClient.toClient(): Client =
     when (this) {
-        is AuthenticatedClient.Preregistered -> Client.Preregistered(
-            preregisteredClient.clientId,
-            preregisteredClient.legalName,
-        )
+        is AuthenticatedClient.Preregistered -> {
+            Client.Preregistered(
+                preregisteredClient.clientId,
+                preregisteredClient.legalName,
+            )
+        }
 
-        is AuthenticatedClient.X509SanDns -> Client.X509SanDns(clientId, chain[0])
-        is AuthenticatedClient.X509SanUri -> Client.X509SanUri(clientId, chain[0])
+        is AuthenticatedClient.X509SanDns -> {
+            Client.X509SanDns(clientId, chain[0])
+        }
+
+        is AuthenticatedClient.X509SanUri -> {
+            Client.X509SanUri(clientId, chain[0])
+        }
     }

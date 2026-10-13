@@ -41,16 +41,13 @@ internal class RequestFetcher(
         }
     }
 
-    private suspend fun fetchJwtAndWalletNonce(
-        request: UnvalidatedRequest,
-    ): Pair<Jwt, Nonce?> {
+    private suspend fun fetchJwtAndWalletNonce(request: UnvalidatedRequest): Pair<Jwt, Nonce?> {
         val (_, requestUri) = request
         return httpClient.getJAR(requestUri) to null
     }
 }
 
-private suspend fun HttpClient.getJAR(requestUri: URL): Jwt =
-    get(requestUri) { addAcceptContentTypeJwt() }.body()
+private suspend fun HttpClient.getJAR(requestUri: URL): Jwt = get(requestUri) { addAcceptContentTypeJwt() }.body()
 
 private const val APPLICATION_JWT = "application/jwt"
 private const val APPLICATION_OAUTH_AUTHZ_REQ_JWT = "application/oauth-authz-req+jwt"
@@ -80,7 +77,10 @@ private fun ensureIsSignedJwt(unverifiedJwt: Jwt): SignedJWT =
         throw invalidJwt("JAR JWT parse error")
     }
 
-private fun ensureSameWalletNonce(expectedWalletNonce: Nonce, signedJwt: SignedJWT) {
+private fun ensureSameWalletNonce(
+    expectedWalletNonce: Nonce,
+    signedJwt: SignedJWT,
+) {
     val walletNonce = signedJwt.jwtClaimsSet.getStringClaim("wallet_nonce")
     ensure(expectedWalletNonce.toString() == walletNonce) {
         invalidJwt("Mismatch of wallet_nonce. Expected $expectedWalletNonce, actual $walletNonce")
@@ -88,9 +88,10 @@ private fun ensureSameWalletNonce(expectedWalletNonce: Nonce, signedJwt: SignedJ
 }
 
 private fun DocumentRetrievalConfig.ensureSupportedSigningAlgorithm(signedJwt: SignedJWT) {
-    val signingAlg = ensureNotNull(signedJwt.header.algorithm) {
-        invalidJwt("JAR is missing alg claim from header")
-    }
+    val signingAlg =
+        ensureNotNull(signedJwt.header.algorithm) {
+            invalidJwt("JAR is missing alg claim from header")
+        }
     ensure(signingAlg in jarConfiguration.supportedAlgorithms) {
         invalidJwt("JAR is signed with ${signingAlg.name} which is not supported")
     }
@@ -107,5 +108,4 @@ private fun ensureSameClientId(
     return expectedClientId
 }
 
-private fun invalidJwt(cause: String): AuthorizationRequestException =
-    RequestValidationError.InvalidJarJwt(cause).asException()
+private fun invalidJwt(cause: String): AuthorizationRequestException = RequestValidationError.InvalidJarJwt(cause).asException()

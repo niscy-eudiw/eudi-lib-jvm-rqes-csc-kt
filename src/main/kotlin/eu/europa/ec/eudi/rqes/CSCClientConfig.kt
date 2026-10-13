@@ -22,17 +22,25 @@ import java.util.Locale
 typealias ClientId = String
 
 sealed interface OAuth2Client : java.io.Serializable {
-
     /**
      * The client_id
      */
     val clientId: ClientId
 
-    data class Public(override val clientId: ClientId) : OAuth2Client
+    data class Public(
+        override val clientId: ClientId,
+    ) : OAuth2Client
 
     sealed interface Confidential : OAuth2Client {
-        data class ClientSecretBasic(override val clientId: ClientId, val clientSecret: String) : Confidential
-        data class ClientSecretPost(override val clientId: ClientId, val clientSecret: String) : Confidential
+        data class ClientSecretBasic(
+            override val clientId: ClientId,
+            val clientSecret: String,
+        ) : Confidential
+
+        data class ClientSecretPost(
+            override val clientId: ClientId,
+            val clientSecret: String,
+        ) : Confidential
     }
 }
 

@@ -26,128 +26,133 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 class SignHashTest {
-
     @Test
-    fun `successful hash signing with a SCAL1 credential`() = runTest {
-        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
-            authServerWellKnownMocker(),
-            credentialsInfoPostMocker(),
-            signHashPostMocker() { request ->
-                runBlocking {
-                    assertNotNull(
-                        request.headers["Authorization"],
-                        "Authorization header is missing in the request",
-                    )
+    fun `successful hash signing with a SCAL1 credential`() =
+        runTest {
+            val mockedKtorHttpClientFactory =
+                mockedKtorHttpClientFactory(
+                    authServerWellKnownMocker(),
+                    credentialsInfoPostMocker(),
+                    signHashPostMocker { request ->
+                        runBlocking {
+                            assertNotNull(
+                                request.headers["Authorization"],
+                                "Authorization header is missing in the request",
+                            )
 
-                    assertEquals(
-                        HttpMethod.Post,
-                        request.method,
-                        "Request method is not POST",
-                    )
+                            assertEquals(
+                                HttpMethod.Post,
+                                request.method,
+                                "Request method is not POST",
+                            )
 
-                    assertNotNull(
-                        request.body,
-                        "Request body is missing",
-                    )
+                            assertNotNull(
+                                request.body,
+                                "Request body is missing",
+                            )
 
-                    val requestBody = request.body.toByteArray().toString(Charsets.UTF_8)
-                    val signHashRequest = Json.decodeFromString<SignHashRequestTO>(requestBody)
+                            val requestBody = request.body.toByteArray().toString(Charsets.UTF_8)
+                            val signHashRequest = Json.decodeFromString<SignHashRequestTO>(requestBody)
 
-                    assertEquals(
-                        mockCredential.credentialID.value,
-                        signHashRequest.credentialID,
-                        "Credential ID is not the expected one",
-                    )
+                            assertEquals(
+                                mockCredential.credentialID.value,
+                                signHashRequest.credentialID,
+                                "Credential ID is not the expected one",
+                            )
 
-                    assertEquals(
-                        mockDocumentDigestList.hashAlgorithmOID.value,
-                        signHashRequest.hashAlgorithmOID,
-                        "Hash algorithm OID not the expected one",
-                    )
+                            assertEquals(
+                                mockDocumentDigestList.hashAlgorithmOID.value,
+                                signHashRequest.hashAlgorithmOID,
+                                "Hash algorithm OID not the expected one",
+                            )
 
-                    assertEquals(
-                        SigningAlgorithmOID.RSA.value,
-                        signHashRequest.signAlgorithmOID,
-                        "Signing algorithm OID not the expected one",
-                    )
+                            assertEquals(
+                                SigningAlgorithmOID.RSA.value,
+                                signHashRequest.signAlgorithmOID,
+                                "Signing algorithm OID not the expected one",
+                            )
 
-                    assertEquals(
-                        mockDocumentDigestList.documentDigests[0].hash.asBase64(),
-                        signHashRequest.hashes[0],
-                        "Hash value is not the expected one",
-                    )
+                            assertEquals(
+                                mockDocumentDigestList.documentDigests[0].hash.asBase64(),
+                                signHashRequest.hashes[0],
+                                "Hash value is not the expected one",
+                            )
+                        }
+                    },
+                )
+
+            val signatures =
+                with(mockPublicClient(mockedKtorHttpClientFactory)) {
+                    with(mockCredentialAuthorizedSCAL1()) {
+                        signHash(mockDocumentDigestList, SigningAlgorithmOID.RSA).getOrThrow()
+                    }
                 }
-            },
-        )
 
-        val signatures = with(mockPublicClient(mockedKtorHttpClientFactory)) {
-            with(mockCredentialAuthorizedSCAL1()) {
-                signHash(mockDocumentDigestList, SigningAlgorithmOID.RSA).getOrThrow()
-            }
+            assertNotNull(signatures)
         }
 
-        assertNotNull(signatures)
-    }
-
     @Test
-    fun `successful hash signing with a SCAL2 credential`() = runTest {
-        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
-            authServerWellKnownMocker(),
-            credentialsInfoPostMocker(),
-            signHashPostMocker() { request ->
-                runBlocking {
-                    assertNotNull(
-                        request.headers["Authorization"],
-                        "Authorization header is missing in the request",
-                    )
+    fun `successful hash signing with a SCAL2 credential`() =
+        runTest {
+            val mockedKtorHttpClientFactory =
+                mockedKtorHttpClientFactory(
+                    authServerWellKnownMocker(),
+                    credentialsInfoPostMocker(),
+                    signHashPostMocker { request ->
+                        runBlocking {
+                            assertNotNull(
+                                request.headers["Authorization"],
+                                "Authorization header is missing in the request",
+                            )
 
-                    assertEquals(
-                        HttpMethod.Post,
-                        request.method,
-                        "Request method is not POST",
-                    )
+                            assertEquals(
+                                HttpMethod.Post,
+                                request.method,
+                                "Request method is not POST",
+                            )
 
-                    assertNotNull(
-                        request.body,
-                        "Request body is missing",
-                    )
+                            assertNotNull(
+                                request.body,
+                                "Request body is missing",
+                            )
 
-                    val requestBody = request.body.toByteArray().toString(Charsets.UTF_8)
-                    val signHashRequest = Json.decodeFromString<SignHashRequestTO>(requestBody)
+                            val requestBody = request.body.toByteArray().toString(Charsets.UTF_8)
+                            val signHashRequest = Json.decodeFromString<SignHashRequestTO>(requestBody)
 
-                    assertEquals(
-                        mockCredential.credentialID.value,
-                        signHashRequest.credentialID,
-                        "Credential ID is not the expected one",
-                    )
+                            assertEquals(
+                                mockCredential.credentialID.value,
+                                signHashRequest.credentialID,
+                                "Credential ID is not the expected one",
+                            )
 
-                    assertEquals(
-                        mockDocumentDigestList.hashAlgorithmOID.value,
-                        signHashRequest.hashAlgorithmOID,
-                        "Hash algorithm OID not the expected one",
-                    )
+                            assertEquals(
+                                mockDocumentDigestList.hashAlgorithmOID.value,
+                                signHashRequest.hashAlgorithmOID,
+                                "Hash algorithm OID not the expected one",
+                            )
 
-                    assertEquals(
-                        SigningAlgorithmOID.RSA.value,
-                        signHashRequest.signAlgorithmOID,
-                        "Signing algorithm OID not the expected one",
-                    )
+                            assertEquals(
+                                SigningAlgorithmOID.RSA.value,
+                                signHashRequest.signAlgorithmOID,
+                                "Signing algorithm OID not the expected one",
+                            )
 
-                    assertEquals(
-                        mockDocumentDigestList.documentDigests[0].hash.asBase64(),
-                        signHashRequest.hashes[0],
-                        "Hash value is not the expected one",
-                    )
+                            assertEquals(
+                                mockDocumentDigestList.documentDigests[0].hash.asBase64(),
+                                signHashRequest.hashes[0],
+                                "Hash value is not the expected one",
+                            )
+                        }
+                    },
+                )
+
+            val signatures =
+                with(mockPublicClient(mockedKtorHttpClientFactory)) {
+                    with(mockCredentialAuthorizedSCAL2()) {
+                        signHash(SigningAlgorithmOID.RSA).getOrThrow()
+                    }
                 }
-            },
-        )
 
-        val signatures = with(mockPublicClient(mockedKtorHttpClientFactory)) {
-            with(mockCredentialAuthorizedSCAL2()) {
-                signHash(SigningAlgorithmOID.RSA).getOrThrow()
-            }
+            assertNotNull(signatures)
         }
-
-        assertNotNull(signatures)
-    }
 }

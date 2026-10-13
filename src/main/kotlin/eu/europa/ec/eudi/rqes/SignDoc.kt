@@ -28,7 +28,6 @@ data class ValidationInfo(
 )
 
 interface SignDoc {
-
     suspend fun CredentialAuthorized.SCAL1.signDoc(
         documents: List<DocumentToSign>,
         documentDigestList: DocumentDigestList,

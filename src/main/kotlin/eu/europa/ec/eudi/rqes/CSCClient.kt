@@ -29,7 +29,6 @@ interface CSCClient :
     SignDoc,
     CreateSignedDocuments,
     CalculateDocumentHashes {
-
     val rsspMetadata: RSSPMetadata
 
     companion object {
@@ -37,103 +36,115 @@ interface CSCClient :
             cscClientConfig: CSCClientConfig,
             rsspId: String,
             ktorHttpClientFactory: KtorHttpClientFactory = DefaultHttpClientFactory,
-        ): Result<CSCClient> = kotlin.runCatching {
-            val metadata =
-                run {
-                    val id = RSSPId(rsspId).getOrThrow()
-                    val resolver = RSSPMetadataResolver(ktorHttpClientFactory)
-                    resolver.resolve(id, cscClientConfig.locale).getOrThrow()
-                }
-            oauth2(cscClientConfig, metadata, ktorHttpClientFactory).getOrThrow()
-        }
+        ): Result<CSCClient> =
+            kotlin.runCatching {
+                val metadata =
+                    run {
+                        val id = RSSPId(rsspId).getOrThrow()
+                        val resolver = RSSPMetadataResolver(ktorHttpClientFactory)
+                        resolver.resolve(id, cscClientConfig.locale).getOrThrow()
+                    }
+                oauth2(cscClientConfig, metadata, ktorHttpClientFactory).getOrThrow()
+            }
 
         fun oauth2(
             cscClientConfig: CSCClientConfig,
             rsspMetadata: RSSPMetadata,
             ktorHttpClientFactory: KtorHttpClientFactory = DefaultHttpClientFactory,
-        ): Result<CSCClient> = runCatching {
-            val podofoManager = PodofoManager()
-            val oauth2AuthType =
-                requireNotNull(rsspMetadata.oauth2AuthType()) { "RSSP doesn't support OAUTH2" }
-            val authServerMetadata = oauth2AuthType.authorizationServers.first()
+        ): Result<CSCClient> =
+            runCatching {
+                val podofoManager = PodofoManager()
+                val oauth2AuthType =
+                    requireNotNull(rsspMetadata.oauth2AuthType()) { "RSSP doesn't support OAUTH2" }
+                val authServerMetadata = oauth2AuthType.authorizationServers.first()
 
-            val tokenEndpointClient = TokenEndpointClient(
-                checkNotNull(authServerMetadata.tokenEndpointURI).toURL(),
-                cscClientConfig,
-                ktorHttpClientFactory,
-            )
-
-            val authorizationEndpointClient =
-                if (GrantType.AUTHORIZATION_CODE in authServerMetadata.grantTypes) {
-                    AuthorizationEndpointClient(
-                        checkNotNull(authServerMetadata.authorizationEndpointURI).toURL(),
-                        authServerMetadata.pushedAuthorizationRequestEndpointURI?.toURL(),
-                        authServerMetadata.supportsRar(),
+                val tokenEndpointClient =
+                    TokenEndpointClient(
+                        checkNotNull(authServerMetadata.tokenEndpointURI).toURL(),
                         cscClientConfig,
                         ktorHttpClientFactory,
                     )
-                } else null
 
-            val authorizeServiceImpl = AuthorizeServiceImpl(
-                authorizationEndpointClient,
-                tokenEndpointClient,
-            )
+                val authorizationEndpointClient =
+                    if (GrantType.AUTHORIZATION_CODE in authServerMetadata.grantTypes) {
+                        AuthorizationEndpointClient(
+                            checkNotNull(authServerMetadata.authorizationEndpointURI).toURL(),
+                            authServerMetadata.pushedAuthorizationRequestEndpointURI?.toURL(),
+                            authServerMetadata.supportsRar(),
+                            cscClientConfig,
+                            ktorHttpClientFactory,
+                        )
+                    } else {
+                        null
+                    }
 
-            val credentialsInfoEndpointClient =
-                CredentialsInfoEndpointClient(
-                    rsspMetadata.rsspId.value.value,
-                    ktorHttpClientFactory,
-                )
+                val authorizeServiceImpl =
+                    AuthorizeServiceImpl(
+                        authorizationEndpointClient,
+                        tokenEndpointClient,
+                    )
 
-            val authorizeCredentialImpl = AuthorizeCredentialImpl(
-                authorizationEndpointClient,
-                tokenEndpointClient,
-                credentialsInfoEndpointClient,
-            )
+                val credentialsInfoEndpointClient =
+                    CredentialsInfoEndpointClient(
+                        rsspMetadata.rsspId.value.value,
+                        ktorHttpClientFactory,
+                    )
 
-            val credentialsListEndpointClient =
-                CredentialsListEndpointClient(
-                    rsspMetadata.rsspId.value.value,
-                    ktorHttpClientFactory,
-                )
+                val authorizeCredentialImpl =
+                    AuthorizeCredentialImpl(
+                        authorizationEndpointClient,
+                        tokenEndpointClient,
+                        credentialsInfoEndpointClient,
+                    )
 
-            val listCredentialsImpl = ListCredentials(credentialsListEndpointClient)
+                val credentialsListEndpointClient =
+                    CredentialsListEndpointClient(
+                        rsspMetadata.rsspId.value.value,
+                        ktorHttpClientFactory,
+                    )
 
-            val getCredentialInfoImpl = GetCredentialInfo(credentialsInfoEndpointClient)
+                val listCredentialsImpl = ListCredentials(credentialsListEndpointClient)
 
-            val signHashEndpointClient = SignHashEndpointClient(
-                rsspMetadata.rsspId.value.value,
-                ktorHttpClientFactory,
-            )
+                val getCredentialInfoImpl = GetCredentialInfo(credentialsInfoEndpointClient)
 
-            val signHashImpl = SignHashImpl(
-                signHashEndpointClient,
-            )
+                val signHashEndpointClient =
+                    SignHashEndpointClient(
+                        rsspMetadata.rsspId.value.value,
+                        ktorHttpClientFactory,
+                    )
 
-            val calculateDocumentHashesImpl = CalculateDocumentHashesImpl().also {
-                CalculateDocumentHashesImpl.initialize(podofoManager, cscClientConfig.tsaurl)
+                val signHashImpl =
+                    SignHashImpl(
+                        signHashEndpointClient,
+                    )
+
+                val calculateDocumentHashesImpl =
+                    CalculateDocumentHashesImpl().also {
+                        CalculateDocumentHashesImpl.initialize(podofoManager, cscClientConfig.tsaurl)
+                    }
+
+                val signDocImpl =
+                    SignDocImpl(
+                        signHashEndpointClient,
+                    )
+
+                val embedSignatureImpl =
+                    CreateSignedDocumentsImpl().also {
+                        CreateSignedDocumentsImpl.initialize(podofoManager, cscClientConfig)
+                    }
+
+                object :
+                    CSCClient,
+                    AuthorizeService by authorizeServiceImpl,
+                    AuthorizeCredential by authorizeCredentialImpl,
+                    ListCredentials by listCredentialsImpl,
+                    GetCredentialInfo by getCredentialInfoImpl,
+                    SignHash by signHashImpl,
+                    SignDoc by signDocImpl,
+                    CreateSignedDocuments by embedSignatureImpl,
+                    CalculateDocumentHashes by calculateDocumentHashesImpl {
+                    override val rsspMetadata: RSSPMetadata = rsspMetadata
+                }
             }
-
-            val signDocImpl = SignDocImpl(
-                signHashEndpointClient,
-            )
-
-            val embedSignatureImpl = CreateSignedDocumentsImpl().also {
-                CreateSignedDocumentsImpl.initialize(podofoManager, cscClientConfig)
-            }
-
-            object :
-                CSCClient,
-                AuthorizeService by authorizeServiceImpl,
-                AuthorizeCredential by authorizeCredentialImpl,
-                ListCredentials by listCredentialsImpl,
-                GetCredentialInfo by getCredentialInfoImpl,
-                SignHash by signHashImpl,
-                SignDoc by signDocImpl,
-                CreateSignedDocuments by embedSignatureImpl,
-                CalculateDocumentHashes by calculateDocumentHashesImpl {
-                override val rsspMetadata: RSSPMetadata = rsspMetadata
-            }
-        }
     }
 }

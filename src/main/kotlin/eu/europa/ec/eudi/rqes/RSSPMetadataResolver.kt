@@ -45,8 +45,7 @@ data class RSSPMetadataContent<T>(
     }
 }
 
-internal inline fun <reified T> RSSPMetadataContent<T>.oauth2AuthType(): OAuth2<T>? =
-    authTypes.filterIsInstance<OAuth2<T>>().firstOrNull()
+internal inline fun <reified T> RSSPMetadataContent<T>.oauth2AuthType(): OAuth2<T>? = authTypes.filterIsInstance<OAuth2<T>>().firstOrNull()
 
 /**
  * The metadata of a RSSP.
@@ -81,36 +80,53 @@ enum class Oauth2Grant {
 }
 
 sealed interface AuthType<out T> {
-    data class OAuth2<T>(val authorizationServers: Set<T>) : AuthType<T> {
+    data class OAuth2<T>(
+        val authorizationServers: Set<T>,
+    ) : AuthType<T> {
         init {
             require(authorizationServers.isNotEmpty()) { "At least one authorization server must be provided" }
         }
     }
 
     data object External : AuthType<Nothing>
+
     data object Basic : AuthType<Nothing>
+
     data object Digest : AuthType<Nothing>
+
     data object TLS : AuthType<Nothing>
 }
-internal inline fun <T, Y> AuthType<T>.map(f: (T) -> Y): AuthType<Y> = when (this) {
-    Basic -> Basic
-    Digest -> Digest
-    External -> External
-    is OAuth2 -> OAuth2(authorizationServers.map(f).toSet())
-    TLS -> TLS
-}
 
-sealed class RSSPMetadataError(cause: Throwable) : Throwable(cause), Serializable {
-    class NonParseableRSSPMetadata(cause: Throwable) : RSSPMetadataError(cause)
+internal inline fun <T, Y> AuthType<T>.map(f: (T) -> Y): AuthType<Y> =
+    when (this) {
+        Basic -> Basic
+        Digest -> Digest
+        External -> External
+        is OAuth2 -> OAuth2(authorizationServers.map(f).toSet())
+        TLS -> TLS
+    }
 
-    class UnableToFetchRSSPMetadata(cause: Throwable) : RSSPMetadataError(cause)
+sealed class RSSPMetadataError(
+    cause: Throwable,
+) : Throwable(cause),
+    Serializable {
+    class NonParseableRSSPMetadata(
+        cause: Throwable,
+    ) : RSSPMetadataError(cause)
+
+    class UnableToFetchRSSPMetadata(
+        cause: Throwable,
+    ) : RSSPMetadataError(cause)
 }
 
 fun interface RSSPMetadataResolver {
     /**
      * Resolves the metadata of the RSSP with the given [rsspId].
      */
-    suspend fun resolve(rsspId: RSSPId, lang: Locale?): Result<RSSPMetadata>
+    suspend fun resolve(
+        rsspId: RSSPId,
+        lang: Locale?,
+    ): Result<RSSPMetadata>
 
     companion object {
         /**

@@ -26,97 +26,104 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class TokenEndpointClientTest {
+    @Test
+    fun `should return token when not using RAR`() =
+        runTest {
+            // Given
+            val authCode = AuthorizationCode(UUID.randomUUID().toString())
+            val credentialAuthorizationSubject = mockCredentialAuthorizationSubject()
+
+            val expectedAccessToken = AccessToken(UUID.randomUUID().toString())
+            val mockedKtorHttpClientFactory =
+                mockedKtorHttpClientFactory(
+                    RequestMocker(
+                        requestMatcher = match(URI("http://localhost:8080/token"), HttpMethod.Post),
+                        responseBuilder = {
+                            respond(
+                                content =
+                                    """
+                                    {
+                                        "access_token": "${expectedAccessToken.accessToken}"
+                                    }
+                                    """.trimIndent(),
+                                status = HttpStatusCode.OK,
+                                headers = headersOf(HttpHeaders.ContentType to listOf("application/json")),
+                            )
+                        },
+                    ),
+                )
+
+            val endpoint = tokenEndpointClient(mockedKtorHttpClientFactory, RarUsage.Never)
+
+            // When
+            val result =
+                endpoint.requestAccessTokenAuthFlow(
+                    authCode,
+                    mockPKCEVerifier(),
+                    CredentialAuthorizationRequestType.PassByAuthorizationDetails(credentialAuthorizationSubject),
+                )
+
+            // Then
+            assert(result.isSuccess)
+            assertEquals(expectedAccessToken.accessToken, result.getOrThrow().accessToken.accessToken)
+        }
 
     @Test
-    fun `should return token when not using RAR`() = runTest {
-        // Given
-        val authCode = AuthorizationCode(UUID.randomUUID().toString())
-        val credentialAuthorizationSubject = mockCredentialAuthorizationSubject()
+    fun `should return token when using RAR`() =
+        runTest {
+            // Given
+            val authCode = AuthorizationCode(UUID.randomUUID().toString())
+            val credentialAuthorizationSubject = mockCredentialAuthorizationSubject()
 
-        val expectedAccessToken = AccessToken(UUID.randomUUID().toString())
-        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
-            RequestMocker(
-                requestMatcher = match(URI("http://localhost:8080/token"), HttpMethod.Post),
-                responseBuilder = {
-                    respond(
-                        content = """
-                            {
-                                "access_token": "${expectedAccessToken.accessToken}"
-                            }
-                        """.trimIndent(),
-                        status = HttpStatusCode.OK,
-                        headers = headersOf(HttpHeaders.ContentType to listOf("application/json")),
-                    )
-                },
-            ),
-        )
+            val expectedAccessToken = AccessToken(UUID.randomUUID().toString())
+            val mockedKtorHttpClientFactory =
+                mockedKtorHttpClientFactory(
+                    RequestMocker(
+                        requestMatcher = match(URI("http://localhost:8080/token"), HttpMethod.Post),
+                        responseBuilder = {
+                            respond(
+                                content =
+                                    """
+                                    {
+                                        "access_token": "${expectedAccessToken.accessToken}",
+                                        "token_type": "Bearer",
+                                        "expires_in": 300,
+                                        "authorization_details": [{
+                                            "type": "credential",
+                                            "credentialID": "83c7c559-db74-48da-aacc-d439d415cb81",
+                                            "numSignatures": 1,
+                                            "documentDigests": [{
+                                                "hash": "${credentialAuthorizationSubject.documentDigestList?.documentDigests[0]?.hash?.asBase64()}",
+                                                "label": "${credentialAuthorizationSubject.documentDigestList?.documentDigests[0]?.label}"
+                                            }, {
+                                                "hash": "${credentialAuthorizationSubject.documentDigestList?.documentDigests[1]?.hash?.asBase64()}",
+                                                "label": "${credentialAuthorizationSubject.documentDigestList?.documentDigests[1]?.label}"
+                                            }],
+                                            "hashAlgorithmOID":"2.16.840.1.101.3.4.2.1"
+                                        }]
+                                    }
+                                    """.trimIndent(),
+                                status = HttpStatusCode.OK,
+                                headers = headersOf(HttpHeaders.ContentType to listOf("application/json")),
+                            )
+                        },
+                    ),
+                )
 
-        val endpoint = tokenEndpointClient(mockedKtorHttpClientFactory, RarUsage.Never)
+            val endpoint = tokenEndpointClient(mockedKtorHttpClientFactory, RarUsage.Required)
 
-        // When
-        val result = endpoint.requestAccessTokenAuthFlow(
-            authCode,
-            mockPKCEVerifier(),
-            CredentialAuthorizationRequestType.PassByAuthorizationDetails(credentialAuthorizationSubject),
-        )
+            // When
+            val result =
+                endpoint.requestAccessTokenAuthFlow(
+                    authCode,
+                    mockPKCEVerifier(),
+                    CredentialAuthorizationRequestType.PassByAuthorizationDetails(credentialAuthorizationSubject),
+                )
 
-        // Then
-        assert(result.isSuccess)
-        assertEquals(expectedAccessToken.accessToken, result.getOrThrow().accessToken.accessToken)
-    }
-
-    @Test
-    fun `should return token when using RAR`() = runTest {
-        // Given
-        val authCode = AuthorizationCode(UUID.randomUUID().toString())
-        val credentialAuthorizationSubject = mockCredentialAuthorizationSubject()
-
-        val expectedAccessToken = AccessToken(UUID.randomUUID().toString())
-        val mockedKtorHttpClientFactory = mockedKtorHttpClientFactory(
-            RequestMocker(
-                requestMatcher = match(URI("http://localhost:8080/token"), HttpMethod.Post),
-                responseBuilder = {
-                    respond(
-                        content = """
-                            {
-                                "access_token": "${expectedAccessToken.accessToken}",
-                                "token_type": "Bearer",
-                                "expires_in": 300,
-                                "authorization_details": [{
-                                    "type": "credential",
-                                    "credentialID": "83c7c559-db74-48da-aacc-d439d415cb81",
-                                    "numSignatures": 1,
-                                    "documentDigests": [{
-                                        "hash": "${credentialAuthorizationSubject.documentDigestList?.documentDigests[0]?.hash?.asBase64()}",
-                                        "label": "${credentialAuthorizationSubject.documentDigestList?.documentDigests[0]?.label}"
-                                    }, {
-                                        "hash": "${credentialAuthorizationSubject.documentDigestList?.documentDigests[1]?.hash?.asBase64()}",
-                                        "label": "${credentialAuthorizationSubject.documentDigestList?.documentDigests[1]?.label}"
-                                    }],
-                                    "hashAlgorithmOID":"2.16.840.1.101.3.4.2.1"
-                                }]
-                            }
-                        """.trimIndent(),
-                        status = HttpStatusCode.OK,
-                        headers = headersOf(HttpHeaders.ContentType to listOf("application/json")),
-                    )
-                },
-            ),
-        )
-
-        val endpoint = tokenEndpointClient(mockedKtorHttpClientFactory, RarUsage.Required)
-
-        // When
-        val result = endpoint.requestAccessTokenAuthFlow(
-            authCode,
-            mockPKCEVerifier(),
-            CredentialAuthorizationRequestType.PassByAuthorizationDetails(credentialAuthorizationSubject),
-        )
-
-        // Then
-        assert(result.isSuccess)
-        assertEquals(expectedAccessToken.accessToken, result.getOrThrow().accessToken.accessToken)
-    }
+            // Then
+            assert(result.isSuccess)
+            assertEquals(expectedAccessToken.accessToken, result.getOrThrow().accessToken.accessToken)
+        }
 
     private fun tokenEndpointClient(
         clientFactory: KtorHttpClientFactory,
@@ -132,9 +139,7 @@ class TokenEndpointClientTest {
         clientFactory,
     )
 
-    private fun mockPKCEVerifier(): PKCEVerifier {
-        return PKCEVerifier(UUID.randomUUID().toString(), UUID.randomUUID().toString())
-    }
+    private fun mockPKCEVerifier(): PKCEVerifier = PKCEVerifier(UUID.randomUUID().toString(), UUID.randomUUID().toString())
 
     private fun mockCredentialAuthorizationSubject(): CredentialAuthorizationSubject {
         val credentialID = CredentialID("83c7c559-db74-48da-aacc-d439d415cb81")
@@ -143,7 +148,10 @@ class TokenEndpointClientTest {
         return credentialAuthorizationSubject(credentialID, listOf(hash1, hash2))
     }
 
-    private fun credentialAuthorizationSubject(credentialID: CredentialID, hashes: List<Digest>) = CredentialAuthorizationSubject(
+    private fun credentialAuthorizationSubject(
+        credentialID: CredentialID,
+        hashes: List<Digest>,
+    ) = CredentialAuthorizationSubject(
         CredentialRef.ByCredentialID(credentialID),
         DocumentDigestList(
             hashes.mapIndexed { index, hash ->

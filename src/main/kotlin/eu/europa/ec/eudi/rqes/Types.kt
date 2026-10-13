@@ -24,14 +24,18 @@ import java.time.Instant
 import java.util.*
 
 @JvmInline
-value class CredentialID(val value: String) {
+value class CredentialID(
+    val value: String,
+) {
     init {
         require(value.isNotBlank()) { "CredentialID must not be blank" }
     }
 }
 
 @JvmInline
-value class SignatureQualifier(val value: String) {
+value class SignatureQualifier(
+    val value: String,
+) {
     init {
         require(value.isNotBlank()) { "SignatureQualifier must not be blank" }
     }
@@ -49,8 +53,13 @@ value class SignatureQualifier(val value: String) {
 }
 
 sealed interface CredentialRef {
-    data class ByCredentialID(val credentialID: CredentialID) : CredentialRef
-    data class BySignatureQualifier(val signatureQualifier: SignatureQualifier) : CredentialRef
+    data class ByCredentialID(
+        val credentialID: CredentialID,
+    ) : CredentialRef
+
+    data class BySignatureQualifier(
+        val signatureQualifier: SignatureQualifier,
+    ) : CredentialRef
 }
 
 data class DocumentDigest(
@@ -60,7 +69,9 @@ data class DocumentDigest(
 )
 
 @JvmInline
-value class HashAlgorithmOID(val value: String) {
+value class HashAlgorithmOID(
+    val value: String,
+) {
     init {
         require(value.isNotBlank()) { "HashAlgorithmOID must not be blank" }
     }
@@ -80,7 +91,9 @@ value class HashAlgorithmOID(val value: String) {
 }
 
 @JvmInline
-value class SigningAlgorithmOID(val value: String) {
+value class SigningAlgorithmOID(
+    val value: String,
+) {
     init {
         require(value.isNotBlank()) { "AlgorithmOID must not be blank" }
     }
@@ -111,14 +124,17 @@ data class DocumentDigestList(
 }
 
 sealed interface Digest {
-
     val value: String
 
     fun raw(): ByteArray
+
     fun asBase64(): String
+
     fun asBase64URLEncoded(): String
 
-    data class Base64Digest(override val value: String) : Digest {
+    data class Base64Digest(
+        override val value: String,
+    ) : Digest {
         init {
             require(value.isNotBlank()) { "Digest must not be blank" }
             require(value.isBase64encoded()) { "Digest must be a valid Base64 encoded string" }
@@ -130,11 +146,15 @@ sealed interface Digest {
         }
 
         override fun raw(): ByteArray = Base64.getDecoder().decode(value)
+
         override fun asBase64(): String = value
+
         override fun asBase64URLEncoded(): String = Base64.getUrlEncoder().withoutPadding().encodeToString(raw())
     }
 
-    data class URLEncodedBase64Digest(override val value: String) : Digest {
+    data class URLEncodedBase64Digest(
+        override val value: String,
+    ) : Digest {
         init {
             require(value.isNotBlank()) { "Digest must not be blank" }
             require(URLDecoder.decode(value, Charsets.UTF_8.toString()).isBase64encoded()) {
@@ -143,7 +163,9 @@ sealed interface Digest {
         }
 
         override fun raw(): ByteArray = Base64.getDecoder().decode(URLDecoder.decode(value, Charsets.UTF_8.toString()))
+
         override fun asBase64(): String = URLDecoder.decode(value, Charsets.UTF_8.toString())
+
         override fun asBase64URLEncoded(): String = Base64.getUrlEncoder().withoutPadding().encodeToString(raw())
     }
 
@@ -205,20 +227,21 @@ enum class HashType {
 }
 
 @JvmInline
-value class Description(val value: String) {
+value class Description(
+    val value: String,
+) {
     init {
         require(value.length <= 500) { "Description cannot be longer than 500 characters" }
     }
 }
 
 @JvmInline
-value class RSSPId private constructor(val value: HttpsUrl) {
-
-    override fun toString(): String =
-        value.value.toString()
+value class RSSPId private constructor(
+    val value: HttpsUrl,
+) {
+    override fun toString(): String = value.value.toString()
 
     companion object {
-
         /**
          * Parses the provided [value] as an [HttpsUrl] and tries to create a [RSSPId].
          */
@@ -238,20 +261,21 @@ typealias CSCAuthorizationServerMetadata = ReadOnlyAuthorizationServerMetadata
  * A [URI] that strictly uses the 'https' protocol.
  */
 @JvmInline
-value class HttpsUrl private constructor(val value: URL) {
-
+value class HttpsUrl private constructor(
+    val value: URL,
+) {
     override fun toString(): String = value.toString()
 
     companion object {
-
         /**
          * Parses the provided [value] as a [URI] and tries creates a new [HttpsUrl].
          */
-        operator fun invoke(value: String): Result<HttpsUrl> = runCatching {
-            val uri = URI.create(value)
-            require(uri.scheme.contentEquals("https", true)) { "URL must use https protocol" }
-            HttpsUrl(uri.toURL())
-        }
+        operator fun invoke(value: String): Result<HttpsUrl> =
+            runCatching {
+                val uri = URI.create(value)
+                require(uri.scheme.contentEquals("https", true)) { "URL must use https protocol" }
+                HttpsUrl(uri.toURL())
+            }
     }
 }
 
@@ -284,20 +308,26 @@ data class OAuth2Tokens(
 interface CanExpire {
     val expiresIn: Duration?
 
-    fun isExpired(issued: Instant, at: Instant): Boolean {
+    fun isExpired(
+        issued: Instant,
+        at: Instant,
+    ): Boolean {
         require(issued.isBefore(at) || issued == at) { "At should be after or equal to $issued" }
         val expiresIn = expiresIn
         return if (expiresIn != null) {
             val expiration = issued.plusSeconds(expiresIn.toMillis() / 1000)
             !expiration.isAfter(at)
-        } else false
+        } else {
+            false
+        }
     }
 }
 
 data class AccessToken(
     val accessToken: String,
     override val expiresIn: Duration?,
-) : CanExpire, java.io.Serializable {
+) : CanExpire,
+    java.io.Serializable {
     init {
         require(accessToken.isNotEmpty()) { "Access Token must not be empty" }
         if (expiresIn != null) {
@@ -312,7 +342,8 @@ data class AccessToken(
 data class RefreshToken(
     val refreshToken: String,
     override val expiresIn: Duration?,
-) : CanExpire, java.io.Serializable {
+) : CanExpire,
+    java.io.Serializable {
     init {
         require(refreshToken.isNotEmpty()) { "Refresh Token must not be empty" }
         if (expiresIn != null) {
@@ -325,7 +356,9 @@ data class RefreshToken(
 }
 
 @JvmInline
-value class Scope(val value: String) {
+value class Scope(
+    val value: String,
+) {
     init {
         require(value.isNotEmpty()) { "Scope value cannot be empty" }
     }
@@ -339,7 +372,9 @@ value class Scope(val value: String) {
 }
 
 @JvmInline
-value class AuthorizationCode(val code: String) {
+value class AuthorizationCode(
+    val code: String,
+) {
     init {
         require(code.isNotBlank()) { "Authorization code must not be blank" }
     }
@@ -393,7 +428,9 @@ data class SignaturesList(
 }
 
 @JvmInline
-value class Signature(val value: String) {
+value class Signature(
+    val value: String,
+) {
     init {
         require(value.isNotEmpty()) { "Signature value must not be empty" }
     }

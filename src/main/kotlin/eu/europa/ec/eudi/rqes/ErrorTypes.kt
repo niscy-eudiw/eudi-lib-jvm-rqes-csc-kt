@@ -15,8 +15,9 @@
  */
 package eu.europa.ec.eudi.rqes
 
-sealed class RQESError(message: String) : Throwable(message) {
-
+sealed class RQESError(
+    message: String,
+) : Throwable(message) {
     /**
      * Failure when placing Pushed Authorization Request to Authorization Server
      */
@@ -34,8 +35,9 @@ sealed class RQESError(message: String) : Throwable(message) {
     ) : RQESError("$error+${errorDescription?.let { " description=$it" }}")
 }
 
-sealed class AuthorizationError(message: String) : Throwable(message) {
-
+sealed class AuthorizationError(
+    message: String,
+) : Throwable(message) {
     /**
      * Indicates that the state returned by the authorization server doesn't match the state
      * included which was included in the authorization request, during authorization code flow

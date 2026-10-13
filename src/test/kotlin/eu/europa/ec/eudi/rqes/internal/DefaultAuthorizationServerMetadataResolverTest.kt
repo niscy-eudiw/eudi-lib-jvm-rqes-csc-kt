@@ -27,45 +27,49 @@ import kotlin.test.Test
 import kotlin.test.assertIs
 
 internal class DefaultAuthorizationServerMetadataResolverTest {
-
     @Test
-    internal fun `resolution success with compliant oidc well-known url`() = runTest {
-        val issuer = HttpsUrl("https://keycloak.relying-party.com/realms/pid-issuer-realm")
-            .getOrThrow()
+    internal fun `resolution success with compliant oidc well-known url`() =
+        runTest {
+            val issuer =
+                HttpsUrl("https://keycloak.relying-party.com/realms/pid-issuer-realm")
+                    .getOrThrow()
 
-        val resolver = mockResolver(
-            RequestMocker(
-                match(
-                    URI.create("https://keycloak.relying-party.com/.well-known/openid-configuration/realms/pid-issuer-realm"),
-                ),
-                jsonResponse("eu/europa/ec/eudi/rqes/internal/oidc_authorization_server_metadata.json"),
-            ),
-        )
-        val metadata = resolver.resolve(issuer).getOrThrow()
-
-        assertIs<OIDCProviderMetadata>(metadata)
-    }
-
-    @Test
-    internal fun `resolution success with compliant oauth2 well-known url`() = runTest {
-        val issuer = HttpsUrl("https://keycloak.relying-party.com/realms/pid-issuer-realm")
-            .getOrThrow()
-
-        val resolver = mockResolver(
-            RequestMocker(
-                match(
-                    URI.create(
-                        "https://keycloak.relying-party.com/.well-known/oauth-authorization-server/realms/pid-issuer-realm",
+            val resolver =
+                mockResolver(
+                    RequestMocker(
+                        match(
+                            URI.create("https://keycloak.relying-party.com/.well-known/openid-configuration/realms/pid-issuer-realm"),
+                        ),
+                        jsonResponse("eu/europa/ec/eudi/rqes/internal/oidc_authorization_server_metadata.json"),
                     ),
-                ),
-                jsonResponse("eu/europa/ec/eudi/rqes/internal/oauth_authorization_server_metadata.json"),
-            ),
-        )
-        val metadata = resolver.resolve(issuer).getOrThrow()
+                )
+            val metadata = resolver.resolve(issuer).getOrThrow()
 
-        assertIs<AuthorizationServerMetadata>(metadata)
-    }
+            assertIs<OIDCProviderMetadata>(metadata)
+        }
+
+    @Test
+    internal fun `resolution success with compliant oauth2 well-known url`() =
+        runTest {
+            val issuer =
+                HttpsUrl("https://keycloak.relying-party.com/realms/pid-issuer-realm")
+                    .getOrThrow()
+
+            val resolver =
+                mockResolver(
+                    RequestMocker(
+                        match(
+                            URI.create(
+                                "https://keycloak.relying-party.com/.well-known/oauth-authorization-server/realms/pid-issuer-realm",
+                            ),
+                        ),
+                        jsonResponse("eu/europa/ec/eudi/rqes/internal/oauth_authorization_server_metadata.json"),
+                    ),
+                )
+            val metadata = resolver.resolve(issuer).getOrThrow()
+
+            assertIs<AuthorizationServerMetadata>(metadata)
+        }
 }
 
-private fun mockResolver(mocker: RequestMocker) =
-    AuthorizationServerMetadataResolver(mockedKtorHttpClientFactory(mocker))
+private fun mockResolver(mocker: RequestMocker) = AuthorizationServerMetadataResolver(mockedKtorHttpClientFactory(mocker))
