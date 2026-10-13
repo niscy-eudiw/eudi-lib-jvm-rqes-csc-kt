@@ -51,7 +51,6 @@ dependencies {
     api(libs.ktor.serialization.kotlinx.json)
     implementation(libs.uri.kmp)
     implementation(libs.eudi.podofo)
-    implementation(libs.ktor.client.okhttp)
 
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.jsoup)
@@ -61,6 +60,7 @@ dependencies {
     testImplementation(libs.ktor.server.content.negotiation)
     testImplementation(libs.ktor.client.mock)
     testImplementation(libs.ktor.client.logging)
+    testImplementation(libs.ktor.client.okhttp)
 }
 
 spotless {
